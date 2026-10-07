@@ -80,6 +80,7 @@ public partial class FpsVerticalSlice : Node3D
 	public override void _Ready()
 	{
 		EnsureTuningResources();
+		CloneGameplayTuningResources();
 		SyncTuningResourceBindings();
 		SyncDefenseBindings();
 
@@ -101,7 +102,8 @@ public partial class FpsVerticalSlice : Node3D
 
 		if (IsDefenseMap)
 		{
-			string controls = IsHillMap ? "Defend the summit room. The North Gate faces the horde at the foot of the hill. F: shop. N: start wave. Q/E: shapes." : "Defend the core from the north lane. F opens nearby shops. N starts the next wave. Q/E switches shapes.";
+			string controls = UsesFortifications ? "Defend four gates. Ramps beside each gate lead to the wall walk. F: shop. N: start wave. `: live tuning."
+				: IsHillMap ? "Defend the summit room. F: shop. N: start wave. Q/E: shapes. `: live gameplay tuning and crowd tests." : "Defend the core from the north lane. F: shop. N: start wave. Q/E: shapes. `: gameplay tuning.";
 			if (_recoveredModulators.Count > 0) controls += $" {_recoveredModulators.Count} incompatible parts are available for installation on another shape at the shop.";
 			ShowNotice(controls, 7f);
 			return;
@@ -116,6 +118,7 @@ public partial class FpsVerticalSlice : Node3D
 	public override void _ExitTree()
 	{
 		TeardownDebugPanel();
+		TeardownGameplayTuningMenu();
 		UnbindTuningResourceBindings();
 		UnbindDefenseSettings();
 	}
@@ -123,6 +126,8 @@ public partial class FpsVerticalSlice : Node3D
 	public override void _Process(double delta)
 	{
 		float dt = (float)delta;
+		TickGameplayTuningMetrics(dt);
+		TickGameplayTuningMenu(dt);
 
 		SyncTuningResourceBindings();
 		SyncDefenseBindings();
@@ -131,7 +136,7 @@ public partial class FpsVerticalSlice : Node3D
 		TickDefenseRun(dt);
 		FlushHordeDeaths();
 
-		if (IsCombatRunning() && !_shopOpen && _player.TryConsumeFireRequest(GetCurrentWeaponCooldownSeconds(), out Vector3 shotOrigin, out Vector3 shotDirection))
+		if (IsCombatRunning() && !_shopOpen && !_gameplayTuningVisible && _player.TryConsumeFireRequest(GetCurrentWeaponCooldownSeconds(), out Vector3 shotOrigin, out Vector3 shotDirection))
 		{
 			FireCurrentWeapon(shotOrigin, shotDirection);
 		}
@@ -149,8 +154,37 @@ public partial class FpsVerticalSlice : Node3D
 		}
 	}
 
+	public override void _Input(InputEvent @event)
+	{
+		// These shortcuts must work even while a text field owns GUI keyboard focus.
+		if (HandleGameplayTuningHotkey(@event) ||
+			(_weaponInspectionOpen && @event is InputEventKey { Pressed: true, Echo: false, Keycode: Key.Escape } && HandleWeaponInspectionInput(@event)))
+			GetViewport().SetInputAsHandled();
+	}
+
+	private bool HandleGameplayTuningHotkey(InputEvent @event)
+	{
+		if (@event is not InputEventKey key || !key.Pressed || key.Echo) return false;
+		if (key.Keycode is Key.Quoteleft or Key.Asciitilde || key.PhysicalKeycode == Key.Quoteleft)
+		{
+			if (_weaponInspectionOpen) CloseWeaponInspectionToPreviousMenu(false);
+			if (_shopOpen) CloseDefenseShop();
+			if (_debugPanelVisible) SetDebugPanelVisible(false);
+			SetGameplayTuningVisible(!_gameplayTuningVisible);
+			return true;
+		}
+		if (_gameplayTuningVisible && key.Keycode == Key.Escape)
+		{
+			SetGameplayTuningVisible(false);
+			return true;
+		}
+		return false;
+	}
+
 	public override void _UnhandledInput(InputEvent @event)
 	{
+		if (HandleGameplayTuningHotkey(@event) || _gameplayTuningVisible) return;
+		if (HandleWeaponInspectionInput(@event)) return;
 		if (HandleDefenseInput(@event)) return;
 		if (_shopOpen) return;
 		if (HandleWeaponInput(@event))
@@ -274,6 +308,8 @@ public partial class FpsVerticalSlice : Node3D
 			// Pickups belong to the run, and must survive geometry live-apply.
 			SweepDefenseLoot();
 			BuildDefenseMap();
+			RebuildDefenseGates();
+			RefreshHillWorldExtent();
 			if (IsHillMap && _player != null && GodotObject.IsInstanceValid(_player))
 			{
 				Vector3 grounded = ResolveDefenseGroundPosition(_player.GlobalPosition);
@@ -329,6 +365,7 @@ public partial class FpsVerticalSlice : Node3D
 		};
 		if (IsHillMap) _player.Position = ResolveDefenseGroundPosition(_player.Position) + Vector3.Up * 0.1f;
 		AddChild(_player);
+		RefreshHillWorldExtent();
 
 		_player.HealthChanged += OnPlayerHealthChanged;
 		_player.Died += OnPlayerDied;
@@ -354,6 +391,7 @@ public partial class FpsVerticalSlice : Node3D
 
 	private void ResetWaveRuntime()
 	{
+		_manualHordeTesting = false;
 		_currentWaveNumber = 0;
 		_nextWaveIndex = 0;
 		_waitingForNextWave = false;
@@ -473,6 +511,13 @@ public partial class FpsVerticalSlice : Node3D
 				float effectiveWidth = IsHillMap ? lane.Width : Mathf.Clamp(lane.Width, 8f, Mathf.Max(14f, DefenseSettings.CourtyardHalfSize) * 2f - 6f);
 				int fittingColumns = Mathf.Max(1, Mathf.FloorToInt((effectiveWidth - 2f) / spacing) + 1);
 				int columns = Mathf.Min(count, Mathf.Clamp(spawn.FormationColumns, 1, fittingColumns));
+				if (IsHillMap && HordeManager != null)
+				{
+					float radius = spawn.Role == FpsEnemyRole.Striker ? StrikerArchetypeSettings!.CollisionRadius : BruiserArchetypeSettings!.CollisionRadius;
+					foreach (Vector3 position in BuildBoundedHillFormation(count, radius, spawn.Position, columns, spacing, lane.Outward))
+						if (SpawnEnemy(position, spawn.Role, $"{spawnName}_W{waveNumber}_{spawnedCount}", scaling)) spawnedCount++;
+					continue;
+				}
 				Vector3 across = new(-lane.Outward.Z, 0f, lane.Outward.X);
 				for (int member = 0; member < count; member++)
 				{
@@ -480,14 +525,12 @@ public partial class FpsVerticalSlice : Node3D
 					int rowCount = Mathf.Min(columns, count - row * columns);
 					Vector3 position = spawn.Position + across * ((member % columns - (rowCount - 1) * 0.5f) * spacing) + lane.Outward * (row * spacing) * (IsHillMap ? 1f : -1f);
 					if (IsHillMap) position.Y = SampleHillSurfaceHeight(position);
-					SpawnEnemy(position, spawn.Role, $"{spawnName}_W{waveNumber}_{member}", scaling);
-					spawnedCount++;
+					if (SpawnEnemy(position, spawn.Role, $"{spawnName}_W{waveNumber}_{member}", scaling)) spawnedCount++;
 				}
 			}
 			else
 			{
-				SpawnEnemy(spawn.Position, spawn.Role, $"{spawnName}_W{waveNumber}", scaling);
-				spawnedCount++;
+				if (SpawnEnemy(spawn.Position, spawn.Role, $"{spawnName}_W{waveNumber}", scaling)) spawnedCount++;
 			}
 		}
 
@@ -538,17 +581,17 @@ public partial class FpsVerticalSlice : Node3D
 		return new FpsWaveScaling(healthMultiplier, damageMultiplier, moveSpeedMultiplier, attackCadenceMultiplier);
 	}
 
-	private void SpawnEnemy(Vector3 position, FpsEnemyRole role, string name, in FpsWaveScaling scaling)
+	private bool SpawnEnemy(Vector3 position, FpsEnemyRole role, string name, in FpsWaveScaling scaling)
 	{
 		if (HordeManager != null)
 		{
 			FpsEnemyArchetypeSettings archetype = role == FpsEnemyRole.Bruiser ? BruiserArchetypeSettings! : StrikerArchetypeSettings!;
 			FpsHordeHandle handle = HordeManager.Spawn(archetype, role, position, scaling.HealthMultiplier, scaling.DamageMultiplier, scaling.MoveSpeedMultiplier, scaling.AttackCadenceMultiplier);
-			if (!HordeManager.TryGet(handle, out _)) return;
+			if (!HordeManager.TryGet(handle, out _)) return false;
 			FpsHordeCombatEnemy target = new(HordeManager, handle);
 			_hordeTargets.Add(handle, target);
 			_combatEnemies.Add(target);
-			return;
+			return true;
 		}
 		FpsSliceEnemy enemy = new()
 		{
@@ -564,6 +607,7 @@ public partial class FpsVerticalSlice : Node3D
 		enemy.SetCombatEnabled(IsCombatRunning());
 		_enemies.Add(enemy);
 		_combatEnemies.Add(enemy);
+		return true;
 	}
 
 	private void OnPlayerShotFired(Vector3 origin, Vector3 direction)
@@ -587,7 +631,7 @@ public partial class FpsVerticalSlice : Node3D
 		GodotObject? collider = result["collider"].AsGodotObject();
 		if (collider is FpsSliceEnemy enemy)
 		{
-			enemy.ApplyDamage(_player.ShotDamage);
+			DealDirectionalDamageToEnemy(enemy, _player.ShotDamage, result["position"].AsVector3(), null, false, false, direction);
 			ShowNotice("Direct hit.", 0.20f);
 			return;
 		}
@@ -610,6 +654,12 @@ public partial class FpsVerticalSlice : Node3D
 
 	private void HandleWaveCleared()
 	{
+		if (_manualHordeTesting)
+		{
+			SweepDefenseLoot();
+			ShowNotice("Test crowd cleared. Use ` to spawn another population.", 3f);
+			return;
+		}
 		if (IsDefenseMap)
 		{
 			SweepDefenseLoot();
@@ -644,7 +694,7 @@ public partial class FpsVerticalSlice : Node3D
 
 	private void TickWaveFlow(float dt)
 	{
-		if (!_waitingForNextWave || !IsCombatRunning() || _shopOpen)
+		if (_manualHordeTesting || !_waitingForNextWave || !IsCombatRunning() || _shopOpen)
 		{
 			return;
 		}
@@ -755,6 +805,7 @@ public partial class FpsVerticalSlice : Node3D
 		_combatEnemies.Clear();
 		_hordeTargets.Clear();
 		HordeManager?.Clear();
+		CorpsePool?.Clear();
 		_projectiles.Clear();
 		ResetWeaponEffectRuntimeState();
 
@@ -769,6 +820,8 @@ public partial class FpsVerticalSlice : Node3D
 
 	private void ApplyEnemyArchetypesToActiveEnemies()
 	{
+		if (BruiserArchetypeSettings != null && StrikerArchetypeSettings != null)
+			HordeManager?.ApplyArchetypes(BruiserArchetypeSettings, StrikerArchetypeSettings);
 		for (int enemyIndex = 0; enemyIndex < _enemies.Count; enemyIndex++)
 		{
 			FpsSliceEnemy enemy = _enemies[enemyIndex];
@@ -1112,8 +1165,8 @@ public partial class FpsVerticalSlice : Node3D
 		PanelContainer overlayPanel = new()
 		{
 			Name = "OverlayPanel",
-			CustomMinimumSize = new Vector2(480f, 280f),
-			Position = new Vector2(560f, 290f),
+			AnchorLeft = 0.5f, AnchorRight = 0.5f, AnchorTop = 0.5f, AnchorBottom = 0.5f,
+			OffsetLeft = -365f, OffsetRight = 365f, OffsetTop = -175f, OffsetBottom = 175f,
 			MouseFilter = Control.MouseFilterEnum.Stop,
 		};
 		StyleBoxFlat panelStyle = new()
@@ -1163,18 +1216,24 @@ public partial class FpsVerticalSlice : Node3D
 		_overlayBody.AddThemeFontSizeOverride("font_size", 18);
 		overlayContent.AddChild(_overlayBody);
 
-		HBoxContainer buttonRow = new()
+		GridContainer buttonRow = new()
 		{
 			Name = "ButtonRow",
-			Alignment = BoxContainer.AlignmentMode.Center,
+			Columns = 3,
 			MouseFilter = Control.MouseFilterEnum.Stop,
 		};
-		buttonRow.AddThemeConstantOverride("separation", 12);
+		buttonRow.AddThemeConstantOverride("h_separation", 12);
+		buttonRow.AddThemeConstantOverride("v_separation", 12);
 		overlayContent.AddChild(buttonRow);
 
 		_resumeButton = CreateOverlayButton("Resume");
 		_resumeButton.Pressed += OnResumePressed;
 		buttonRow.AddChild(_resumeButton);
+
+		_inventoryButton = CreateOverlayButton("Inventory / Equipment");
+		_inventoryButton.Name = "InventoryButton";
+		_inventoryButton.Pressed += OpenWeaponInspection;
+		buttonRow.AddChild(_inventoryButton);
 
 		_restartButton = CreateOverlayButton("Restart");
 		_restartButton.Pressed += OnRestartPressed;
@@ -1189,13 +1248,16 @@ public partial class FpsVerticalSlice : Node3D
 		buttonRow.AddChild(_returnButton);
 
 		BuildDebugPanel(hudRoot);
+		BuildGameplayTuningMenu(hudRoot);
+		BuildWeaponInspection(hudRoot);
 	}
 
 	private void RefreshCombatState()
 	{
 		bool combatRunning = IsCombatRunning();
-		_player.SetCombatEnabled(combatRunning && !_shopOpen);
+		_player.SetCombatEnabled(combatRunning && !_shopOpen && !_gameplayTuningVisible && !_weaponInspectionOpen);
 		HordeManager?.SetCombatEnabled(combatRunning);
+		CorpsePool?.Tick(0f, !_pauseRequested);
 
 		for (int enemyIndex = 0; enemyIndex < _enemies.Count; enemyIndex++)
 		{
@@ -1219,6 +1281,8 @@ public partial class FpsVerticalSlice : Node3D
 		{
 			return;
 		}
+		_crosshairLabel.Visible = combatRunning && !_shopOpen && !_gameplayTuningVisible && !_weaponInspectionOpen;
+		if (_inventoryButton != null) _inventoryButton.Disabled = _victory || _defeat;
 
 		if (_victory)
 		{
@@ -1230,7 +1294,8 @@ public partial class FpsVerticalSlice : Node3D
 		}
 		else if (_pauseRequested)
 		{
-			ShowOverlay("Slice Paused", "Resume combat, restart the breach room, or return to the hub.", true);
+			if (_weaponInspectionOpen) _overlayBackdrop.Visible = false;
+			else ShowOverlay("Slice Paused", "Inspect your equipped shape, resume combat, or return to the hub.", true);
 		}
 		else
 		{
@@ -1242,7 +1307,7 @@ public partial class FpsVerticalSlice : Node3D
 
 	private bool IsCombatRunning()
 	{
-		return !_pauseRequested && !_victory && !_defeat;
+		return !_pauseRequested && !_weaponInspectionOpen && !_victory && !_defeat;
 	}
 
 	private void UpdateHud()
@@ -1360,8 +1425,15 @@ public partial class FpsVerticalSlice : Node3D
 	{
 		foreach (Node child in parent.GetChildren())
 		{
+			DisableArenaCollision(child);
 			child.QueueFree();
 		}
+	}
+
+	private static void DisableArenaCollision(Node node)
+	{
+		if (node is CollisionObject3D body) { body.CollisionLayer = 0; body.CollisionMask = 0; }
+		foreach (Node child in node.GetChildren()) DisableArenaCollision(child);
 	}
 
 	private static void CreateArenaBlock(Node3D parent, string name, Vector3 size, Vector3 position, Color color)

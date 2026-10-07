@@ -88,8 +88,9 @@ public partial class FpsVerticalSlice
 		}
 		if (_defenseHud != null && _defenseCore != null)
 		{
-			string shop = IsDefenseShopAvailable ? (IsNearDefenseShop() ? "F: open field shop" : IsHillMap ? "Shop available inside the summit room" : "Field shop available in the west bay") : "Shop returns after more kills";
-			_defenseHud.Text = $"CORE {Mathf.CeilToInt(_defenseCore.CurrentHealth)}/{Mathf.CeilToInt(_defenseCore.MaxHealth)}   |   COINS {_defenseCoins}\n{shop}{(_waitingForNextWave ? "   |   N: start next wave" : string.Empty)}";
+			string shop = IsDefenseShopAvailable ? (IsNearDefenseShop() ? "F: open field shop" : UsesFortifications ? "Shop available near the central core" : IsHillMap ? "Shop available inside the summit room" : "Field shop available in the west bay") : "Shop returns after more kills";
+			string gates = UsesFortifications ? $"\n{DefenseGateStatus()}" : string.Empty;
+			_defenseHud.Text = $"CORE {Mathf.CeilToInt(_defenseCore.CurrentHealth)}/{Mathf.CeilToInt(_defenseCore.MaxHealth)}   |   COINS {_defenseCoins}\n{shop}{(_waitingForNextWave ? "   |   N: start next wave" : string.Empty)}{gates}";
 		}
 	}
 
@@ -234,6 +235,10 @@ public partial class FpsVerticalSlice
 		_shopBalance = AddShopLabel(string.Empty, 18);
 		EquipmentItem? weapon = GetCurrentWeapon();
 		AddShopLabel($"{weapon?.Shape?.DisplayName} / Level {weapon?.Level} / Modulators {weapon?.Modulators.Count}/{weapon?.UnlockedModulatorSlots}", 20);
+		Button inspect = CreateOverlayButton("Inventory / inspect equipped shape");
+		inspect.Name = "InspectWeaponButton";
+		inspect.Pressed += OpenWeaponInspection;
+		_shopContent.AddChild(inspect);
 		HBoxContainer switchRow = new();
 		_shopContent.AddChild(switchRow);
 		foreach (int step in new[] { -1, 1 })

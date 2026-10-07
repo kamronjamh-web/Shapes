@@ -16,6 +16,7 @@ public interface IFpsCombatEnemy
 	bool IsAlive { get; }
 	bool IsValid { get; }
 	void ApplyDamage(float damage);
+	void ApplyDamageFrom(float damage, Vector3 travelDirection) => ApplyDamage(damage);
 	void MoveBy(Vector3 displacement);
 }
 
@@ -52,5 +53,6 @@ public sealed class FpsHordeCombatEnemy : IFpsCombatEnemy
 	public bool IsAlive => IsManagerValid && Manager.TryGet(Handle, out FpsHordeEnemySnapshot current) && current.CurrentHealth > 0f;
 	public bool IsValid => IsAlive;
 	public void ApplyDamage(float damage) { if (IsManagerValid) Manager.ApplyDamage(Handle, damage); }
+	public void ApplyDamageFrom(float damage, Vector3 travelDirection) { if (IsManagerValid) Manager.ApplyDamageFrom(Handle, damage, travelDirection); }
 	public void MoveBy(Vector3 displacement) { if (IsManagerValid) Manager.TryMoveBy(Handle, displacement); }
 }

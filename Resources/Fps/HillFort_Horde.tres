@@ -5,11 +5,11 @@
 [resource]
 script = ExtResource("1")
 Enabled = true
-Capacity = 1000
+Capacity = 2000
 SimulationHz = 30.0
 DecisionHz = 6.0
 GridCellSize = 3.0
-MapExtent = 200.0
+MapExtent = 1609.344
 SeparationRadius = 1.4
 MaxSeparationNeighbors = 12
 PlayerAggroRadius = 6.0

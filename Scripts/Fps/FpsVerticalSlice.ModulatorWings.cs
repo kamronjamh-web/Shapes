@@ -47,25 +47,43 @@ public partial class FpsVerticalSlice
 	{
 		if (!IsCombatRunning() || !_player.IsAlive || dt <= 0f || !float.IsFinite(dt)) return;
 		_fpsWingTime += dt;
-		_fpsWingRetiredTargets.Clear();
-		foreach (IFpsCombatEnemy target in _fpsWingPreviousPositions.Keys)
-			if (!target.IsAlive) _fpsWingRetiredTargets.Add(target);
-		foreach (IFpsCombatEnemy target in _fpsWingRetiredTargets)
-		{
-			_fpsWingPreviousPositions.Remove(target);
-			_fpsWingVelocities.Remove(target);
-		}
-		foreach (IFpsCombatEnemy target in _combatEnemies)
-		{
-			if (!target.IsAlive) continue;
-			Vector3 position = target.GlobalPosition;
-			Vector3 velocity = _fpsWingPreviousPositions.TryGetValue(target, out Vector3 previous) ? (position - previous) / dt : Vector3.Zero;
-			// Only horizontal motion is led; aiming remains above the sampled hill surface.
-			velocity.Y = 0f;
-			_fpsWingVelocities[target] = velocity.IsFinite() ? velocity.LimitLength(30f) : Vector3.Zero;
-			_fpsWingPreviousPositions[target] = position;
-		}
 		EquipmentItem? primary = GetCurrentWeapon();
+		bool trackTargets = false;
+		for (int slot = 1; slot < _arsenal.Count && !trackTargets; slot++)
+		{
+			EquipmentItem support = _arsenal[slot];
+			string behavior = GetFpsWingBehavior(support);
+			trackTargets = support.Shape != null && !ReferenceEquals(support, primary)
+				&& behavior is "wing_woman" or "wing_brother" or "wing_sister";
+		}
+		if (trackTargets)
+		{
+			_fpsWingRetiredTargets.Clear();
+			foreach (IFpsCombatEnemy target in _fpsWingPreviousPositions.Keys)
+				if (!target.IsAlive) _fpsWingRetiredTargets.Add(target);
+			foreach (IFpsCombatEnemy target in _fpsWingRetiredTargets)
+			{
+				_fpsWingPreviousPositions.Remove(target);
+				_fpsWingVelocities.Remove(target);
+			}
+			foreach (IFpsCombatEnemy target in _combatEnemies)
+			{
+				if (!target.IsAlive) continue;
+				Vector3 position = target.GlobalPosition;
+				Vector3 velocity = _fpsWingPreviousPositions.TryGetValue(target, out Vector3 previous) ? (position - previous) / dt : Vector3.Zero;
+				// Only horizontal motion is led; aiming remains above the sampled hill surface.
+				velocity.Y = 0f;
+				_fpsWingVelocities[target] = velocity.IsFinite() ? velocity.LimitLength(30f) : Vector3.Zero;
+				_fpsWingPreviousPositions[target] = position;
+			}
+		}
+		else
+		{
+			// A newly activated aiming wing starts with zero lead instead of stale inactive motion.
+			_fpsWingPreviousPositions.Clear();
+			_fpsWingVelocities.Clear();
+			_fpsWingRetiredTargets.Clear();
+		}
 		for (int slot = 1; slot < _arsenal.Count; slot++)
 		{
 			EquipmentItem support = _arsenal[slot];

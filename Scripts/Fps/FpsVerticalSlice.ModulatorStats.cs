@@ -88,7 +88,7 @@ public partial class FpsVerticalSlice
 			if (next == null) break;
 			visited.Add(next);
 			damage *= 0.85f;
-			DealDamageToEnemy(next, damage, next.HeadPosition, source, false, false);
+			DealDirectionalDamageToEnemy(next, damage, next.HeadPosition, source, false, false, next.HeadPosition - origin);
 			SpawnPulse(next.HeadPosition, 0.4f, 0.12f, GetWeaponAccentColor(source.Shape!.AttackType));
 			origin = next.HeadPosition;
 		}

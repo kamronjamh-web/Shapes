@@ -47,6 +47,7 @@ public partial class ValidateFpsModulators : Node
 	private async Task LoadCrowd()
 	{
 		_map = GD.Load<PackedScene>("res://Scenes/Fps/NorthGate.tscn").Instantiate<FpsVerticalSlice>();
+		LegacyHillFixture.Configure(_map);
 		// Duplicate tuning before scene initialization; disk resources remain untouched.
 		_map.BruiserArchetypeSettings = (FpsEnemyArchetypeSettings)_map.BruiserArchetypeSettings!.Duplicate(true);
 		_map.BruiserArchetypeSettings.MaxHealth = 1000000f;

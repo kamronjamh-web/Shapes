@@ -23,6 +23,10 @@ public partial class ValidateHillHorde : Node
 		{
 			Check(OS.GetUserDataDir().Replace('\\', '/').Contains("/.tmp/hill-horde-validation/"), "Validation uses isolated save data");
 			await Run();
+			await Unload();
+			GC.Collect();
+			GC.WaitForPendingFinalizers();
+			await PhysicsFrames(2);
 			GD.Print($"Hill horde validation passed: {_checks} checks.");
 			GetTree().Quit();
 		}
@@ -116,8 +120,18 @@ public partial class ValidateHillHorde : Node
 		// Relocate two real records onto a clear flat test firing line; no mocked targets.
 		enemies = Alive(crowd);
 		FpsHordeHandle front = enemies[0].Handle, rear = enemies[1].Handle;
-		crowd.TrySetPosition(front, new Vector3(60f, 0f, -76f));
-		crowd.TrySetPosition(rear, new Vector3(60f, 0f, -82f));
+		void PlaceOnFiringLine(FpsHordeHandle handle, Vector3 destination)
+		{
+			// Naturally piled records may be inside the room. Stage over its roof so the
+			// wall-constrained relocation API does not leave the firing fixture at a wall.
+			crowd.TryGet(handle, out FpsHordeEnemySnapshot current);
+			float aboveRoof = hill.SummitHeight + hill.RoomWallHeight + 3f;
+			crowd.TrySetPosition(handle, new Vector3(current.Position.X, aboveRoof, current.Position.Z));
+			crowd.TrySetPosition(handle, new Vector3(destination.X, aboveRoof, destination.Z));
+			crowd.TrySetPosition(handle, destination);
+		}
+		PlaceOnFiringLine(front, new Vector3(60f, 0f, -76f));
+		PlaceOnFiringLine(rear, new Vector3(60f, 0f, -82f));
 		crowd.TryGet(front, out FpsHordeEnemySnapshot frontBefore);
 		crowd.TryGet(rear, out FpsHordeEnemySnapshot rearBefore);
 		EquipmentItem weapon = (EquipmentItem)Invoke("GetCurrentWeapon")!;
@@ -260,13 +274,17 @@ public partial class ValidateHillHorde : Node
 	{
 		if (_map != null) await Unload();
 		_map = GD.Load<PackedScene>(path).Instantiate<FpsVerticalSlice>();
+		LegacyHillFixture.Configure(_map);
 		AddChild(_map);
 		await PhysicsFrames(4);
 	}
 	private async Task Unload()
 	{
-		RemoveChild(_map);
-		_map.QueueFree();
+		FpsVerticalSlice? map = _map;
+		_map = null!;
+		if (!GodotObject.IsInstanceValid(map)) return;
+		if (map!.GetParent() == this) RemoveChild(map);
+		map.QueueFree();
 		await PhysicsFrames(3);
 	}
 	private async Task PhysicsFrames(int count)

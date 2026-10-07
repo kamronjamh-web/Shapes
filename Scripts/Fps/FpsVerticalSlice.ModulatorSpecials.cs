@@ -142,11 +142,15 @@ public partial class FpsVerticalSlice
 		}
 	}
 	private void OnFpsChainCompleted(IFpsCombatEnemy? original, EquipmentItem weapon, float initialDamage)
+		=> OnFpsChainCompletedFromOrigin(original, weapon, initialDamage, _player.HeadPosition);
+
+	private void OnFpsChainCompletedFromOrigin(IFpsCombatEnemy? original, EquipmentItem weapon, float initialDamage, Vector3 returnOrigin)
 	{
 		WeaponModulatorEffectData? config = GetFpsTransformConfig(weapon, "closed_circuit");
 		if (original == null || config == null) return;
 		float damage = initialDamage * FpsSpecialMagnitude(config.Magnitude, 0.5f);
-		QueueFpsSpecial(0.12f, () => DealFpsSecondary(() => DealDamageToEnemy(original, damage, original.HeadPosition, weapon, false, false)));
+		// Capture the final arc's origin at fire time; moving the player cannot change its impulse.
+		QueueFpsSpecial(0.12f, () => DealFpsSecondary(() => DealDirectionalDamageToEnemy(original, damage, original.HeadPosition, weapon, false, false, original.HeadPosition - returnOrigin)));
 	}
 
 	private void SpawnFpsSpecialZone(EquipmentItem weapon, Vector3 position, float radius, float duration, float damage)
@@ -354,7 +358,7 @@ public partial class FpsVerticalSlice
 			DealFpsSecondary(() =>
 			{
 				foreach (IFpsCombatEnemy nearby in QueryCombatRadius(position, radius))
-					if (nearby.IsAlive) DealDamageToEnemy(nearby, damage * 0.5f, nearby.HeadPosition, source, critical, false);
+					if (nearby.IsAlive) DealDirectionalDamageToEnemy(nearby, damage * 0.5f, nearby.HeadPosition, source, critical, false, nearby.CollisionCenter - position);
 			});
 		}
 		WeaponModulatorEffectData? pack = GetFpsTransformConfig(source, "pack_hunters");
@@ -376,7 +380,7 @@ public partial class FpsVerticalSlice
 					IFpsCombatEnemy? next = FindNearestEnemy(point, cascade.Range, visited, true);
 					if (next == null) break;
 					visited.Add(next);
-					DealDamageToEnemy(next, damage * cascade.DamageScale, next.HeadPosition, source, true, false);
+					DealDirectionalDamageToEnemy(next, damage * cascade.DamageScale, next.HeadPosition, source, true, false, next.HeadPosition - point);
 					SpawnPulse(next.HeadPosition, 0.75f, 0.12f, GetWeaponAccentColor(WeaponAttackType.ChainLightning));
 					point = next.HeadPosition;
 				}
@@ -391,7 +395,7 @@ public partial class FpsVerticalSlice
 				IFpsCombatEnemy? followup = FindNearestEnemy(position, omni.SearchRange, null, true);
 				if (followup != null)
 				{
-					DealFpsSecondary(() => DealDamageToEnemy(followup, damage * omni.DamageScale, followup.HeadPosition, source, critical, false));
+					DealFpsSecondary(() => DealDirectionalDamageToEnemy(followup, damage * omni.DamageScale, followup.HeadPosition, source, critical, false, followup.HeadPosition - position));
 					SpawnPulse(followup.HeadPosition, 3.4f, 0.22f, new Color(0.56f, 0.84f, 1f));
 				}
 			}

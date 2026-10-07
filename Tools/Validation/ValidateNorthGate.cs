@@ -36,6 +36,7 @@ public partial class ValidateNorthGate : Node
 	private async Task Run()
 	{
 		_map = GD.Load<PackedScene>("res://Scenes/Fps/NorthGateLaneSandbox.tscn").Instantiate<FpsVerticalSlice>();
+		LegacyHillFixture.Configure(_map);
 		AddChild(_map);
 		await Frames(3);
 		FpsDefenseSettings settings = _map.DefenseSettings!;
@@ -135,6 +136,7 @@ public partial class ValidateNorthGate : Node
 		_map.QueueFree();
 		await Frames(3);
 		_map = GD.Load<PackedScene>("res://Scenes/Fps/NorthGate.tscn").Instantiate<FpsVerticalSlice>();
+		LegacyHillFixture.Configure(_map);
 		AddChild(_map);
 		await Frames(3);
 		core = Field<FpsDefenseCore>("_defenseCore");
@@ -154,6 +156,7 @@ public partial class ValidateNorthGate : Node
 		_map.QueueFree();
 		await Frames(3);
 		_map = GD.Load<PackedScene>("res://Scenes/Fps/FpsVerticalSlice.tscn").Instantiate<FpsVerticalSlice>();
+		LegacyHillFixture.Configure(_map);
 		AddChild(_map);
 		await Frames(3);
 		Check(!_map.IsDefenseMap && Enemies().Count == 3 && Field<int>("_currentWaveNumber") == 1, "The original FPS sandbox still starts its existing encounter");

@@ -4,13 +4,17 @@
 
 [resource]
 script = ExtResource("1")
-PlayableSize = 200.0
+PlayableSize = 1609.344
 SummitHeight = 8.0
-SummitHalfSize = 16.0
-HillFootHalfSize = 65.0
-RoomHalfSize = 12.0
-DoorWidth = 8.0
-RoofEnabled = true
-EastDoorEnabled = false
-SouthDoorEnabled = false
-WestDoorEnabled = false
+SummitHalfSize = 102.0
+HillFootHalfSize = 220.0
+RoomHalfSize = 100.0
+RoomWallHeight = 6.096
+DoorWidth = 4.572
+DoorHeight = 5.4864
+RoofEnabled = false
+EastDoorEnabled = true
+SouthDoorEnabled = true
+WestDoorEnabled = true
+FortificationsEnabled = true
+GateMaxHealth = 1000.0
