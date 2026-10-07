@@ -1,0 +1,48 @@
+[gd_resource type="Resource" script_class="FpsDefenseSettings" load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://Scripts/Fps/FpsDefenseSettings.cs" id="1"]
+[ext_resource type="Script" path="res://Scripts/Fps/FpsDefenseLaneSettings.cs" id="2"]
+
+[sub_resource type="Resource" id="North"]
+script = ExtResource("2")
+Direction = 0
+Enabled = true
+Width = 20.0
+Length = 60.0
+AccentColor = Color(1, 0.65, 0.22, 1)
+
+[sub_resource type="Resource" id="East"]
+script = ExtResource("2")
+Direction = 1
+Enabled = false
+
+[sub_resource type="Resource" id="South"]
+script = ExtResource("2")
+Direction = 2
+Enabled = false
+
+[sub_resource type="Resource" id="West"]
+script = ExtResource("2")
+Direction = 3
+Enabled = false
+
+[resource]
+script = ExtResource("1")
+MapName = "North Gate"
+CourtyardHalfSize = 24.0
+Lanes = Array[ExtResource("2")]([SubResource("North"), SubResource("East"), SubResource("South"), SubResource("West")])
+CorePosition = Vector3(0, 0, 6)
+ShopPosition = Vector3(-13, 0, 12)
+CoreMaxHealth = 600.0
+PlayerAggroRadius = 6.0
+PreparationSeconds = 20.0
+CoinsPerEnemy = 5
+WeaponDropChance = 0.06
+ModulatorDropChance = 0.1
+CombatShopKillInterval = 8
+CombatShopDuration = 25.0
+RepairPrice = 25
+RepairAmount = 120.0
+WeaponUpgradePrice = 40
+ModulatorPrice = 20
+ShapePrice = 30

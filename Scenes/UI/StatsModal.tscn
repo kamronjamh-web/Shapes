@@ -1,0 +1,108 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/UI/StatsModalUI.cs" id="1"]
+
+[node name="StatsModal" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1")
+CloseOnBackgroundClick = true
+CloseButton = NodePath("ModalPanel/VBox/Buttons/CloseButton")
+RarityDistributionText = NodePath("ModalPanel/VBox/Content/Left/RarityText")
+ShapeDistributionText = NodePath("ModalPanel/VBox/Content/Left/ShapeText")
+ModifierDistributionText = NodePath("ModalPanel/VBox/Content/Right/ModifierText")
+RecentHistoryText = NodePath("ModalPanel/VBox/Content/Right/RecentText")
+ClearHistoryButton = NodePath("ModalPanel/VBox/Buttons/ClearHistoryButton")
+
+[node name="Backdrop" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.6)
+
+[node name="ModalPanel" type="Panel" parent="."]
+custom_minimum_size = Vector2(1180, 640)
+layout_mode = 0
+offset_left = 210.0
+offset_top = 120.0
+offset_right = 1390.0
+offset_bottom = 760.0
+
+[node name="VBox" type="VBoxContainer" parent="ModalPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 18.0
+offset_top = 18.0
+offset_right = -18.0
+offset_bottom = -18.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="ModalPanel/VBox"]
+layout_mode = 2
+text = "Stats & History"
+horizontal_alignment = 1
+
+[node name="Content" type="HBoxContainer" parent="ModalPanel/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+
+[node name="Left" type="VBoxContainer" parent="ModalPanel/VBox/Content"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 8
+
+[node name="RarityText" type="RichTextLabel" parent="ModalPanel/VBox/Content/Left"]
+layout_mode = 2
+size_flags_vertical = 3
+bbcode_enabled = false
+text = "RARITY"
+
+[node name="ShapeText" type="RichTextLabel" parent="ModalPanel/VBox/Content/Left"]
+layout_mode = 2
+size_flags_vertical = 3
+bbcode_enabled = false
+text = "SHAPES"
+
+[node name="Right" type="VBoxContainer" parent="ModalPanel/VBox/Content"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 8
+
+[node name="ModifierText" type="RichTextLabel" parent="ModalPanel/VBox/Content/Right"]
+layout_mode = 2
+size_flags_vertical = 3
+bbcode_enabled = false
+text = "MODIFIERS"
+
+[node name="RecentText" type="RichTextLabel" parent="ModalPanel/VBox/Content/Right"]
+layout_mode = 2
+size_flags_vertical = 3
+bbcode_enabled = false
+text = "RECENT"
+
+[node name="Buttons" type="HBoxContainer" parent="ModalPanel/VBox"]
+layout_mode = 2
+alignment = 2
+theme_override_constants/separation = 10
+
+[node name="ClearHistoryButton" type="Button" parent="ModalPanel/VBox/Buttons"]
+layout_mode = 2
+text = "Clear History"
+
+[node name="CloseButton" type="Button" parent="ModalPanel/VBox/Buttons"]
+layout_mode = 2
+text = "Close"

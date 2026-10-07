@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="ShapeData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/Equipment/Data/ShapeData.cs" id="1"]
+
+[resource]
+script = ExtResource("1")
+Key = "circle"
+DisplayName = "Circle"
+ShapeGroup = 0
+Weight = 20.0
+Stars = 1
+AttackType = 1
+AttackName = "Sawblade"
+Hits = 5
+DamagePerHit = 40.0
+TotalDamage = 200.0
+Cooldown = 1.5
+SpecialDescription = "Launches a spinning sawblade that pierces enemies."
+Description = "Launches a spinning sawblade that pierces enemies."

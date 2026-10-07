@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="ShapeData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/Equipment/Data/ShapeData.cs" id="1"]
+
+[resource]
+script = ExtResource("1")
+Key = "boys"
+DisplayName = "Boy's Surface"
+ShapeGroup = 3
+Weight = 0.25
+Stars = 4
+AttackType = 15
+AttackName = "Shadow Clones"
+Hits = 1
+DamagePerHit = 180.0
+TotalDamage = 180.0
+Cooldown = 7.0
+SpecialDescription = "Summons temporary shadow clones that replay attacks."
+Description = "Summons temporary shadow clones that replay attacks."

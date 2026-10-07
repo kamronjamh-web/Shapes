@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="ShapeData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/Equipment/Data/ShapeData.cs" id="1"]
+
+[resource]
+script = ExtResource("1")
+Key = "tesseract"
+DisplayName = "Tesseract"
+ShapeGroup = 2
+Weight = 0.75
+Stars = 3
+AttackType = 8
+AttackName = "Dimension Rift"
+Hits = 1
+DamagePerHit = 200.0
+TotalDamage = 200.0
+Cooldown = 4.0
+SpecialDescription = "Opens a pulsing rift zone."
+Description = "Opens a pulsing rift zone."

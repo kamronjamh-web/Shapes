@@ -1,0 +1,36 @@
+[gd_resource type="Resource" script_class="FpsArenaLayoutSettings" format=3 uid="uid://dll5v8xb1swcl"]
+
+[ext_resource type="Script" uid="uid://5l2lpxdbqqg2" path="res://Scripts/Fps/FpsArenaLayoutSettings.cs" id="1"]
+[ext_resource type="Script" uid="uid://br6mf33vjl1f1" path="res://Scripts/Fps/FpsArenaBlockSettings.cs" id="1_1ywib"]
+
+[sub_resource type="Resource" id="Resource_m2v2m"]
+script = ExtResource("1_1ywib")
+BlockName = "CenterCoverA"
+Size = Vector3(4, 4, 4)
+Position = Vector3(-8, 2, -2)
+Color = Color(0.18, 0.18, 0.24, 1)
+
+[sub_resource type="Resource" id="Resource_ej2vt"]
+script = ExtResource("1_1ywib")
+BlockName = "CenterCoverB"
+Size = Vector3(4, 4, 4)
+Position = Vector3(8, 2, 4)
+Color = Color(0.18, 0.18, 0.24, 1)
+
+[sub_resource type="Resource" id="Resource_5icpn"]
+script = ExtResource("1_1ywib")
+BlockName = "SideCoverA"
+Size = Vector3(3.2, 3, 3.2)
+Position = Vector3(-17, 1.5, 12)
+Color = Color(0.15, 0.17, 0.22, 1)
+
+[sub_resource type="Resource" id="Resource_03gt8"]
+script = ExtResource("1_1ywib")
+BlockName = "SideCoverB"
+Size = Vector3(3.2, 3, 3.2)
+Position = Vector3(16, 1.5, -13)
+Color = Color(0.15, 0.17, 0.22, 1)
+
+[resource]
+script = ExtResource("1")
+HalfWidth = 98.0

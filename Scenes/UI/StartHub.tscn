@@ -1,0 +1,227 @@
+[gd_scene load_steps=12 format=3]
+
+[ext_resource type="Script" path="res://Scripts/UI/StartHubUI.cs" id="1"]
+[ext_resource type="PackedScene" path="res://Scenes/Hub/HubCharacterPreview.tscn" id="2"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/GachaModal.tscn" id="3"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/InventoryModal.tscn" id="4"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/SettingsModal.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/StatsModal.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/PlayerIdentityModal.tscn" id="7"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/DebugPasswordModal.tscn" id="8"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/DebugForgeModal.tscn" id="9"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/DebugPanel.tscn" id="10"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/SkillTreeModal.tscn" id="11"]
+
+[node name="StartHub" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1")
+RollButton = NodePath("BottomBar/RollButton")
+InventoryButton = NodePath("BottomBar/InventoryButton")
+SkillTreeButton = NodePath("BottomBar/SkillTreeButton")
+AutoRollButton = NodePath("BottomBar/AutoRollButton")
+DebugForgeButton = NodePath("BottomBar/DebugForgeButton")
+ArenaButton = NodePath("TopRow/ArenaButton")
+FpsSliceButton = NodePath("TopRow/FpsSliceButton")
+SettingsButton = NodePath("BottomBar/SettingsButton")
+StatsButton = NodePath("BottomBar/StatsButton")
+PlayerIdentityButton = NodePath("BottomBar/PlayerIdentityButton")
+DebugAccessButton = NodePath("BottomBar/DebugAccessButton")
+RollCurrencyLabel = NodePath("TopRow/CurrencyRow/RollValue")
+FatedRollCurrencyLabel = NodePath("TopRow/CurrencyRow/FatedValue")
+DebugIndicatorLabel = NodePath("DebugIndicator/DebugIndicatorLabel")
+DebugIndicator = NodePath("DebugIndicator")
+PlayerNameLabel = NodePath("TopRow/IdentityInfo/PlayerNameValue")
+AvatarLabel = NodePath("TopRow/IdentityInfo/AvatarValue")
+HubPreviewController = NodePath("Center/PreviewContainer/PreviewViewport/HubPreview")
+GachaModalScene = ExtResource("3")
+InventoryModalScene = ExtResource("4")
+SkillTreeModalScene = ExtResource("11")
+SettingsModalScene = ExtResource("5")
+StatsModalScene = ExtResource("6")
+PlayerIdentityModalScene = ExtResource("7")
+DebugPasswordModalScene = ExtResource("8")
+DebugPanelScene = ExtResource("10")
+DebugForgeModalScene = ExtResource("9")
+ArenaScenePath = "res://Scenes/Main.tscn"
+FpsSliceScenePath = "res://Scenes/Fps/NorthGate.tscn"
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.0470588, 0.0627451, 0.121569, 1)
+
+[node name="TopRow" type="HBoxContainer" parent="."]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 18.0
+offset_right = 1580.0
+offset_bottom = 82.0
+theme_override_constants/separation = 14
+
+[node name="TitleLabel" type="Label" parent="TopRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(280, 0)
+text = "Shapes"
+
+[node name="IdentityInfo" type="VBoxContainer" parent="TopRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(240, 0)
+
+[node name="PlayerNameValue" type="Label" parent="TopRow/IdentityInfo"]
+layout_mode = 2
+text = "Player"
+
+[node name="AvatarValue" type="Label" parent="TopRow/IdentityInfo"]
+layout_mode = 2
+text = "Avatar 0"
+
+[node name="SpacerLeft" type="Control" parent="TopRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ArenaButton" type="Button" parent="TopRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(200, 48)
+text = "Arena"
+
+[node name="FpsSliceButton" type="Button" parent="TopRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(200, 48)
+text = "North Gate"
+
+[node name="SpacerRight" type="Control" parent="TopRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="CurrencyRow" type="HBoxContainer" parent="TopRow"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="RollLabel" type="Label" parent="TopRow/CurrencyRow"]
+layout_mode = 2
+text = "Rolls:"
+
+[node name="RollValue" type="Label" parent="TopRow/CurrencyRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(60, 0)
+text = "0"
+
+[node name="FatedLabel" type="Label" parent="TopRow/CurrencyRow"]
+layout_mode = 2
+text = "Fated:"
+
+[node name="FatedValue" type="Label" parent="TopRow/CurrencyRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(60, 0)
+text = "0"
+
+[node name="Center" type="Control" parent="."]
+layout_mode = 0
+offset_left = 260.0
+offset_top = 100.0
+offset_right = 1340.0
+offset_bottom = 720.0
+
+[node name="CharacterLabel" type="Label" parent="Center"]
+layout_mode = 0
+offset_left = 420.0
+offset_top = 0.0
+offset_right = 660.0
+offset_bottom = 36.0
+text = "Your Character"
+horizontal_alignment = 1
+
+[node name="PreviewContainer" type="SubViewportContainer" parent="Center"]
+layout_mode = 0
+offset_left = 90.0
+offset_top = 44.0
+offset_right = 990.0
+offset_bottom = 580.0
+stretch = true
+
+[node name="PreviewViewport" type="SubViewport" parent="Center/PreviewContainer"]
+size = Vector2i(1280, 720)
+transparent_bg = false
+handle_input_locally = false
+own_world_3d = true
+render_target_update_mode = 4
+
+[node name="HubPreview" parent="Center/PreviewContainer/PreviewViewport" instance=ExtResource("2")]
+
+[node name="BottomBar" type="HBoxContainer" parent="."]
+layout_mode = 0
+offset_left = 24.0
+offset_top = 792.0
+offset_right = 1576.0
+offset_bottom = 876.0
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="RollButton" type="Button" parent="BottomBar"]
+layout_mode = 2
+text = "Roll"
+
+[node name="InventoryButton" type="Button" parent="BottomBar"]
+layout_mode = 2
+text = "Inventory"
+
+[node name="SkillTreeButton" type="Button" parent="BottomBar"]
+layout_mode = 2
+text = "Skill Tree"
+
+[node name="AutoRollButton" type="Button" parent="BottomBar"]
+layout_mode = 2
+text = "Auto Roll"
+visible = false
+
+[node name="DebugForgeButton" type="Button" parent="BottomBar"]
+layout_mode = 2
+text = "Debug Forge"
+visible = false
+
+[node name="SettingsButton" type="Button" parent="BottomBar"]
+layout_mode = 2
+text = "Settings"
+
+[node name="StatsButton" type="Button" parent="BottomBar"]
+layout_mode = 2
+text = "Stats"
+
+[node name="PlayerIdentityButton" type="Button" parent="BottomBar"]
+layout_mode = 2
+text = "Identity"
+
+[node name="DebugAccessButton" type="Button" parent="BottomBar"]
+layout_mode = 2
+text = "Debug"
+
+[node name="DebugIndicator" type="Panel" parent="."]
+layout_mode = 0
+offset_left = 24.0
+offset_top = 734.0
+offset_right = 620.0
+offset_bottom = 782.0
+visible = false
+
+[node name="DebugIndicatorLabel" type="Label" parent="DebugIndicator"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = 10.0
+offset_right = -10.0
+offset_bottom = -10.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "DEBUG ACTIVE"

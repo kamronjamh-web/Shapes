@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="ShapeVisualSettings" format=3 uid="uid://gjh2dsm64rxb"]
+
+[ext_resource type="Script" uid="uid://bqnd8doam5cil" path="res://Scripts/Shapes/ShapeVisualSettings.cs" id="1_k4u40"]
+
+[resource]
+script = ExtResource("1_k4u40")
+NeutralCelBaseColor = Color(0.17640659, 0.18282798, 0.20649964, 1)
+NeutralCelShadowColor = Color(0.03510897, 0.054233603, 0.13047618, 1)
+OutlineBaseDarkColor = Color(0, 0, 0, 1)
+OutlineTintMix = 1.0
+OutlineTintDarken = 0.0

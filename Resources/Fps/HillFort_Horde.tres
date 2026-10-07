@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="FpsHordeSettings" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/Fps/FpsHordeSettings.cs" id="1"]
+
+[resource]
+script = ExtResource("1")
+Enabled = true
+Capacity = 1000
+SimulationHz = 30.0
+DecisionHz = 6.0
+GridCellSize = 3.0
+MapExtent = 200.0
+SeparationRadius = 1.4
+MaxSeparationNeighbors = 12
+PlayerAggroRadius = 6.0
+CoreContactRadius = 0.5

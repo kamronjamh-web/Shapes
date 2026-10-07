@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="ShapeData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/Equipment/Data/ShapeData.cs" id="1"]
+
+[resource]
+script = ExtResource("1")
+Key = "impossiblecube"
+DisplayName = "Impossible Cube"
+ShapeGroup = 3
+Weight = 0.25
+Stars = 4
+AttackType = 12
+AttackName = "Void Singularity"
+Hits = 1
+DamagePerHit = 300.0
+TotalDamage = 300.0
+Cooldown = 6.0
+SpecialDescription = "Creates a black hole that pulls and crushes enemies."
+Description = "Creates a black hole that pulls and crushes enemies."

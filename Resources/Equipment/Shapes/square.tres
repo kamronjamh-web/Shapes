@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="ShapeData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/Equipment/Data/ShapeData.cs" id="1"]
+
+[resource]
+script = ExtResource("1")
+Key = "square"
+DisplayName = "Square"
+ShapeGroup = 0
+Weight = 20.0
+Stars = 1
+AttackType = 0
+AttackName = "Flat Strike"
+Hits = 1
+DamagePerHit = 80.0
+TotalDamage = 80.0
+Cooldown = 1.0
+SpecialDescription = "A basic flat strike dealing 80% damage."
+Description = "A basic flat strike dealing 80% damage."

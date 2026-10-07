@@ -1,0 +1,54 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://Scripts/Hub/HubSceneController.cs" id="1"]
+[ext_resource type="PackedScene" path="res://Scenes/Hub/HubEquipmentSlot3D.tscn" id="2"]
+
+[sub_resource type="Environment" id="Environment_1"]
+background_mode = 1
+background_color = Color(0.0235294, 0.0352941, 0.0901961, 1)
+ambient_light_source = 2
+ambient_light_sky_contribution = 0.7
+ambient_light_energy = 0.8
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_1"]
+radius = 0.8
+height = 2.4
+
+[node name="HubCharacterPreview" type="Node3D"]
+script = ExtResource("1")
+CharacterRoot = NodePath("CharacterPivot")
+PreviewCamera = NodePath("PreviewCamera")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_1")
+
+[node name="PreviewCamera" type="Camera3D" parent="."]
+position = Vector3(0, 3.2, 12)
+rotation_degrees = Vector3(-12, 0, 0)
+fov = 40.0
+current = true
+
+[node name="KeyLight" type="DirectionalLight3D" parent="."]
+rotation_degrees = Vector3(-45, 35, 0)
+light_energy = 2.0
+
+[node name="FillLight" type="OmniLight3D" parent="."]
+position = Vector3(0, 2, -4)
+light_energy = 1.2
+omni_range = 20.0
+
+[node name="CharacterPivot" type="Node3D" parent="."]
+position = Vector3(0, 1.2, 0)
+
+[node name="CharacterMesh" type="MeshInstance3D" parent="CharacterPivot"]
+mesh = SubResource("CapsuleMesh_1")
+
+[node name="Slot0" parent="." instance=ExtResource("2")]
+
+[node name="Slot1" parent="." instance=ExtResource("2")]
+
+[node name="Slot2" parent="." instance=ExtResource("2")]
+
+[node name="Slot3" parent="." instance=ExtResource("2")]
+
+[node name="Slot4" parent="." instance=ExtResource("2")]

@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="ShapeData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/Equipment/Data/ShapeData.cs" id="1"]
+
+[resource]
+script = ExtResource("1")
+Key = "hypercone"
+DisplayName = "Hypercone"
+ShapeGroup = 2
+Weight = 0.75
+Stars = 3
+AttackType = 11
+AttackName = "Drill Shot"
+Hits = 1
+DamagePerHit = 150.0
+TotalDamage = 150.0
+Cooldown = 1.5
+SpecialDescription = "Fires a burrowing drill projectile."
+Description = "Fires a burrowing drill projectile."

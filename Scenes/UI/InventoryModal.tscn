@@ -1,0 +1,122 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/UI/InventoryModalUI.cs" id="1"]
+
+[node name="InventoryModal" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1")
+CloseOnBackgroundClick = true
+CloseButton = NodePath("ModalPanel/VBox/CloseButton")
+ItemListView = NodePath("ModalPanel/VBox/Content/Left/ItemList")
+ItemDetailsText = NodePath("ModalPanel/VBox/Content/Right/DetailsText")
+SummaryLabel = NodePath("ModalPanel/VBox/SummaryLabel")
+FeedbackLabel = NodePath("ModalPanel/VBox/FeedbackLabel")
+EquipSlotDropdown = NodePath("ModalPanel/VBox/Content/Left/Actions/EquipSlotDropdown")
+EquipButton = NodePath("ModalPanel/VBox/Content/Left/Actions/EquipButton")
+UnequipButton = NodePath("ModalPanel/VBox/Content/Left/Actions/UnequipButton")
+RefreshButton = NodePath("ModalPanel/VBox/Content/Left/Actions/RefreshButton")
+
+[node name="Backdrop" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.6)
+
+[node name="ModalPanel" type="Panel" parent="."]
+custom_minimum_size = Vector2(1100, 620)
+layout_mode = 0
+offset_left = 250.0
+offset_top = 120.0
+offset_right = 1350.0
+offset_bottom = 740.0
+
+[node name="VBox" type="VBoxContainer" parent="ModalPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 24.0
+offset_top = 24.0
+offset_right = -24.0
+offset_bottom = -24.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 12
+
+[node name="Title" type="Label" parent="ModalPanel/VBox"]
+layout_mode = 2
+text = "Inventory"
+horizontal_alignment = 1
+
+[node name="SummaryLabel" type="Label" parent="ModalPanel/VBox"]
+layout_mode = 2
+text = "Items: 0/0"
+
+[node name="Content" type="HBoxContainer" parent="ModalPanel/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 12
+
+[node name="Left" type="VBoxContainer" parent="ModalPanel/VBox/Content"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 8
+
+[node name="ItemList" type="ItemList" parent="ModalPanel/VBox/Content/Left"]
+layout_mode = 2
+size_flags_vertical = 3
+allow_reselect = true
+
+[node name="Actions" type="HBoxContainer" parent="ModalPanel/VBox/Content/Left"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="EquipSlotDropdown" type="OptionButton" parent="ModalPanel/VBox/Content/Left/Actions"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="EquipButton" type="Button" parent="ModalPanel/VBox/Content/Left/Actions"]
+layout_mode = 2
+text = "Equip"
+
+[node name="UnequipButton" type="Button" parent="ModalPanel/VBox/Content/Left/Actions"]
+layout_mode = 2
+text = "Unequip"
+
+[node name="RefreshButton" type="Button" parent="ModalPanel/VBox/Content/Left/Actions"]
+layout_mode = 2
+text = "Refresh"
+
+[node name="Right" type="VBoxContainer" parent="ModalPanel/VBox/Content"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 8
+
+[node name="DetailsTitle" type="Label" parent="ModalPanel/VBox/Content/Right"]
+layout_mode = 2
+text = "Details"
+
+[node name="DetailsText" type="RichTextLabel" parent="ModalPanel/VBox/Content/Right"]
+layout_mode = 2
+size_flags_vertical = 3
+bbcode_enabled = false
+text = "Select an item to inspect details."
+
+[node name="FeedbackLabel" type="Label" parent="ModalPanel/VBox"]
+layout_mode = 2
+text = ""
+autowrap_mode = 2
+
+[node name="CloseButton" type="Button" parent="ModalPanel/VBox"]
+layout_mode = 2
+text = "Close"

@@ -1,0 +1,106 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/UI/PlayerIdentityModalUI.cs" id="1"]
+
+[node name="PlayerIdentityModal" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1")
+CloseOnBackgroundClick = true
+CloseButton = NodePath("ModalPanel/VBox/Buttons/CancelButton")
+PlayerNameInput = NodePath("ModalPanel/VBox/NameInput")
+AvatarDropdown = NodePath("ModalPanel/VBox/AvatarDropdown")
+FeedbackLabel = NodePath("ModalPanel/VBox/FeedbackLabel")
+SettingsButton = NodePath("ModalPanel/VBox/TopRow/SettingsButton")
+DebugModeToggle = NodePath("ModalPanel/VBox/TopRow/DebugModeToggle")
+SaveButton = NodePath("ModalPanel/VBox/Buttons/SaveButton")
+CancelButton = NodePath("ModalPanel/VBox/Buttons/CancelButton")
+
+[node name="Backdrop" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.6)
+
+[node name="ModalPanel" type="Panel" parent="."]
+custom_minimum_size = Vector2(560, 380)
+layout_mode = 0
+offset_left = 520.0
+offset_top = 220.0
+offset_right = 1080.0
+offset_bottom = 600.0
+
+[node name="VBox" type="VBoxContainer" parent="ModalPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 24.0
+offset_top = 24.0
+offset_right = -24.0
+offset_bottom = -24.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 10
+
+[node name="TopRow" type="HBoxContainer" parent="ModalPanel/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="SettingsButton" type="Button" parent="ModalPanel/VBox/TopRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(110, 0)
+text = "Settings"
+
+[node name="TopSpacer" type="Control" parent="ModalPanel/VBox/TopRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="DebugModeToggle" type="CheckButton" parent="ModalPanel/VBox/TopRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(160, 0)
+text = "Debug Mode"
+
+[node name="Title" type="Label" parent="ModalPanel/VBox"]
+layout_mode = 2
+text = "Player Identity"
+horizontal_alignment = 1
+
+[node name="NameLabel" type="Label" parent="ModalPanel/VBox"]
+layout_mode = 2
+text = "Display Name"
+
+[node name="NameInput" type="LineEdit" parent="ModalPanel/VBox"]
+layout_mode = 2
+placeholder_text = "Player"
+
+[node name="AvatarLabel" type="Label" parent="ModalPanel/VBox"]
+layout_mode = 2
+text = "Avatar"
+
+[node name="AvatarDropdown" type="OptionButton" parent="ModalPanel/VBox"]
+layout_mode = 2
+
+[node name="FeedbackLabel" type="Label" parent="ModalPanel/VBox"]
+layout_mode = 2
+text = ""
+
+[node name="Buttons" type="HBoxContainer" parent="ModalPanel/VBox"]
+layout_mode = 2
+alignment = 2
+theme_override_constants/separation = 12
+
+[node name="SaveButton" type="Button" parent="ModalPanel/VBox/Buttons"]
+layout_mode = 2
+text = "Save"
+
+[node name="CancelButton" type="Button" parent="ModalPanel/VBox/Buttons"]
+layout_mode = 2
+text = "Cancel"

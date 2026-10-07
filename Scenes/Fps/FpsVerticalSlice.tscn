@@ -1,0 +1,14 @@
+[gd_scene format=3 uid="uid://d2wjw5nsy8plq"]
+
+[ext_resource type="Script" uid="uid://cgl777s1yb5s7" path="res://Scripts/Fps/FpsVerticalSlice.cs" id="1"]
+[ext_resource type="Resource" path="res://Resources/Fps/FpsArenaLayoutSettings_Default.tres" id="2"]
+[ext_resource type="Resource" path="res://Resources/Fps/FpsEncounterSettings_Default.tres" id="3"]
+[ext_resource type="Resource" path="res://Resources/Fps/FpsEnemyArchetype_Bruiser_Default.tres" id="4"]
+[ext_resource type="Resource" path="res://Resources/Fps/FpsEnemyArchetype_Striker_Default.tres" id="5"]
+
+[node name="FpsVerticalSlice" type="Node3D" unique_id=853800155]
+script = ExtResource("1")
+ArenaLayoutSettings = ExtResource("2")
+EncounterSettings = ExtResource("3")
+BruiserArchetypeSettings = ExtResource("4")
+StrikerArchetypeSettings = ExtResource("5")

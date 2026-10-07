@@ -1,0 +1,27 @@
+[gd_scene format=3 uid="uid://dbcqcjd1xwuh1"]
+
+[ext_resource type="Script" uid="uid://dq6wdwo62sktc" path="res://Scripts/Main.cs" id="1"]
+[ext_resource type="PackedScene" uid="uid://cwhlanb7fyejm" path="res://Scenes/UI/ArenaDebugPanel.tscn" id="2"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/StartHub.tscn" id="3_rgh2o"]
+[ext_resource type="PackedScene" path="res://Scenes/Hub/HubCharacterPreview.tscn" id="4_pbw6q"]
+
+[node name="Main" type="Node3D" unique_id=1399359496]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.4201012, 0, -0.52389526)
+script = ExtResource("1")
+
+[node name="ArenaDebugPanel" parent="." unique_id=58550267 instance=ExtResource("2")]
+offset_left = 191.0
+offset_top = 85.0
+offset_right = 931.0
+offset_bottom = 885.0
+
+[node name="StartHub" parent="." unique_id=767673246 instance=ExtResource("3_rgh2o")]
+visible = false
+offset_left = -3.0
+offset_top = 23.0
+offset_right = -3.0
+offset_bottom = 23.0
+
+[node name="HubCharacterPreview" parent="." unique_id=645370866 instance=ExtResource("4_pbw6q")]
+transform = Transform3D(-0.7719002, -0.0030915705, -0.6357362, 0.0061013047, 0.99990606, -0.012270625, 0.6357144, -0.0133505175, -0.7718089, 263.1336, 2.2679138, 25.484505)
+visible = false

@@ -1,0 +1,141 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://Scripts/UI/SkillTreeModalUI.cs" id="1"]
+[ext_resource type="Script" path="res://Scripts/UI/SkillTreeGraphView.cs" id="2"]
+
+[node name="SkillTreeModal" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1")
+CloseOnBackgroundClick = true
+CloseButton = NodePath("ModalPanel/VBox/Footer/CloseButton")
+GraphView = NodePath("ModalPanel/VBox/Content/GraphPanel/GraphView")
+OverviewLabel = NodePath("ModalPanel/VBox/Content/Sidebar/OverviewText")
+BranchSummaryText = NodePath("ModalPanel/VBox/Content/Sidebar/BranchSummary")
+SelectedNodeLabel = NodePath("ModalPanel/VBox/Content/Sidebar/SelectedNodeLabel")
+StatusLabel = NodePath("ModalPanel/VBox/Content/Sidebar/StatusLabel")
+DescriptionText = NodePath("ModalPanel/VBox/Content/Sidebar/DescriptionText")
+
+[node name="Backdrop" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.0156863, 0.0235294, 0.0431373, 0.76)
+
+[node name="ModalPanel" type="Panel" parent="."]
+custom_minimum_size = Vector2(1420, 820)
+layout_mode = 0
+offset_left = 90.0
+offset_top = 60.0
+offset_right = 1510.0
+offset_bottom = 880.0
+
+[node name="VBox" type="VBoxContainer" parent="ModalPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = 20.0
+offset_right = -20.0
+offset_bottom = -20.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 14
+
+[node name="Title" type="Label" parent="ModalPanel/VBox"]
+layout_mode = 2
+text = "Skill Tree"
+horizontal_alignment = 1
+
+[node name="Subtitle" type="Label" parent="ModalPanel/VBox"]
+layout_mode = 2
+text = "Central core, four cardinal branches, and outward major nodes."
+horizontal_alignment = 1
+
+[node name="Content" type="HBoxContainer" parent="ModalPanel/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 14
+
+[node name="GraphPanel" type="PanelContainer" parent="ModalPanel/VBox/Content"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+custom_minimum_size = Vector2(920, 0)
+
+[node name="GraphView" type="Control" parent="ModalPanel/VBox/Content/GraphPanel"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+custom_minimum_size = Vector2(920, 660)
+script = ExtResource("2")
+
+[node name="Sidebar" type="PanelContainer" parent="ModalPanel/VBox/Content"]
+layout_mode = 2
+custom_minimum_size = Vector2(360, 0)
+size_flags_vertical = 3
+
+[node name="SidebarVBox" type="VBoxContainer" parent="ModalPanel/VBox/Content/Sidebar"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+
+[node name="OverviewTitle" type="Label" parent="ModalPanel/VBox/Content/Sidebar/SidebarVBox"]
+layout_mode = 2
+text = "Structure"
+
+[node name="OverviewText" type="Label" parent="ModalPanel/VBox/Content/Sidebar/SidebarVBox"]
+layout_mode = 2
+text = "Overview"
+
+[node name="BranchTitle" type="Label" parent="ModalPanel/VBox/Content/Sidebar/SidebarVBox"]
+layout_mode = 2
+text = "Branch Roles"
+
+[node name="BranchSummary" type="RichTextLabel" parent="ModalPanel/VBox/Content/Sidebar/SidebarVBox"]
+custom_minimum_size = Vector2(0, 180)
+layout_mode = 2
+size_flags_vertical = 3
+bbcode_enabled = false
+text = "Branches"
+
+[node name="SelectedTitle" type="Label" parent="ModalPanel/VBox/Content/Sidebar/SidebarVBox"]
+layout_mode = 2
+text = "Selected Node"
+
+[node name="SelectedNodeLabel" type="Label" parent="ModalPanel/VBox/Content/Sidebar/SidebarVBox"]
+layout_mode = 2
+text = "Awakening Core"
+
+[node name="StatusLabel" type="Label" parent="ModalPanel/VBox/Content/Sidebar/SidebarVBox"]
+layout_mode = 2
+text = "Core | Origin Node | Tier 0"
+
+[node name="DescriptionText" type="RichTextLabel" parent="ModalPanel/VBox/Content/Sidebar/SidebarVBox"]
+custom_minimum_size = Vector2(0, 220)
+layout_mode = 2
+size_flags_vertical = 3
+bbcode_enabled = false
+text = "Description"
+
+[node name="Footer" type="HBoxContainer" parent="ModalPanel/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="PreviewHint" type="Label" parent="ModalPanel/VBox/Footer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Structure scaffold: branch points, save data, and unlock rules can plug into this graph next."
+
+[node name="CloseButton" type="Button" parent="ModalPanel/VBox/Footer"]
+layout_mode = 2
+text = "Close"

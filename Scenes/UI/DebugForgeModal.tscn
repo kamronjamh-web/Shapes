@@ -1,0 +1,151 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/UI/DebugForgeModalUI.cs" id="1"]
+
+[node name="DebugForgeModal" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1")
+CloseOnBackgroundClick = true
+CloseButton = NodePath("ModalPanel/VBox/Buttons/CloseButton")
+ShapeDropdown = NodePath("ModalPanel/VBox/Selectors/ShapeDropdown")
+RarityDropdown = NodePath("ModalPanel/VBox/Selectors/RarityDropdown")
+ModifierDropdown = NodePath("ModalPanel/VBox/Selectors/ModifierDropdown")
+ItemLevelInput = NodePath("ModalPanel/VBox/Selectors/ItemLevelInput")
+PreviewHpLabel = NodePath("ModalPanel/VBox/PreviewGrid/HpValue")
+PreviewDamageLabel = NodePath("ModalPanel/VBox/PreviewGrid/DamageValue")
+PreviewRarityLabel = NodePath("ModalPanel/VBox/PreviewGrid/RarityValue")
+FeedbackLabel = NodePath("ModalPanel/VBox/FeedbackLabel")
+SubstatRowsContainer = NodePath("ModalPanel/VBox/SubstatsContainer")
+AddSubstatButton = NodePath("ModalPanel/VBox/Buttons/AddSubstatButton")
+ForgeButton = NodePath("ModalPanel/VBox/Buttons/ForgeButton")
+AddAllShapesButton = NodePath("ModalPanel/VBox/Buttons/AddAllShapesButton")
+AddAllModulatorsButton = NodePath("ModalPanel/VBox/Buttons/AddAllModulatorsButton")
+
+[node name="Backdrop" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.7)
+
+[node name="ModalPanel" type="Panel" parent="."]
+custom_minimum_size = Vector2(1080, 640)
+layout_mode = 0
+offset_left = 260.0
+offset_top = 120.0
+offset_right = 1340.0
+offset_bottom = 760.0
+
+[node name="VBox" type="VBoxContainer" parent="ModalPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 18.0
+offset_top = 18.0
+offset_right = -18.0
+offset_bottom = -18.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="ModalPanel/VBox"]
+layout_mode = 2
+text = "Debug Forge"
+horizontal_alignment = 1
+
+[node name="Selectors" type="HBoxContainer" parent="ModalPanel/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="ShapeDropdown" type="OptionButton" parent="ModalPanel/VBox/Selectors"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="RarityDropdown" type="OptionButton" parent="ModalPanel/VBox/Selectors"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ModifierDropdown" type="OptionButton" parent="ModalPanel/VBox/Selectors"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ItemLevelInput" type="SpinBox" parent="ModalPanel/VBox/Selectors"]
+layout_mode = 2
+custom_minimum_size = Vector2(120, 0)
+
+[node name="PreviewGrid" type="GridContainer" parent="ModalPanel/VBox"]
+layout_mode = 2
+columns = 2
+theme_override_constants/h_separation = 10
+theme_override_constants/v_separation = 6
+
+[node name="HpLabel" type="Label" parent="ModalPanel/VBox/PreviewGrid"]
+layout_mode = 2
+text = "Preview HP"
+
+[node name="HpValue" type="Label" parent="ModalPanel/VBox/PreviewGrid"]
+layout_mode = 2
+text = "-"
+
+[node name="DamageLabel" type="Label" parent="ModalPanel/VBox/PreviewGrid"]
+layout_mode = 2
+text = "Preview Damage"
+
+[node name="DamageValue" type="Label" parent="ModalPanel/VBox/PreviewGrid"]
+layout_mode = 2
+text = "-"
+
+[node name="RarityLabel" type="Label" parent="ModalPanel/VBox/PreviewGrid"]
+layout_mode = 2
+text = "Preview Rarity"
+
+[node name="RarityValue" type="Label" parent="ModalPanel/VBox/PreviewGrid"]
+layout_mode = 2
+text = "-"
+
+[node name="SubstatsHeader" type="Label" parent="ModalPanel/VBox"]
+layout_mode = 2
+text = "Substats"
+
+[node name="SubstatsContainer" type="VBoxContainer" parent="ModalPanel/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 6
+
+[node name="FeedbackLabel" type="Label" parent="ModalPanel/VBox"]
+layout_mode = 2
+text = ""
+autowrap_mode = 2
+
+[node name="Buttons" type="HBoxContainer" parent="ModalPanel/VBox"]
+layout_mode = 2
+alignment = 2
+theme_override_constants/separation = 10
+
+[node name="AddSubstatButton" type="Button" parent="ModalPanel/VBox/Buttons"]
+layout_mode = 2
+text = "Add Substat"
+
+[node name="ForgeButton" type="Button" parent="ModalPanel/VBox/Buttons"]
+layout_mode = 2
+text = "Forge Shape -> Inventory"
+
+[node name="AddAllShapesButton" type="Button" parent="ModalPanel/VBox/Buttons"]
+layout_mode = 2
+text = "Add All Shapes"
+
+[node name="AddAllModulatorsButton" type="Button" parent="ModalPanel/VBox/Buttons"]
+layout_mode = 2
+text = "Add All Modulators"
+
+[node name="CloseButton" type="Button" parent="ModalPanel/VBox/Buttons"]
+layout_mode = 2
+text = "Close"

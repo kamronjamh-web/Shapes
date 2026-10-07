@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="FpsHillMapSettings" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/Fps/FpsHillMapSettings.cs" id="1"]
+
+[resource]
+script = ExtResource("1")
+PlayableSize = 200.0
+SummitHeight = 8.0
+SummitHalfSize = 16.0
+HillFootHalfSize = 65.0
+RoomHalfSize = 12.0
+DoorWidth = 8.0
+RoofEnabled = true
+EastDoorEnabled = false
+SouthDoorEnabled = false
+WestDoorEnabled = false

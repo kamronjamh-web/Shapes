@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="FpsArenaLayoutSettings" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/Fps/FpsArenaLayoutSettings.cs" id="1"]
+
+[resource]
+script = ExtResource("1")
+HalfWidth = 25.0
+HalfDepth = 85.0
+PlayerSpawnPosition = Vector3(0, 0, -7)

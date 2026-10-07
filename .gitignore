@@ -1,0 +1,5 @@
+.tmp/
+.godot/
+*.vulkan.cache
+shader_cache/
+app_userdata/

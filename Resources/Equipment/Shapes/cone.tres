@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="ShapeData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/Equipment/Data/ShapeData.cs" id="1"]
+
+[resource]
+script = ExtResource("1")
+Key = "cone"
+DisplayName = "Cone"
+ShapeGroup = 1
+Weight = 4.0
+Stars = 2
+AttackType = 7
+AttackName = "Flame Cone"
+Hits = 1
+DamagePerHit = 80.0
+TotalDamage = 80.0
+Cooldown = 1.5
+SpecialDescription = "Unleashes a frontal cone attack."
+Description = "Unleashes a frontal cone attack."

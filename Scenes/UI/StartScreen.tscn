@@ -1,0 +1,193 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://Scripts/UI/StartScreenUI.cs" id="1"]
+[ext_resource type="Script" path="res://Scripts/UI/ShapePreviewViewport.cs" id="2"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/SettingsModal.tscn" id="3"]
+
+[node name="StartScreen" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1")
+SettingsModalScene = ExtResource("3")
+HubScenePath = "res://Scenes/UI/StartHub.tscn"
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.00784314, 0.0156863, 0.027451, 1)
+
+[node name="BackgroundGlow" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 560.0
+offset_top = 84.0
+offset_right = -64.0
+offset_bottom = -84.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.054902, 0.117647, 0.156863, 0.301961)
+
+[node name="SafeArea" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 36.0
+offset_top = 28.0
+offset_right = -36.0
+offset_bottom = -28.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 0
+theme_override_constants/margin_top = 0
+theme_override_constants/margin_right = 0
+theme_override_constants/margin_bottom = 0
+
+[node name="Layout" type="HBoxContainer" parent="SafeArea"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 28
+
+[node name="LeftPanel" type="Control" parent="SafeArea/Layout"]
+layout_mode = 2
+custom_minimum_size = Vector2(430, 0)
+size_flags_vertical = 3
+
+[node name="PanelMargin" type="MarginContainer" parent="SafeArea/Layout/LeftPanel"]
+layout_mode = 1
+offset_top = 18.0
+offset_right = 392.0
+offset_bottom = 420.0
+theme_override_constants/margin_left = 28
+theme_override_constants/margin_top = 28
+theme_override_constants/margin_right = 28
+theme_override_constants/margin_bottom = 28
+
+[node name="Content" type="VBoxContainer" parent="SafeArea/Layout/LeftPanel/PanelMargin"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 16
+
+[node name="EyebrowLabel" type="Label" parent="SafeArea/Layout/LeftPanel/PanelMargin/Content"]
+layout_mode = 2
+text = "RITUAL MACHINE CHAMBER"
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.972549, 0.87451, 0.466667, 0.921569)
+
+[node name="TitleLabel" type="Label" parent="SafeArea/Layout/LeftPanel/PanelMargin/Content"]
+layout_mode = 2
+text = "Shapes"
+theme_override_font_sizes/font_size = 54
+theme_override_colors/font_color = Color(0.937255, 0.952941, 0.980392, 1)
+
+[node name="DescriptionLabel" type="Label" parent="SafeArea/Layout/LeftPanel/PanelMargin/Content"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 96)
+text = "A randomized artifact dominates the chamber every time the game boots. Step into the hub when you are ready."
+autowrap_mode = 3
+theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(0.709804, 0.780392, 0.862745, 0.921569)
+
+[node name="ShowcaseNameLabel" type="Label" parent="SafeArea/Layout/LeftPanel/PanelMargin/Content"]
+layout_mode = 2
+text = "Showcase Shape"
+theme_override_font_sizes/font_size = 26
+theme_override_colors/font_color = Color(0.956863, 0.968627, 0.988235, 1)
+
+[node name="ShowcaseMetaLabel" type="Label" parent="SafeArea/Layout/LeftPanel/PanelMargin/Content"]
+layout_mode = 2
+text = "Rarity | Essence"
+theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.968627, 0.87451, 0.466667, 0.921569)
+
+[node name="Spacer" type="Control" parent="SafeArea/Layout/LeftPanel/PanelMargin/Content"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="HintLabel" type="Label" parent="SafeArea/Layout/LeftPanel/PanelMargin/Content"]
+layout_mode = 2
+text = "The title showcase rerolls on every boot and is biased toward the more cinematic shapes and special essences."
+autowrap_mode = 3
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.639216, 0.713726, 0.792157, 0.8)
+
+[node name="ButtonsRail" type="VBoxContainer" parent="SafeArea/Layout/LeftPanel"]
+layout_mode = 1
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_top = -210.0
+offset_right = 286.0
+offset_bottom = -24.0
+theme_override_constants/separation = 12
+
+[node name="EnterHubButton" type="Button" parent="SafeArea/Layout/LeftPanel/ButtonsRail"]
+layout_mode = 2
+text = "Enter Hub"
+
+[node name="SettingsButton" type="Button" parent="SafeArea/Layout/LeftPanel/ButtonsRail"]
+layout_mode = 2
+text = "Settings"
+
+[node name="QuitButton" type="Button" parent="SafeArea/Layout/LeftPanel/ButtonsRail"]
+layout_mode = 2
+text = "Quit Game"
+
+[node name="RightPane" type="Control" parent="SafeArea/Layout"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="ShowcasePreview" type="SubViewportContainer" parent="SafeArea/Layout/RightPane"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("2")
+PreviewSize = Vector2i(1024, 820)
+VisualScale = 1.0
+RotateSpeed = 0.13
+AutoFitContent = true
+TargetViewportFill = 0.58
+MinCameraFitFovDegrees = 18.0
+MaxCameraFitFovDegrees = 56.0
+CameraPosition = Vector3(0, 0.22, 2.85)
+CameraRotationDegrees = Vector3(-5, -12, 0)
+CameraFov = 31.0
+BackgroundColor = Color(0.00784314, 0.0117647, 0.0196078, 1)
+AmbientLightColor = Color(0.109804, 0.141176, 0.180392, 1)
+AmbientLightEnergy = 0.34
+KeyLightRotationDegrees = Vector3(-34, 28, 0)
+KeyLightColor = Color(0.780392, 0.839216, 0.913726, 1)
+KeyLightEnergy = 1.05
+GlowLightColor = Color(0.129412, 0.823529, 0.737255, 1)
+GlowLightPosition = Vector3(0.08, 0.26, 0.42)
+BaseGlowLightEnergy = 2.35
+GlowLightRange = 8.2
+EnableCameraDrift = true
+CameraDriftPositionAmplitude = Vector3(0.045, 0.035, 0.05)
+CameraDriftRotationAmplitude = Vector3(0.18, 0.4, 0)
+CameraDriftSpeed = 0.12
+PitchBaseDegrees = 8.0
+PitchAmplitudeDegrees = 1.2
+VerticalBobAmplitude = 0.012
+VerticalFramingBias = 0.02
+ShowLightingRoom = true
+RoomSurfaceColor = Color(0.0509804, 0.0666667, 0.0980392, 1)
+RoomAccentColor = Color(0.117647, 0.145098, 0.184314, 1)

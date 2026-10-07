@@ -1,0 +1,78 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/UI/GachaModalUI.cs" id="1"]
+
+[node name="GachaModal" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1")
+CloseOnBackgroundClick = true
+CloseButton = NodePath("ModalPanel/VBox/Buttons/CloseButton")
+RollButton = NodePath("ModalPanel/VBox/Buttons/RollButton")
+FatedRollButton = NodePath("ModalPanel/VBox/Buttons/FatedRollButton")
+FeedbackLabel = NodePath("ModalPanel/VBox/FeedbackLabel")
+
+[node name="Backdrop" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.6)
+
+[node name="ModalPanel" type="Panel" parent="."]
+custom_minimum_size = Vector2(700, 420)
+layout_mode = 0
+offset_left = 450.0
+offset_top = 190.0
+offset_right = 1150.0
+offset_bottom = 610.0
+
+[node name="VBox" type="VBoxContainer" parent="ModalPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 24.0
+offset_top = 24.0
+offset_right = -24.0
+offset_bottom = -24.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 12
+
+[node name="Title" type="Label" parent="ModalPanel/VBox"]
+layout_mode = 2
+text = "Gacha"
+horizontal_alignment = 1
+
+[node name="Hint" type="Label" parent="ModalPanel/VBox"]
+layout_mode = 2
+text = "Hook this scene to your real gacha roll flow."
+autowrap_mode = 2
+
+[node name="FeedbackLabel" type="Label" parent="ModalPanel/VBox"]
+layout_mode = 2
+text = ""
+
+[node name="Buttons" type="HBoxContainer" parent="ModalPanel/VBox"]
+layout_mode = 2
+alignment = 2
+theme_override_constants/separation = 10
+
+[node name="RollButton" type="Button" parent="ModalPanel/VBox/Buttons"]
+layout_mode = 2
+text = "Roll"
+
+[node name="FatedRollButton" type="Button" parent="ModalPanel/VBox/Buttons"]
+layout_mode = 2
+text = "Fated Roll"
+
+[node name="CloseButton" type="Button" parent="ModalPanel/VBox/Buttons"]
+layout_mode = 2
+text = "Close"

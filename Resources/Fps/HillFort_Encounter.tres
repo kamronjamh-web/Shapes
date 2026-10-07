@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="FpsEncounterSettings" load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://Scripts/Fps/FpsEncounterSettings.cs" id="1"]
+[ext_resource type="Script" path="res://Scripts/Fps/FpsEncounterWaveSettings.cs" id="2"]
+[ext_resource type="Script" path="res://Scripts/Fps/FpsEnemySpawnSettings.cs" id="3"]
+
+[sub_resource type="Resource" id="NorthHorde"]
+script = ExtResource("3")
+SpawnName = "NorthHorde"
+Role = 0
+Position = Vector3(0, 0, -76)
+Count = 100
+FormationColumns = 18
+FormationSpacing = 2.8
+Lane = 0
+
+[sub_resource type="Resource" id="Wave1"]
+script = ExtResource("2")
+WaveName = "North Gate / hill assault"
+EnemySpawns = Array[ExtResource("3")]([SubResource("NorthHorde")])
+
+[resource]
+script = ExtResource("1")
+EnemySpawns = Array[ExtResource("3")]([])
+Waves = Array[ExtResource("2")]([SubResource("Wave1")])
+InterWaveDelaySeconds = 40.0
+AdvanceOnWaveClear = true
+ScaleArchetypesPerWave = false

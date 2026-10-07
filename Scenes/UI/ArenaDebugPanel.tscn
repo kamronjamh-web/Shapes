@@ -1,0 +1,220 @@
+[gd_scene format=3 uid="uid://cwhlanb7fyejm"]
+
+[ext_resource type="Script" uid="uid://c0wvmc4aaaei1" path="res://Scripts/UI/ArenaDebugPanelUI.cs" id="1"]
+
+[node name="ArenaDebugPanel" type="Control" unique_id=270127432]
+layout_mode = 3
+anchors_preset = 0
+offset_left = 20.0
+offset_top = 60.0
+offset_right = 760.0
+offset_bottom = 860.0
+script = ExtResource("1")
+
+[node name="Panel" type="Panel" parent="." unique_id=620780139]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -17.0
+offset_top = -57.0
+offset_right = -18.0
+offset_bottom = -62.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBox" type="VBoxContainer" parent="Panel" unique_id=215139326]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 9.0
+offset_top = 12.0
+offset_right = -15.0
+offset_bottom = -12.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 8
+
+[node name="Title" type="Label" parent="Panel/VBox" unique_id=1674081269]
+layout_mode = 2
+text = "Arena Debug"
+horizontal_alignment = 1
+
+[node name="GlobalGrid" type="GridContainer" parent="Panel/VBox" unique_id=1318928760]
+layout_mode = 2
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 6
+columns = 2
+
+[node name="MoveSpeedInput" type="SpinBox" parent="Panel/VBox/GlobalGrid" unique_id=420393290]
+layout_mode = 2
+prefix = "Move % "
+
+[node name="MaxHpInput" type="SpinBox" parent="Panel/VBox/GlobalGrid" unique_id=905637450]
+layout_mode = 2
+prefix = "Max HP "
+
+[node name="DodgeInput" type="SpinBox" parent="Panel/VBox/GlobalGrid" unique_id=982655503]
+layout_mode = 2
+prefix = "Dodge % "
+
+[node name="LifeStealInput" type="SpinBox" parent="Panel/VBox/GlobalGrid" unique_id=1432751055]
+layout_mode = 2
+prefix = "LifeSteal % "
+
+[node name="RegenInput" type="SpinBox" parent="Panel/VBox/GlobalGrid" unique_id=1458337956]
+layout_mode = 2
+prefix = "Regen "
+
+[node name="CritDamageInput" type="SpinBox" parent="Panel/VBox/GlobalGrid" unique_id=1689017410]
+layout_mode = 2
+prefix = "Crit Dmg % "
+
+[node name="CritChanceInput" type="SpinBox" parent="Panel/VBox/GlobalGrid" unique_id=1746004338]
+layout_mode = 2
+prefix = "Crit % "
+
+[node name="RangeInput" type="SpinBox" parent="Panel/VBox/GlobalGrid" unique_id=1689331123]
+layout_mode = 2
+prefix = "Range "
+
+[node name="WeaponGrid" type="GridContainer" parent="Panel/VBox" unique_id=1892038747]
+layout_mode = 2
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 6
+columns = 2
+
+[node name="SizeInput" type="SpinBox" parent="Panel/VBox/WeaponGrid" unique_id=1981539272]
+layout_mode = 2
+prefix = "Size % "
+
+[node name="AttackSpeedInput" type="SpinBox" parent="Panel/VBox/WeaponGrid" unique_id=27386302]
+layout_mode = 2
+prefix = "Atk Speed % "
+
+[node name="DamageBonusInput" type="SpinBox" parent="Panel/VBox/WeaponGrid" unique_id=652850550]
+layout_mode = 2
+prefix = "Damage % "
+
+[node name="RicochetInput" type="SpinBox" parent="Panel/VBox/WeaponGrid" unique_id=1518134834]
+layout_mode = 2
+prefix = "Ricochet "
+
+[node name="BounceInput" type="SpinBox" parent="Panel/VBox/WeaponGrid" unique_id=1821725036]
+layout_mode = 2
+prefix = "Bounce "
+
+[node name="ProjectileCountInput" type="SpinBox" parent="Panel/VBox/WeaponGrid" unique_id=1228625567]
+layout_mode = 2
+prefix = "Proj Count "
+
+[node name="Actions" type="HBoxContainer" parent="Panel/VBox" unique_id=109779833]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="ApplyLiveButton" type="Button" parent="Panel/VBox/Actions" unique_id=942848674]
+layout_mode = 2
+text = "Apply Live"
+
+[node name="ResetButton" type="Button" parent="Panel/VBox/Actions" unique_id=359871628]
+layout_mode = 2
+text = "Reset to Equipped"
+
+[node name="ReturnHubButton" type="Button" parent="Panel/VBox/Actions" unique_id=1705112679]
+layout_mode = 2
+text = "Return to Hub"
+
+[node name="StressGrid" type="GridContainer" parent="Panel/VBox" unique_id=958962418]
+layout_mode = 2
+
+[node name="HpMultiplierInput" type="SpinBox" parent="Panel/VBox/StressGrid" unique_id=1502388536]
+layout_mode = 2
+prefix = "Enemy HP Multiplier "
+
+[node name="StressButtons" type="GridContainer" parent="Panel/VBox" unique_id=589334385]
+layout_mode = 2
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 6
+columns = 2
+
+[node name="LightButton" type="Button" parent="Panel/VBox/StressButtons" unique_id=1581349213]
+layout_mode = 2
+text = "Light 50"
+
+[node name="MediumButton" type="Button" parent="Panel/VBox/StressButtons" unique_id=1661743379]
+layout_mode = 2
+text = "Medium 200"
+
+[node name="HeavyButton" type="Button" parent="Panel/VBox/StressButtons" unique_id=708276227]
+layout_mode = 2
+text = "Heavy 500"
+
+[node name="InsaneButton" type="Button" parent="Panel/VBox/StressButtons" unique_id=1443068982]
+layout_mode = 2
+text = "Insane 1000"
+
+[node name="SpawnGruntButton" type="Button" parent="Panel/VBox/StressButtons" unique_id=224895799]
+layout_mode = 2
+text = "Spawn Grunt"
+
+[node name="SpawnBulwarkButton" type="Button" parent="Panel/VBox/StressButtons" unique_id=1193350514]
+layout_mode = 2
+text = "Spawn Bulwark"
+
+[node name="SpawnChargerButton" type="Button" parent="Panel/VBox/StressButtons" unique_id=77977169]
+layout_mode = 2
+text = "Spawn Charger"
+
+[node name="SpawnMortarButton" type="Button" parent="Panel/VBox/StressButtons" unique_id=1451180994]
+layout_mode = 2
+text = "Spawn Mortar"
+
+[node name="BossRushButton" type="Button" parent="Panel/VBox/StressButtons" unique_id=312668893]
+layout_mode = 2
+text = "Spawn Monolith"
+
+[node name="SpawnInterceptorButton" type="Button" parent="Panel/VBox/StressButtons" unique_id=2113753148]
+layout_mode = 2
+text = "Spawn Interceptor"
+
+[node name="SpawnAllEnemyTypesButton" type="Button" parent="Panel/VBox/StressButtons" unique_id=1270999525]
+layout_mode = 2
+text = "Spawn All Enemy Types"
+
+[node name="SpawnOverseerButton" type="Button" parent="Panel/VBox/StressButtons" unique_id=669874291]
+layout_mode = 2
+text = "Spawn Overseer"
+
+[node name="SpawnCubeButton" type="Button" parent="Panel/VBox/StressButtons" unique_id=746118233]
+layout_mode = 2
+text = "Spawn Cube"
+
+[node name="KillAllButton" type="Button" parent="Panel/VBox/StressButtons" unique_id=773160662]
+layout_mode = 2
+text = "Kill All Enemies"
+
+[node name="ItemsRow" type="HBoxContainer" parent="Panel/VBox" unique_id=1280603527]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="CoinsInput" type="SpinBox" parent="Panel/VBox/ItemsRow" unique_id=2066080663]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+prefix = "Coins "
+
+[node name="AddCoinsButton" type="Button" parent="Panel/VBox/ItemsRow" unique_id=2051240747]
+layout_mode = 2
+text = "Add Coins"
+
+[node name="SimulateItemDropButton" type="Button" parent="Panel/VBox/ItemsRow" unique_id=257522267]
+layout_mode = 2
+text = "Drop Random Shape"
+
+[node name="GrantAllButton" type="Button" parent="Panel/VBox/ItemsRow" unique_id=640070311]
+layout_mode = 2
+text = "Grant All Items x1"
+
+[node name="ClearAllButton" type="Button" parent="Panel/VBox/ItemsRow" unique_id=857010094]
+layout_mode = 2
+text = "Clear All Items"

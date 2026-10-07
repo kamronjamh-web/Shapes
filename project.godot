@@ -1,0 +1,46 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=5
+
+[animation]
+
+compatibility/default_parent_skeleton_in_mesh_instance_3d=true
+
+[application]
+
+config/name="Shapes"
+run/main_scene="res://Scenes/UI/StartScreen.tscn"
+config/use_custom_user_dir=true
+config/custom_user_dir_name="Godot/app_userdata/Super Gatcha Rebuild"
+config/features=PackedStringArray("4.7", "C#", "Forward Plus")
+config/icon="res://icon.svg"
+config/custom_user_dir_name.linux="godot/app_userdata/Super Gatcha Rebuild"
+
+[autoload]
+
+ModalManager="*res://Scripts/Managers/ModalManager.cs"
+CurrencyManager="*res://Scripts/Managers/CurrencyManager.cs"
+DebugManager="*res://Scripts/Managers/DebugManager.cs"
+GameStateManager="*res://Scripts/Managers/GameStateManager.cs"
+SaveManager="*res://Scripts/Managers/SaveManager.cs"
+SettingsManager="*res://Scripts/Managers/SettingsManager.cs"
+AudioManager="*res://Scripts/Managers/AudioManager.cs"
+InventoryManager="*res://Scripts/Managers/InventoryManager.cs"
+DebugForgeService="*res://Scripts/Debug/DebugForgeService.cs"
+DebugCommandService="*res://Scripts/Debug/DebugCommandService.cs"
+
+[display]
+
+window/size/viewport_width=1600
+window/size/viewport_height=900
+window/stretch/aspect="expand"
+
+[dotnet]
+
+project/assembly_name="SuperGatchaRebuild"

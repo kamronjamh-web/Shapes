@@ -1,0 +1,245 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/UI/SettingsModalUI.cs" id="1"]
+
+[node name="SettingsModal" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1")
+CloseOnBackgroundClick = true
+CloseButton = NodePath("ModalPanel/VBox/ButtonsRow/CloseButton")
+GraphicsPresetOption = NodePath("ModalPanel/VBox/GraphicsPresetRow/GraphicsPresetOption")
+GraphicsPresetSummaryLabel = NodePath("ModalPanel/VBox/GraphicsPresetSummary")
+RenderScaleSlider = NodePath("ModalPanel/VBox/RenderScaleRow/RenderScaleSlider")
+AntiAliasingOption = NodePath("ModalPanel/VBox/AntiAliasingRow/AntiAliasingOption")
+GlowToggle = NodePath("ModalPanel/VBox/GlowRow/GlowToggle")
+ShadowsToggle = NodePath("ModalPanel/VBox/ShadowsRow/ShadowsToggle")
+ScreenShakeSlider = NodePath("ModalPanel/VBox/ScreenShakeRow/ScreenShakeSlider")
+FlashReductionToggle = NodePath("ModalPanel/VBox/FlashReductionRow/FlashReductionToggle")
+MasterVolumeSlider = NodePath("ModalPanel/VBox/MasterRow/MasterSlider")
+SfxVolumeSlider = NodePath("ModalPanel/VBox/SfxRow/SfxSlider")
+MusicVolumeSlider = NodePath("ModalPanel/VBox/MusicRow/MusicSlider")
+RenderScaleValueLabel = NodePath("ModalPanel/VBox/RenderScaleRow/RenderScaleValue")
+ScreenShakeValueLabel = NodePath("ModalPanel/VBox/ScreenShakeRow/ScreenShakeValue")
+MasterValueLabel = NodePath("ModalPanel/VBox/MasterRow/MasterValue")
+SfxValueLabel = NodePath("ModalPanel/VBox/SfxRow/SfxValue")
+MusicValueLabel = NodePath("ModalPanel/VBox/MusicRow/MusicValue")
+
+[node name="Backdrop" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+color = Color(0, 0, 0, 0.6)
+
+[node name="ModalPanel" type="Panel" parent="."]
+custom_minimum_size = Vector2(760, 720)
+layout_mode = 0
+offset_left = 420.0
+offset_top = 90.0
+offset_right = 1180.0
+offset_bottom = 810.0
+
+[node name="VBox" type="VBoxContainer" parent="ModalPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 24.0
+offset_top = 24.0
+offset_right = -24.0
+offset_bottom = -24.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 12
+
+[node name="Title" type="Label" parent="ModalPanel/VBox"]
+layout_mode = 2
+text = "Settings"
+horizontal_alignment = 1
+
+[node name="GraphicsSectionLabel" type="Label" parent="ModalPanel/VBox"]
+layout_mode = 2
+text = "Graphics"
+
+[node name="GraphicsPresetRow" type="HBoxContainer" parent="ModalPanel/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="GraphicsPresetName" type="Label" parent="ModalPanel/VBox/GraphicsPresetRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(140, 0)
+text = "Preset"
+
+[node name="GraphicsPresetOption" type="OptionButton" parent="ModalPanel/VBox/GraphicsPresetRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="GraphicsPresetSummary" type="Label" parent="ModalPanel/VBox"]
+custom_minimum_size = Vector2(0, 64)
+layout_mode = 2
+autowrap_mode = 3
+text = "Balanced default with readable VFX and restrained performance cost."
+
+[node name="RenderScaleRow" type="HBoxContainer" parent="ModalPanel/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="RenderScaleName" type="Label" parent="ModalPanel/VBox/RenderScaleRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(140, 0)
+text = "3D Render Scale"
+
+[node name="RenderScaleSlider" type="HSlider" parent="ModalPanel/VBox/RenderScaleRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(320, 34)
+size_flags_horizontal = 3
+mouse_filter = 0
+
+[node name="RenderScaleValue" type="Label" parent="ModalPanel/VBox/RenderScaleRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(70, 0)
+text = "100%"
+
+[node name="AntiAliasingRow" type="HBoxContainer" parent="ModalPanel/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="AntiAliasingName" type="Label" parent="ModalPanel/VBox/AntiAliasingRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(140, 0)
+text = "Anti-Aliasing"
+
+[node name="AntiAliasingOption" type="OptionButton" parent="ModalPanel/VBox/AntiAliasingRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="GlowRow" type="HBoxContainer" parent="ModalPanel/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="GlowName" type="Label" parent="ModalPanel/VBox/GlowRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(140, 0)
+text = "Glow"
+
+[node name="GlowToggle" type="CheckButton" parent="ModalPanel/VBox/GlowRow"]
+layout_mode = 2
+text = "Enabled"
+
+[node name="ShadowsRow" type="HBoxContainer" parent="ModalPanel/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="ShadowsName" type="Label" parent="ModalPanel/VBox/ShadowsRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(140, 0)
+text = "Shadows"
+
+[node name="ShadowsToggle" type="CheckButton" parent="ModalPanel/VBox/ShadowsRow"]
+layout_mode = 2
+text = "Enabled"
+
+[node name="ScreenShakeRow" type="HBoxContainer" parent="ModalPanel/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="ScreenShakeName" type="Label" parent="ModalPanel/VBox/ScreenShakeRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(140, 0)
+text = "Screen Shake"
+
+[node name="ScreenShakeSlider" type="HSlider" parent="ModalPanel/VBox/ScreenShakeRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ScreenShakeValue" type="Label" parent="ModalPanel/VBox/ScreenShakeRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(70, 0)
+text = "100%"
+
+[node name="FlashReductionRow" type="HBoxContainer" parent="ModalPanel/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="FlashReductionName" type="Label" parent="ModalPanel/VBox/FlashReductionRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(140, 0)
+text = "Flash Reduction"
+
+[node name="FlashReductionToggle" type="CheckButton" parent="ModalPanel/VBox/FlashReductionRow"]
+layout_mode = 2
+text = "Enabled"
+
+[node name="AudioSectionLabel" type="Label" parent="ModalPanel/VBox"]
+layout_mode = 2
+text = "Audio"
+
+[node name="MasterRow" type="HBoxContainer" parent="ModalPanel/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="MasterName" type="Label" parent="ModalPanel/VBox/MasterRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(140, 0)
+text = "Master"
+
+[node name="MasterSlider" type="HSlider" parent="ModalPanel/VBox/MasterRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="MasterValue" type="Label" parent="ModalPanel/VBox/MasterRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(70, 0)
+text = "100%"
+
+[node name="SfxRow" type="HBoxContainer" parent="ModalPanel/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="SfxName" type="Label" parent="ModalPanel/VBox/SfxRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(140, 0)
+text = "SFX"
+
+[node name="SfxSlider" type="HSlider" parent="ModalPanel/VBox/SfxRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="SfxValue" type="Label" parent="ModalPanel/VBox/SfxRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(70, 0)
+text = "100%"
+
+[node name="MusicRow" type="HBoxContainer" parent="ModalPanel/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="MusicName" type="Label" parent="ModalPanel/VBox/MusicRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(140, 0)
+text = "Music"
+
+[node name="MusicSlider" type="HSlider" parent="ModalPanel/VBox/MusicRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="MusicValue" type="Label" parent="ModalPanel/VBox/MusicRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(70, 0)
+text = "100%"
+
+[node name="ButtonsRow" type="HBoxContainer" parent="ModalPanel/VBox"]
+layout_mode = 2
+alignment = 2
+
+[node name="CloseButton" type="Button" parent="ModalPanel/VBox/ButtonsRow"]
+layout_mode = 2
+text = "Close"

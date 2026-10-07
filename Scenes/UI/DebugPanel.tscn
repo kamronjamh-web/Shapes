@@ -1,0 +1,119 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/UI/DebugPanelUI.cs" id="1"]
+
+[node name="DebugPanel" type="Control"]
+layout_mode = 0
+offset_left = 980.0
+offset_top = 90.0
+offset_right = 1560.0
+offset_bottom = 860.0
+script = ExtResource("1")
+ForcedRarityDropdown = NodePath("Panel/VBox/ForcedRarityDropdown")
+ForcedShapeDropdown = NodePath("Panel/VBox/ForcedShapeDropdown")
+ForcedModifierDropdown = NodePath("Panel/VBox/ForcedModifierDropdown")
+AugmentTypeDropdown = NodePath("Panel/VBox/AugmentTypeDropdown")
+AugmentLevelDropdown = NodePath("Panel/VBox/AugmentLevelDropdown")
+ApplySelectionButton = NodePath("Panel/VBox/ButtonGrid/ApplySelectionButton")
+ClearSelectionButton = NodePath("Panel/VBox/ButtonGrid/ClearSelectionButton")
+AddAllShapesButton = NodePath("Panel/VBox/ButtonGrid/AddAllShapesButton")
+LevelUpButton = NodePath("Panel/VBox/ButtonGrid/LevelUpButton")
+AddRollButton = NodePath("Panel/VBox/ButtonGrid/AddRollButton")
+AddFatedRollButton = NodePath("Panel/VBox/ButtonGrid/AddFatedRollButton")
+AddAugmentButton = NodePath("Panel/VBox/ButtonGrid/AddAugmentButton")
+SimulateThousandButton = NodePath("Panel/VBox/ButtonGrid/SimulateThousandButton")
+ResetCountsButton = NodePath("Panel/VBox/ButtonGrid/ResetCountsButton")
+DeactivateDebugButton = NodePath("Panel/VBox/ButtonGrid/DeactivateDebugButton")
+StatusLabel = NodePath("Panel/VBox/StatusLabel")
+
+[node name="Panel" type="Panel" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBox" type="VBoxContainer" parent="Panel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 14.0
+offset_top = 14.0
+offset_right = -14.0
+offset_bottom = -14.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 8
+
+[node name="Title" type="Label" parent="Panel/VBox"]
+layout_mode = 2
+text = "Debug Panel"
+horizontal_alignment = 1
+
+[node name="ForcedRarityDropdown" type="OptionButton" parent="Panel/VBox"]
+layout_mode = 2
+
+[node name="ForcedShapeDropdown" type="OptionButton" parent="Panel/VBox"]
+layout_mode = 2
+
+[node name="ForcedModifierDropdown" type="OptionButton" parent="Panel/VBox"]
+layout_mode = 2
+
+[node name="AugmentTypeDropdown" type="OptionButton" parent="Panel/VBox"]
+layout_mode = 2
+
+[node name="AugmentLevelDropdown" type="OptionButton" parent="Panel/VBox"]
+layout_mode = 2
+
+[node name="ButtonGrid" type="GridContainer" parent="Panel/VBox"]
+layout_mode = 2
+columns = 2
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 8
+
+[node name="ApplySelectionButton" type="Button" parent="Panel/VBox/ButtonGrid"]
+layout_mode = 2
+text = "Apply Selection"
+
+[node name="ClearSelectionButton" type="Button" parent="Panel/VBox/ButtonGrid"]
+layout_mode = 2
+text = "Clear Selection"
+
+[node name="AddAllShapesButton" type="Button" parent="Panel/VBox/ButtonGrid"]
+layout_mode = 2
+text = "Add All Shapes"
+
+[node name="LevelUpButton" type="Button" parent="Panel/VBox/ButtonGrid"]
+layout_mode = 2
+text = "Level Up"
+
+[node name="AddRollButton" type="Button" parent="Panel/VBox/ButtonGrid"]
+layout_mode = 2
+text = "+1 Roll"
+
+[node name="AddFatedRollButton" type="Button" parent="Panel/VBox/ButtonGrid"]
+layout_mode = 2
+text = "+1 Fated Roll"
+
+[node name="AddAugmentButton" type="Button" parent="Panel/VBox/ButtonGrid"]
+layout_mode = 2
+text = "Add Augment"
+
+[node name="SimulateThousandButton" type="Button" parent="Panel/VBox/ButtonGrid"]
+layout_mode = 2
+text = "Simulate 1000"
+
+[node name="ResetCountsButton" type="Button" parent="Panel/VBox/ButtonGrid"]
+layout_mode = 2
+text = "Reset Counts"
+
+[node name="DeactivateDebugButton" type="Button" parent="Panel/VBox/ButtonGrid"]
+layout_mode = 2
+text = "Deactivate Debug"
+
+[node name="StatusLabel" type="Label" parent="Panel/VBox"]
+layout_mode = 2
+text = "Debug inactive."
+autowrap_mode = 2

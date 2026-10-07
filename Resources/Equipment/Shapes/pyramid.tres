@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="ShapeData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/Equipment/Data/ShapeData.cs" id="1"]
+
+[resource]
+script = ExtResource("1")
+Key = "pyramid"
+DisplayName = "Pyramid"
+ShapeGroup = 1
+Weight = 4.0
+Stars = 2
+AttackType = 6
+AttackName = "Homing Seekers"
+Hits = 1
+DamagePerHit = 120.0
+TotalDamage = 120.0
+Cooldown = 1.2
+SpecialDescription = "Fires homing missiles at nearby targets."
+Description = "Fires homing missiles at nearby targets."

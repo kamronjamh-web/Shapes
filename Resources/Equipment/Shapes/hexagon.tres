@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="ShapeData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/Equipment/Data/ShapeData.cs" id="1"]
+
+[resource]
+script = ExtResource("1")
+Key = "hexagon"
+DisplayName = "Hexagon"
+ShapeGroup = 0
+Weight = 20.0
+Stars = 1
+AttackType = 3
+AttackName = "Hex Mines"
+Hits = 3
+DamagePerHit = 30.0
+TotalDamage = 90.0
+Cooldown = 1.0
+SpecialDescription = "Drops proximity mines that detonate on contact."
+Description = "Drops proximity mines that detonate on contact."
