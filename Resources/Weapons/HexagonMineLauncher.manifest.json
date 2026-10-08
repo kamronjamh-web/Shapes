@@ -1,0 +1,1312 @@
+{
+  "shape": "hexagon",
+  "source": "Art/WeaponConcepts/HexagonMineLauncher/HexagonMineLauncher.blend",
+  "source_sha256": "99cf3facb30d7f13fc91bcf190d424ba0b644f87d1820a7d0234f6d1f3d0b484",
+  "blender_version": "5.2.2 LTS",
+  "coordinates": "meters; Godot +X right, +Y up, -Z forward; Blender (x,y,z) -> (x,z,-y)",
+  "animation": {
+    "name": "Fire",
+    "fps": 30,
+    "frames": [
+      1,
+      40
+    ],
+    "moving_parts": [
+      "Hexagon_Drum_Index_Pivot"
+    ]
+  },
+  "mechanism_parts": [
+    "Hexagon_Drum_Index_Pivot",
+    "Hexagon_Detachable_Mine_Puck"
+  ],
+  "nodes": 257,
+  "meshes": 242,
+  "bytes": 1339896,
+  "objects": [
+    {
+      "name": "GunRoot",
+      "source": "GunRoot",
+      "parent": null
+    },
+    {
+      "name": "Accent___grip_heel_inlay__1",
+      "source": "Accent | grip heel inlay -1",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Accent___grip_heel_inlay_1",
+      "source": "Accent | grip heel inlay 1",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Controls___frame_pin__1",
+      "source": "Controls | frame pin -1",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Controls___frame_pin_1",
+      "source": "Controls | frame pin 1",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Controls___grip_latch__1",
+      "source": "Controls | grip latch -1",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Controls___grip_latch_1",
+      "source": "Controls | grip latch 1",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Controls___slim_slide_release__1",
+      "source": "Controls | slim slide release -1",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Controls___slim_slide_release_1",
+      "source": "Controls | slim slide release 1",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Dock___dark_pocket_floor",
+      "source": "Dock | dark pocket floor",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Dock___fitted_rim",
+      "source": "Dock | fitted rim",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Dock___hexagon_witness__1",
+      "source": "Dock | hexagon witness -1",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Dock___hexagon_witness_1",
+      "source": "Dock | hexagon witness 1",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Dock___hexagon_witness_inset__1",
+      "source": "Dock | hexagon witness inset -1",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Dock___hexagon_witness_inset_1",
+      "source": "Dock | hexagon witness inset 1",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Dock___latch_witness",
+      "source": "Dock | latch witness",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Dock___positive_latch",
+      "source": "Dock | positive latch",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Dock___side_recess__1",
+      "source": "Dock | side recess -1",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Dock___side_recess_1",
+      "source": "Dock | side recess 1",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Frame___accessory_recess__1_0",
+      "source": "Frame | accessory recess -1 0",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Frame___accessory_recess__1_1",
+      "source": "Frame | accessory recess -1 1",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Frame___accessory_recess__1_2",
+      "source": "Frame | accessory recess -1 2",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Frame___accessory_recess_1_0",
+      "source": "Frame | accessory recess 1 0",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Frame___accessory_recess_1_1",
+      "source": "Frame | accessory recess 1 1",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Frame___accessory_recess_1_2",
+      "source": "Frame | accessory recess 1 2",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Frame___continuous_receiver_and_swept_grip",
+      "source": "Frame | continuous receiver and swept grip",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Frame___open_shaped_trigger_guard",
+      "source": "Frame | open shaped trigger guard",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Grip___angled_texture__1_00",
+      "source": "Grip | angled texture -1 00",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Grip___angled_texture__1_01",
+      "source": "Grip | angled texture -1 01",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Grip___angled_texture__1_02",
+      "source": "Grip | angled texture -1 02",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Grip___angled_texture__1_03",
+      "source": "Grip | angled texture -1 03",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Grip___angled_texture__1_04",
+      "source": "Grip | angled texture -1 04",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Grip___angled_texture__1_05",
+      "source": "Grip | angled texture -1 05",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Grip___angled_texture__1_06",
+      "source": "Grip | angled texture -1 06",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Grip___angled_texture__1_07",
+      "source": "Grip | angled texture -1 07",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Grip___angled_texture_1_00",
+      "source": "Grip | angled texture 1 00",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Grip___angled_texture_1_01",
+      "source": "Grip | angled texture 1 01",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Grip___angled_texture_1_02",
+      "source": "Grip | angled texture 1 02",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Grip___angled_texture_1_03",
+      "source": "Grip | angled texture 1 03",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Grip___angled_texture_1_04",
+      "source": "Grip | angled texture 1 04",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Grip___angled_texture_1_05",
+      "source": "Grip | angled texture 1 05",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Grip___angled_texture_1_06",
+      "source": "Grip | angled texture 1 06",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Grip___angled_texture_1_07",
+      "source": "Grip | angled texture 1 07",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Grip___contoured_panel__1",
+      "source": "Grip | contoured panel -1",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Grip___contoured_panel_1",
+      "source": "Grip | contoured panel 1",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Grip___fitted_heel_plate",
+      "source": "Grip | fitted heel plate",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Grip___lower_panel_fastener__1",
+      "source": "Grip | lower panel fastener -1",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Grip___lower_panel_fastener_1",
+      "source": "Grip | lower panel fastener 1",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Grip___upper_panel_fastener__1",
+      "source": "Grip | upper panel fastener -1",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Grip___upper_panel_fastener_1",
+      "source": "Grip | upper panel fastener 1",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Hexagon_Cradle_Cheek__1",
+      "source": "Hexagon_Cradle_Cheek_-1",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Hexagon_Cradle_Cheek_1",
+      "source": "Hexagon_Cradle_Cheek_1",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Hexagon_Cradle_Foot",
+      "source": "Hexagon_Cradle_Foot",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Hexagon_Cradle_Saddle",
+      "source": "Hexagon_Cradle_Saddle",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Hexagon_Detachable_Mine_Puck",
+      "source": "Hexagon_Detachable_Mine_Puck",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Hexagon_Mine_Arming_Trace",
+      "source": "Hexagon_Mine_Arming_Trace",
+      "parent": "Hexagon_Detachable_Mine_Puck"
+    },
+    {
+      "name": "Hexagon_Mine_Center",
+      "source": "Hexagon_Mine_Center",
+      "parent": "Hexagon_Detachable_Mine_Puck"
+    },
+    {
+      "name": "Hexagon_Mine_Face",
+      "source": "Hexagon_Mine_Face",
+      "parent": "Hexagon_Detachable_Mine_Puck"
+    },
+    {
+      "name": "Hexagon_Mine_Shell",
+      "source": "Hexagon_Mine_Shell",
+      "parent": "Hexagon_Detachable_Mine_Puck"
+    },
+    {
+      "name": "Hexagon_Drum_Index_Pivot",
+      "source": "Hexagon_Drum_Index_Pivot",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Hexagon_Drum_Core",
+      "source": "Hexagon_Drum_Core",
+      "parent": "Hexagon_Drum_Index_Pivot"
+    },
+    {
+      "name": "Hexagon_Drum_Front_Band",
+      "source": "Hexagon_Drum_Front_Band",
+      "parent": "Hexagon_Drum_Index_Pivot"
+    },
+    {
+      "name": "Hexagon_Drum_Front_Gasket",
+      "source": "Hexagon_Drum_Front_Gasket",
+      "parent": "Hexagon_Drum_Index_Pivot"
+    },
+    {
+      "name": "Hexagon_Drum_Rear_Band",
+      "source": "Hexagon_Drum_Rear_Band",
+      "parent": "Hexagon_Drum_Index_Pivot"
+    },
+    {
+      "name": "Hexagon_Drum_Rear_Gasket",
+      "source": "Hexagon_Drum_Rear_Gasket",
+      "parent": "Hexagon_Drum_Index_Pivot"
+    },
+    {
+      "name": "Hexagon_Flat_01_Armor",
+      "source": "Hexagon_Flat_01_Armor",
+      "parent": "Hexagon_Drum_Index_Pivot"
+    },
+    {
+      "name": "Hexagon_Flat_01_Bolt__0_031",
+      "source": "Hexagon_Flat_01_Bolt_-0.031",
+      "parent": "Hexagon_Drum_Index_Pivot"
+    },
+    {
+      "name": "Hexagon_Flat_01_Bolt_0_031",
+      "source": "Hexagon_Flat_01_Bolt_0.031",
+      "parent": "Hexagon_Drum_Index_Pivot"
+    },
+    {
+      "name": "Hexagon_Flat_01_Index_Light",
+      "source": "Hexagon_Flat_01_Index_Light",
+      "parent": "Hexagon_Drum_Index_Pivot"
+    },
+    {
+      "name": "Hexagon_Flat_01_Inset",
+      "source": "Hexagon_Flat_01_Inset",
+      "parent": "Hexagon_Drum_Index_Pivot"
+    },
+    {
+      "name": "Hexagon_Flat_01_Latch",
+      "source": "Hexagon_Flat_01_Latch",
+      "parent": "Hexagon_Drum_Index_Pivot"
+    },
+    {
+      "name": "Hexagon_Flat_02_Armor",
+      "source": "Hexagon_Flat_02_Armor",
+      "parent": "Hexagon_Drum_Index_Pivot"
+    },
+    {
+      "name": "Hexagon_Flat_02_Bolt__0_031",
+      "source": "Hexagon_Flat_02_Bolt_-0.031",
+      "parent": "Hexagon_Drum_Index_Pivot"
+    },
+    {
+      "name": "Hexagon_Flat_02_Bolt_0_031",
+      "source": "Hexagon_Flat_02_Bolt_0.031",
+      "parent": "Hexagon_Drum_Index_Pivot"
+    },
+    {
+      "name": "Hexagon_Flat_02_Index_Light",
+      "source": "Hexagon_Flat_02_Index_Light",
+      "parent": "Hexagon_Drum_Index_Pivot"
+    },
+    {
+      "name": "Hexagon_Flat_02_Inset",
+      "source": "Hexagon_Flat_02_Inset",
+      "parent": "Hexagon_Drum_Index_Pivot"
+    },
+    {
+      "name": "Hexagon_Flat_02_Latch",
+      "source": "Hexagon_Flat_02_Latch",
+      "parent": "Hexagon_Drum_Index_Pivot"
+    },
+    {
+      "name": "Hexagon_Flat_03_Armor",
+      "source": "Hexagon_Flat_03_Armor",
+      "parent": "Hexagon_Drum_Index_Pivot"
+    },
+    {
+      "name": "Hexagon_Flat_03_Bolt__0_031",
+      "source": "Hexagon_Flat_03_Bolt_-0.031",
+      "parent": "Hexagon_Drum_Index_Pivot"
+    },
+    {
+      "name": "Hexagon_Flat_03_Bolt_0_031",
+      "source": "Hexagon_Flat_03_Bolt_0.031",
+      "parent": "Hexagon_Drum_Index_Pivot"
+    },
+    {
+      "name": "Hexagon_Flat_03_Index_Light",
+      "source": "Hexagon_Flat_03_Index_Light",
+      "parent": "Hexagon_Drum_Index_Pivot"
+    },
+    {
+      "name": "Hexagon_Flat_03_Inset",
+      "source": "Hexagon_Flat_03_Inset",
+      "parent": "Hexagon_Drum_Index_Pivot"
+    },
+    {
+      "name": "Hexagon_Flat_03_Latch",
+      "source": "Hexagon_Flat_03_Latch",
+      "parent": "Hexagon_Drum_Index_Pivot"
+    },
+    {
+      "name": "Hexagon_Flat_04_Armor",
+      "source": "Hexagon_Flat_04_Armor",
+      "parent": "Hexagon_Drum_Index_Pivot"
+    },
+    {
+      "name": "Hexagon_Flat_04_Bolt__0_031",
+      "source": "Hexagon_Flat_04_Bolt_-0.031",
+      "parent": "Hexagon_Drum_Index_Pivot"
+    },
+    {
+      "name": "Hexagon_Flat_04_Bolt_0_031",
+      "source": "Hexagon_Flat_04_Bolt_0.031",
+      "parent": "Hexagon_Drum_Index_Pivot"
+    },
+    {
+      "name": "Hexagon_Flat_04_Index_Light",
+      "source": "Hexagon_Flat_04_Index_Light",
+      "parent": "Hexagon_Drum_Index_Pivot"
+    },
+    {
+      "name": "Hexagon_Flat_04_Inset",
+      "source": "Hexagon_Flat_04_Inset",
+      "parent": "Hexagon_Drum_Index_Pivot"
+    },
+    {
+      "name": "Hexagon_Flat_04_Latch",
+      "source": "Hexagon_Flat_04_Latch",
+      "parent": "Hexagon_Drum_Index_Pivot"
+    },
+    {
+      "name": "Hexagon_Flat_05_Armor",
+      "source": "Hexagon_Flat_05_Armor",
+      "parent": "Hexagon_Drum_Index_Pivot"
+    },
+    {
+      "name": "Hexagon_Flat_05_Bolt__0_031",
+      "source": "Hexagon_Flat_05_Bolt_-0.031",
+      "parent": "Hexagon_Drum_Index_Pivot"
+    },
+    {
+      "name": "Hexagon_Flat_05_Bolt_0_031",
+      "source": "Hexagon_Flat_05_Bolt_0.031",
+      "parent": "Hexagon_Drum_Index_Pivot"
+    },
+    {
+      "name": "Hexagon_Flat_05_Index_Light",
+      "source": "Hexagon_Flat_05_Index_Light",
+      "parent": "Hexagon_Drum_Index_Pivot"
+    },
+    {
+      "name": "Hexagon_Flat_05_Inset",
+      "source": "Hexagon_Flat_05_Inset",
+      "parent": "Hexagon_Drum_Index_Pivot"
+    },
+    {
+      "name": "Hexagon_Flat_05_Latch",
+      "source": "Hexagon_Flat_05_Latch",
+      "parent": "Hexagon_Drum_Index_Pivot"
+    },
+    {
+      "name": "Hexagon_Flat_06_Armor",
+      "source": "Hexagon_Flat_06_Armor",
+      "parent": "Hexagon_Drum_Index_Pivot"
+    },
+    {
+      "name": "Hexagon_Flat_06_Bolt__0_031",
+      "source": "Hexagon_Flat_06_Bolt_-0.031",
+      "parent": "Hexagon_Drum_Index_Pivot"
+    },
+    {
+      "name": "Hexagon_Flat_06_Bolt_0_031",
+      "source": "Hexagon_Flat_06_Bolt_0.031",
+      "parent": "Hexagon_Drum_Index_Pivot"
+    },
+    {
+      "name": "Hexagon_Flat_06_Index_Light",
+      "source": "Hexagon_Flat_06_Index_Light",
+      "parent": "Hexagon_Drum_Index_Pivot"
+    },
+    {
+      "name": "Hexagon_Flat_06_Inset",
+      "source": "Hexagon_Flat_06_Inset",
+      "parent": "Hexagon_Drum_Index_Pivot"
+    },
+    {
+      "name": "Hexagon_Flat_06_Latch",
+      "source": "Hexagon_Flat_06_Latch",
+      "parent": "Hexagon_Drum_Index_Pivot"
+    },
+    {
+      "name": "Hexagon_Forward_Housing",
+      "source": "Hexagon_Forward_Housing",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Hexagon_Inner_Throat",
+      "source": "Hexagon_Inner_Throat",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Hexagon_Muzzle_Collar",
+      "source": "Hexagon_Muzzle_Collar",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Hexagon_Muzzle_Gasket",
+      "source": "Hexagon_Muzzle_Gasket",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Hexagon_Muzzle_Lip",
+      "source": "Hexagon_Muzzle_Lip",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Hexagon_Rear_Axle",
+      "source": "Hexagon_Rear_Axle",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Hexagon_Rear_Coupling",
+      "source": "Hexagon_Rear_Coupling",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "ModulatorSocket01",
+      "source": "ModulatorSocket01",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "EmptyContact1",
+      "source": "Modulator 01 | empty contact -1",
+      "parent": "ModulatorSocket01"
+    },
+    {
+      "name": "EmptyContact1.001",
+      "source": "Modulator 01 | empty contact 1",
+      "parent": "ModulatorSocket01"
+    },
+    {
+      "name": "LockedCover",
+      "source": "Modulator 01 | locked cover",
+      "parent": "ModulatorSocket01"
+    },
+    {
+      "name": "LockedWitness",
+      "source": "Modulator 01 | locked witness",
+      "parent": "ModulatorSocket01"
+    },
+    {
+      "name": "RecessedSocketLip",
+      "source": "Modulator 01 | recessed socket lip",
+      "parent": "ModulatorSocket01"
+    },
+    {
+      "name": "Cartridge",
+      "source": "Modulator 01 | Sharpened Form",
+      "parent": "ModulatorSocket01"
+    },
+    {
+      "name": "IdentityBar0",
+      "source": "Modulator 01 | identity bar 0",
+      "parent": "Cartridge"
+    },
+    {
+      "name": "InsetFace",
+      "source": "Modulator 01 | inset face",
+      "parent": "Cartridge"
+    },
+    {
+      "name": "RaisedKey",
+      "source": "Modulator 01 | raised key",
+      "parent": "Cartridge"
+    },
+    {
+      "name": "TypeColor",
+      "source": "Modulator 01 | type color",
+      "parent": "Cartridge"
+    },
+    {
+      "name": "SocketInterior",
+      "source": "Modulator 01 | socket interior",
+      "parent": "ModulatorSocket01"
+    },
+    {
+      "name": "ModulatorSocket02",
+      "source": "ModulatorSocket02",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "EmptyContact1.002",
+      "source": "Modulator 02 | empty contact -1",
+      "parent": "ModulatorSocket02"
+    },
+    {
+      "name": "EmptyContact1.003",
+      "source": "Modulator 02 | empty contact 1",
+      "parent": "ModulatorSocket02"
+    },
+    {
+      "name": "LockedCover.001",
+      "source": "Modulator 02 | locked cover",
+      "parent": "ModulatorSocket02"
+    },
+    {
+      "name": "LockedWitness.001",
+      "source": "Modulator 02 | locked witness",
+      "parent": "ModulatorSocket02"
+    },
+    {
+      "name": "Cartridge.001",
+      "source": "Modulator 02 | Quickened Core",
+      "parent": "ModulatorSocket02"
+    },
+    {
+      "name": "IdentityBar0.001",
+      "source": "Modulator 02 | identity bar 0",
+      "parent": "Cartridge.001"
+    },
+    {
+      "name": "IdentityBar1",
+      "source": "Modulator 02 | identity bar 1",
+      "parent": "Cartridge.001"
+    },
+    {
+      "name": "InsetFace.001",
+      "source": "Modulator 02 | inset face",
+      "parent": "Cartridge.001"
+    },
+    {
+      "name": "RaisedKey.001",
+      "source": "Modulator 02 | raised key",
+      "parent": "Cartridge.001"
+    },
+    {
+      "name": "TypeColor.001",
+      "source": "Modulator 02 | type color",
+      "parent": "Cartridge.001"
+    },
+    {
+      "name": "RecessedSocketLip.001",
+      "source": "Modulator 02 | recessed socket lip",
+      "parent": "ModulatorSocket02"
+    },
+    {
+      "name": "SocketInterior.001",
+      "source": "Modulator 02 | socket interior",
+      "parent": "ModulatorSocket02"
+    },
+    {
+      "name": "ModulatorSocket03",
+      "source": "ModulatorSocket03",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "EmptyContact1.004",
+      "source": "Modulator 03 | empty contact -1",
+      "parent": "ModulatorSocket03"
+    },
+    {
+      "name": "EmptyContact1.005",
+      "source": "Modulator 03 | empty contact 1",
+      "parent": "ModulatorSocket03"
+    },
+    {
+      "name": "LockedCover.002",
+      "source": "Modulator 03 | locked cover",
+      "parent": "ModulatorSocket03"
+    },
+    {
+      "name": "LockedWitness.002",
+      "source": "Modulator 03 | locked witness",
+      "parent": "ModulatorSocket03"
+    },
+    {
+      "name": "Cartridge.002",
+      "source": "Modulator 03 | Long Reach",
+      "parent": "ModulatorSocket03"
+    },
+    {
+      "name": "IdentityBar0.002",
+      "source": "Modulator 03 | identity bar 0",
+      "parent": "Cartridge.002"
+    },
+    {
+      "name": "IdentityBar1.001",
+      "source": "Modulator 03 | identity bar 1",
+      "parent": "Cartridge.002"
+    },
+    {
+      "name": "IdentityBar2",
+      "source": "Modulator 03 | identity bar 2",
+      "parent": "Cartridge.002"
+    },
+    {
+      "name": "InsetFace.002",
+      "source": "Modulator 03 | inset face",
+      "parent": "Cartridge.002"
+    },
+    {
+      "name": "RaisedKey.002",
+      "source": "Modulator 03 | raised key",
+      "parent": "Cartridge.002"
+    },
+    {
+      "name": "TypeColor.002",
+      "source": "Modulator 03 | type color",
+      "parent": "Cartridge.002"
+    },
+    {
+      "name": "RecessedSocketLip.002",
+      "source": "Modulator 03 | recessed socket lip",
+      "parent": "ModulatorSocket03"
+    },
+    {
+      "name": "SocketInterior.002",
+      "source": "Modulator 03 | socket interior",
+      "parent": "ModulatorSocket03"
+    },
+    {
+      "name": "ModulatorSocket04",
+      "source": "ModulatorSocket04",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "EmptyContact1.006",
+      "source": "Modulator 04 | empty contact -1",
+      "parent": "ModulatorSocket04"
+    },
+    {
+      "name": "EmptyContact1.007",
+      "source": "Modulator 04 | empty contact 1",
+      "parent": "ModulatorSocket04"
+    },
+    {
+      "name": "Cartridge.003",
+      "source": "Modulator 04 | Expanded Shape",
+      "parent": "ModulatorSocket04"
+    },
+    {
+      "name": "IdentityBar0.003",
+      "source": "Modulator 04 | identity bar 0",
+      "parent": "Cartridge.003"
+    },
+    {
+      "name": "InsetFace.003",
+      "source": "Modulator 04 | inset face",
+      "parent": "Cartridge.003"
+    },
+    {
+      "name": "RaisedKey.003",
+      "source": "Modulator 04 | raised key",
+      "parent": "Cartridge.003"
+    },
+    {
+      "name": "TypeColor.003",
+      "source": "Modulator 04 | type color",
+      "parent": "Cartridge.003"
+    },
+    {
+      "name": "LockedCover.003",
+      "source": "Modulator 04 | locked cover",
+      "parent": "ModulatorSocket04"
+    },
+    {
+      "name": "LockedWitness.003",
+      "source": "Modulator 04 | locked witness",
+      "parent": "ModulatorSocket04"
+    },
+    {
+      "name": "RecessedSocketLip.003",
+      "source": "Modulator 04 | recessed socket lip",
+      "parent": "ModulatorSocket04"
+    },
+    {
+      "name": "SocketInterior.003",
+      "source": "Modulator 04 | socket interior",
+      "parent": "ModulatorSocket04"
+    },
+    {
+      "name": "ModulatorSocket05",
+      "source": "ModulatorSocket05",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Cartridge.004",
+      "source": "Modulator 05 | Accelerated Flight",
+      "parent": "ModulatorSocket05"
+    },
+    {
+      "name": "IdentityBar0.004",
+      "source": "Modulator 05 | identity bar 0",
+      "parent": "Cartridge.004"
+    },
+    {
+      "name": "IdentityBar1.002",
+      "source": "Modulator 05 | identity bar 1",
+      "parent": "Cartridge.004"
+    },
+    {
+      "name": "InsetFace.004",
+      "source": "Modulator 05 | inset face",
+      "parent": "Cartridge.004"
+    },
+    {
+      "name": "RaisedKey.004",
+      "source": "Modulator 05 | raised key",
+      "parent": "Cartridge.004"
+    },
+    {
+      "name": "TypeColor.004",
+      "source": "Modulator 05 | type color",
+      "parent": "Cartridge.004"
+    },
+    {
+      "name": "EmptyContact1.008",
+      "source": "Modulator 05 | empty contact -1",
+      "parent": "ModulatorSocket05"
+    },
+    {
+      "name": "EmptyContact1.009",
+      "source": "Modulator 05 | empty contact 1",
+      "parent": "ModulatorSocket05"
+    },
+    {
+      "name": "LockedCover.004",
+      "source": "Modulator 05 | locked cover",
+      "parent": "ModulatorSocket05"
+    },
+    {
+      "name": "LockedWitness.004",
+      "source": "Modulator 05 | locked witness",
+      "parent": "ModulatorSocket05"
+    },
+    {
+      "name": "RecessedSocketLip.004",
+      "source": "Modulator 05 | recessed socket lip",
+      "parent": "ModulatorSocket05"
+    },
+    {
+      "name": "SocketInterior.004",
+      "source": "Modulator 05 | socket interior",
+      "parent": "ModulatorSocket05"
+    },
+    {
+      "name": "ModulatorSocket06",
+      "source": "ModulatorSocket06",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "EmptyContact1.010",
+      "source": "Modulator 06 | empty contact -1",
+      "parent": "ModulatorSocket06"
+    },
+    {
+      "name": "EmptyContact1.011",
+      "source": "Modulator 06 | empty contact 1",
+      "parent": "ModulatorSocket06"
+    },
+    {
+      "name": "LockedCover.005",
+      "source": "Modulator 06 | locked cover",
+      "parent": "ModulatorSocket06"
+    },
+    {
+      "name": "LockedWitness.005",
+      "source": "Modulator 06 | locked witness",
+      "parent": "ModulatorSocket06"
+    },
+    {
+      "name": "RecessedSocketLip.005",
+      "source": "Modulator 06 | recessed socket lip",
+      "parent": "ModulatorSocket06"
+    },
+    {
+      "name": "Cartridge.005",
+      "source": "Modulator 06 | Sharpened Form",
+      "parent": "ModulatorSocket06"
+    },
+    {
+      "name": "IdentityBar0.005",
+      "source": "Modulator 06 | identity bar 0",
+      "parent": "Cartridge.005"
+    },
+    {
+      "name": "IdentityBar1.003",
+      "source": "Modulator 06 | identity bar 1",
+      "parent": "Cartridge.005"
+    },
+    {
+      "name": "IdentityBar2.001",
+      "source": "Modulator 06 | identity bar 2",
+      "parent": "Cartridge.005"
+    },
+    {
+      "name": "InsetFace.005",
+      "source": "Modulator 06 | inset face",
+      "parent": "Cartridge.005"
+    },
+    {
+      "name": "RaisedKey.005",
+      "source": "Modulator 06 | raised key",
+      "parent": "Cartridge.005"
+    },
+    {
+      "name": "TypeColor.005",
+      "source": "Modulator 06 | type color",
+      "parent": "Cartridge.005"
+    },
+    {
+      "name": "SocketInterior.005",
+      "source": "Modulator 06 | socket interior",
+      "parent": "ModulatorSocket06"
+    },
+    {
+      "name": "ModulatorSocket07",
+      "source": "ModulatorSocket07",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "EmptyContact1.012",
+      "source": "Modulator 07 | empty contact -1",
+      "parent": "ModulatorSocket07"
+    },
+    {
+      "name": "EmptyContact1.013",
+      "source": "Modulator 07 | empty contact 1",
+      "parent": "ModulatorSocket07"
+    },
+    {
+      "name": "LockedCover.006",
+      "source": "Modulator 07 | locked cover",
+      "parent": "ModulatorSocket07"
+    },
+    {
+      "name": "LockedWitness.006",
+      "source": "Modulator 07 | locked witness",
+      "parent": "ModulatorSocket07"
+    },
+    {
+      "name": "Cartridge.006",
+      "source": "Modulator 07 | Quickened Core",
+      "parent": "ModulatorSocket07"
+    },
+    {
+      "name": "IdentityBar0.006",
+      "source": "Modulator 07 | identity bar 0",
+      "parent": "Cartridge.006"
+    },
+    {
+      "name": "InsetFace.006",
+      "source": "Modulator 07 | inset face",
+      "parent": "Cartridge.006"
+    },
+    {
+      "name": "RaisedKey.006",
+      "source": "Modulator 07 | raised key",
+      "parent": "Cartridge.006"
+    },
+    {
+      "name": "TypeColor.006",
+      "source": "Modulator 07 | type color",
+      "parent": "Cartridge.006"
+    },
+    {
+      "name": "RecessedSocketLip.006",
+      "source": "Modulator 07 | recessed socket lip",
+      "parent": "ModulatorSocket07"
+    },
+    {
+      "name": "SocketInterior.006",
+      "source": "Modulator 07 | socket interior",
+      "parent": "ModulatorSocket07"
+    },
+    {
+      "name": "ModulatorSocket08",
+      "source": "ModulatorSocket08",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "EmptyContact1.014",
+      "source": "Modulator 08 | empty contact -1",
+      "parent": "ModulatorSocket08"
+    },
+    {
+      "name": "EmptyContact1.015",
+      "source": "Modulator 08 | empty contact 1",
+      "parent": "ModulatorSocket08"
+    },
+    {
+      "name": "LockedCover.007",
+      "source": "Modulator 08 | locked cover",
+      "parent": "ModulatorSocket08"
+    },
+    {
+      "name": "LockedWitness.007",
+      "source": "Modulator 08 | locked witness",
+      "parent": "ModulatorSocket08"
+    },
+    {
+      "name": "Cartridge.007",
+      "source": "Modulator 08 | Long Reach",
+      "parent": "ModulatorSocket08"
+    },
+    {
+      "name": "IdentityBar0.007",
+      "source": "Modulator 08 | identity bar 0",
+      "parent": "Cartridge.007"
+    },
+    {
+      "name": "IdentityBar1.004",
+      "source": "Modulator 08 | identity bar 1",
+      "parent": "Cartridge.007"
+    },
+    {
+      "name": "InsetFace.007",
+      "source": "Modulator 08 | inset face",
+      "parent": "Cartridge.007"
+    },
+    {
+      "name": "RaisedKey.007",
+      "source": "Modulator 08 | raised key",
+      "parent": "Cartridge.007"
+    },
+    {
+      "name": "TypeColor.007",
+      "source": "Modulator 08 | type color",
+      "parent": "Cartridge.007"
+    },
+    {
+      "name": "RecessedSocketLip.007",
+      "source": "Modulator 08 | recessed socket lip",
+      "parent": "ModulatorSocket08"
+    },
+    {
+      "name": "SocketInterior.007",
+      "source": "Modulator 08 | socket interior",
+      "parent": "ModulatorSocket08"
+    },
+    {
+      "name": "ModulatorSocket09",
+      "source": "ModulatorSocket09",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "EmptyContact1.016",
+      "source": "Modulator 09 | empty contact -1",
+      "parent": "ModulatorSocket09"
+    },
+    {
+      "name": "EmptyContact1.017",
+      "source": "Modulator 09 | empty contact 1",
+      "parent": "ModulatorSocket09"
+    },
+    {
+      "name": "Cartridge.008",
+      "source": "Modulator 09 | Expanded Shape",
+      "parent": "ModulatorSocket09"
+    },
+    {
+      "name": "IdentityBar0.008",
+      "source": "Modulator 09 | identity bar 0",
+      "parent": "Cartridge.008"
+    },
+    {
+      "name": "IdentityBar1.005",
+      "source": "Modulator 09 | identity bar 1",
+      "parent": "Cartridge.008"
+    },
+    {
+      "name": "IdentityBar2.002",
+      "source": "Modulator 09 | identity bar 2",
+      "parent": "Cartridge.008"
+    },
+    {
+      "name": "InsetFace.008",
+      "source": "Modulator 09 | inset face",
+      "parent": "Cartridge.008"
+    },
+    {
+      "name": "RaisedKey.008",
+      "source": "Modulator 09 | raised key",
+      "parent": "Cartridge.008"
+    },
+    {
+      "name": "TypeColor.008",
+      "source": "Modulator 09 | type color",
+      "parent": "Cartridge.008"
+    },
+    {
+      "name": "LockedCover.008",
+      "source": "Modulator 09 | locked cover",
+      "parent": "ModulatorSocket09"
+    },
+    {
+      "name": "LockedWitness.008",
+      "source": "Modulator 09 | locked witness",
+      "parent": "ModulatorSocket09"
+    },
+    {
+      "name": "RecessedSocketLip.008",
+      "source": "Modulator 09 | recessed socket lip",
+      "parent": "ModulatorSocket09"
+    },
+    {
+      "name": "SocketInterior.008",
+      "source": "Modulator 09 | socket interior",
+      "parent": "ModulatorSocket09"
+    },
+    {
+      "name": "ModulatorSocket10",
+      "source": "ModulatorSocket10",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Cartridge.009",
+      "source": "Modulator 10 | Accelerated Flight",
+      "parent": "ModulatorSocket10"
+    },
+    {
+      "name": "IdentityBar0.009",
+      "source": "Modulator 10 | identity bar 0",
+      "parent": "Cartridge.009"
+    },
+    {
+      "name": "InsetFace.009",
+      "source": "Modulator 10 | inset face",
+      "parent": "Cartridge.009"
+    },
+    {
+      "name": "RaisedKey.009",
+      "source": "Modulator 10 | raised key",
+      "parent": "Cartridge.009"
+    },
+    {
+      "name": "TypeColor.009",
+      "source": "Modulator 10 | type color",
+      "parent": "Cartridge.009"
+    },
+    {
+      "name": "EmptyContact1.018",
+      "source": "Modulator 10 | empty contact -1",
+      "parent": "ModulatorSocket10"
+    },
+    {
+      "name": "EmptyContact1.019",
+      "source": "Modulator 10 | empty contact 1",
+      "parent": "ModulatorSocket10"
+    },
+    {
+      "name": "LockedCover.009",
+      "source": "Modulator 10 | locked cover",
+      "parent": "ModulatorSocket10"
+    },
+    {
+      "name": "LockedWitness.009",
+      "source": "Modulator 10 | locked witness",
+      "parent": "ModulatorSocket10"
+    },
+    {
+      "name": "RecessedSocketLip.009",
+      "source": "Modulator 10 | recessed socket lip",
+      "parent": "ModulatorSocket10"
+    },
+    {
+      "name": "SocketInterior.009",
+      "source": "Modulator 10 | socket interior",
+      "parent": "ModulatorSocket10"
+    },
+    {
+      "name": "MultiWeapon___assembly_identifier",
+      "source": "MultiWeapon | assembly identifier",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "MultiWeapon___rear_traction_groove__1_0",
+      "source": "MultiWeapon | rear traction groove -1 0",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "MultiWeapon___rear_traction_groove__1_1",
+      "source": "MultiWeapon | rear traction groove -1 1",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "MultiWeapon___rear_traction_groove__1_2",
+      "source": "MultiWeapon | rear traction groove -1 2",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "MultiWeapon___rear_traction_groove_1_0",
+      "source": "MultiWeapon | rear traction groove 1 0",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "MultiWeapon___rear_traction_groove_1_1",
+      "source": "MultiWeapon | rear traction groove 1 1",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "MultiWeapon___rear_traction_groove_1_2",
+      "source": "MultiWeapon | rear traction groove 1 2",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "MultiWeapon___receiver_seam__1",
+      "source": "MultiWeapon | receiver seam -1",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "MultiWeapon___receiver_seam_1",
+      "source": "MultiWeapon | receiver seam 1",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "MultiWeapon___shared_rear_receiver",
+      "source": "MultiWeapon | shared rear receiver",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "MuzzleAnchor",
+      "source": "MuzzleAnchor",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "ShapeSocket",
+      "source": "ShapeSocket",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "HexagonInsert___removable_shape_cartridge",
+      "source": "HexagonInsert | removable shape cartridge",
+      "parent": "ShapeSocket"
+    },
+    {
+      "name": "HexagonInsert___indexing_notch",
+      "source": "HexagonInsert | indexing notch",
+      "parent": "HexagonInsert___removable_shape_cartridge"
+    },
+    {
+      "name": "HexagonInsert___inset_shape_face",
+      "source": "HexagonInsert | inset shape face",
+      "parent": "HexagonInsert___removable_shape_cartridge"
+    },
+    {
+      "name": "Sight___rear_dot__1",
+      "source": "Sight | rear dot -1",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Sight___rear_dot_1",
+      "source": "Sight | rear dot 1",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Sight___rear_notch_ear__1",
+      "source": "Sight | rear notch ear -1",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Sight___rear_notch_ear_1",
+      "source": "Sight | rear notch ear 1",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Trigger___curved_silhouette",
+      "source": "Trigger | curved silhouette",
+      "parent": "GunRoot"
+    }
+  ]
+}

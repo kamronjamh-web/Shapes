@@ -1,0 +1,1326 @@
+{
+  "shape": "hypercone",
+  "source": "Art/WeaponConcepts/HyperconeDrill/HyperconeDrill.blend",
+  "source_sha256": "bc7c98113329e188ac95bc4d667814c8f9098ddfeb55f3d89364592480df10f6",
+  "blender_version": "5.2.2 LTS",
+  "coordinates": "meters; Godot +X right, +Y up, -Z forward; Blender (x,y,z) -> (x,z,-y)",
+  "animation": {
+    "name": "Fire",
+    "fps": 30,
+    "frames": [
+      1,
+      40
+    ],
+    "moving_parts": [
+      "Hypercone_Counterrotating_Telescopic_Sleeves",
+      "Hypercone_Segmented_Counter_Collar",
+      "Hypercone_Telescoping_Cutting_Point"
+    ]
+  },
+  "mechanism_parts": [
+    "Hypercone_Counterrotating_Telescopic_Sleeves",
+    "Hypercone_Segmented_Counter_Collar",
+    "Hypercone_Telescoping_Cutting_Point"
+  ],
+  "attachments": {
+    "ShapeSocket": {
+      "parent": "GunRoot",
+      "animated_ancestors": []
+    },
+    "ModulatorSocket01": {
+      "parent": "GunRoot",
+      "animated_ancestors": []
+    },
+    "ModulatorSocket02": {
+      "parent": "GunRoot",
+      "animated_ancestors": []
+    },
+    "ModulatorSocket03": {
+      "parent": "GunRoot",
+      "animated_ancestors": []
+    },
+    "ModulatorSocket04": {
+      "parent": "GunRoot",
+      "animated_ancestors": []
+    },
+    "ModulatorSocket05": {
+      "parent": "GunRoot",
+      "animated_ancestors": []
+    },
+    "ModulatorSocket06": {
+      "parent": "GunRoot",
+      "animated_ancestors": []
+    },
+    "ModulatorSocket07": {
+      "parent": "GunRoot",
+      "animated_ancestors": []
+    },
+    "ModulatorSocket08": {
+      "parent": "GunRoot",
+      "animated_ancestors": []
+    },
+    "ModulatorSocket09": {
+      "parent": "GunRoot",
+      "animated_ancestors": []
+    },
+    "ModulatorSocket10": {
+      "parent": "GunRoot",
+      "animated_ancestors": []
+    }
+  },
+  "nodes": 250,
+  "meshes": 234,
+  "bytes": 1574420,
+  "objects": [
+    {
+      "name": "GunRoot",
+      "source": "GunRoot",
+      "parent": null
+    },
+    {
+      "name": "Hypercone_Brace_Upper_Lug__1",
+      "source": "Hypercone_Brace_Upper_Lug_-1",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Hypercone_Brace_Upper_Lug_1",
+      "source": "Hypercone_Brace_Upper_Lug_1",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Hypercone_Bulkhead_Torque_Junction__1",
+      "source": "Hypercone_Bulkhead_Torque_Junction_-1",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Hypercone_Bulkhead_Torque_Junction_1",
+      "source": "Hypercone_Bulkhead_Torque_Junction_1",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Hypercone_Counterrotating_Telescopic_Sleeves",
+      "source": "Hypercone_Counterrotating_Telescopic_Sleeves",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Hypercone_Long_Cutting_Helix_0",
+      "source": "Hypercone_Long_Cutting_Helix_0",
+      "parent": "Hypercone_Counterrotating_Telescopic_Sleeves"
+    },
+    {
+      "name": "Hypercone_Long_Cutting_Helix_1",
+      "source": "Hypercone_Long_Cutting_Helix_1",
+      "parent": "Hypercone_Counterrotating_Telescopic_Sleeves"
+    },
+    {
+      "name": "Hypercone_Long_Cutting_Helix_2",
+      "source": "Hypercone_Long_Cutting_Helix_2",
+      "parent": "Hypercone_Counterrotating_Telescopic_Sleeves"
+    },
+    {
+      "name": "Hypercone_Long_Taper_0",
+      "source": "Hypercone_Long_Taper_0",
+      "parent": "Hypercone_Counterrotating_Telescopic_Sleeves"
+    },
+    {
+      "name": "Hypercone_Long_Taper_1",
+      "source": "Hypercone_Long_Taper_1",
+      "parent": "Hypercone_Counterrotating_Telescopic_Sleeves"
+    },
+    {
+      "name": "Hypercone_Long_Taper_2",
+      "source": "Hypercone_Long_Taper_2",
+      "parent": "Hypercone_Counterrotating_Telescopic_Sleeves"
+    },
+    {
+      "name": "Hypercone_Taper_Recess_0",
+      "source": "Hypercone_Taper_Recess_0",
+      "parent": "Hypercone_Counterrotating_Telescopic_Sleeves"
+    },
+    {
+      "name": "Hypercone_Taper_Recess_1",
+      "source": "Hypercone_Taper_Recess_1",
+      "parent": "Hypercone_Counterrotating_Telescopic_Sleeves"
+    },
+    {
+      "name": "Hypercone_Taper_Recess_2",
+      "source": "Hypercone_Taper_Recess_2",
+      "parent": "Hypercone_Counterrotating_Telescopic_Sleeves"
+    },
+    {
+      "name": "Hypercone_Longitudinal_Torque_Rail__1",
+      "source": "Hypercone_Longitudinal_Torque_Rail_-1",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Hypercone_Longitudinal_Torque_Rail_1",
+      "source": "Hypercone_Longitudinal_Torque_Rail_1",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Hypercone_Rear_Brace_Crosspiece",
+      "source": "Hypercone_Rear_Brace_Crosspiece",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Hypercone_Rear_Head_Bulkhead",
+      "source": "Hypercone_Rear_Head_Bulkhead",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Hypercone_Rear_Hold",
+      "source": "Hypercone_Rear_Hold",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Hypercone_Rear_Hold_Rib_0",
+      "source": "Hypercone_Rear_Hold_Rib_0",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Hypercone_Rear_Hold_Rib_1",
+      "source": "Hypercone_Rear_Hold_Rib_1",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Hypercone_Rear_Hold_Rib_2",
+      "source": "Hypercone_Rear_Hold_Rib_2",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Hypercone_Rear_Hold_Rib_3",
+      "source": "Hypercone_Rear_Hold_Rib_3",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Hypercone_Rear_Hold_Rib_4",
+      "source": "Hypercone_Rear_Hold_Rib_4",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Hypercone_Rear_Hold_Rib_5",
+      "source": "Hypercone_Rear_Hold_Rib_5",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Hypercone_Rear_Hold_Rib_6",
+      "source": "Hypercone_Rear_Hold_Rib_6",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Hypercone_Rear_Hold_Rib_7",
+      "source": "Hypercone_Rear_Hold_Rib_7",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Hypercone_Rear_Torsion_Spine",
+      "source": "Hypercone_Rear_Torsion_Spine",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Hypercone_Secondary_Hold",
+      "source": "Hypercone_Secondary_Hold",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Hypercone_Secondary_Hold_Return__0_102",
+      "source": "Hypercone_Secondary_Hold_Return_-0.102",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Hypercone_Secondary_Hold_Return_0_01",
+      "source": "Hypercone_Secondary_Hold_Return_0.01",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Hypercone_Secondary_Rib_0",
+      "source": "Hypercone_Secondary_Rib_0",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Hypercone_Secondary_Rib_1",
+      "source": "Hypercone_Secondary_Rib_1",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Hypercone_Secondary_Rib_2",
+      "source": "Hypercone_Secondary_Rib_2",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Hypercone_Secondary_Rib_3",
+      "source": "Hypercone_Secondary_Rib_3",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Hypercone_Secondary_Rib_4",
+      "source": "Hypercone_Secondary_Rib_4",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Hypercone_Secondary_Rib_5",
+      "source": "Hypercone_Secondary_Rib_5",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Hypercone_Secondary_Rib_6",
+      "source": "Hypercone_Secondary_Rib_6",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Hypercone_Segmented_Counter_Collar",
+      "source": "Hypercone_Segmented_Counter_Collar",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Hypercone_Collar_Armor_00",
+      "source": "Hypercone_Collar_Armor_00",
+      "parent": "Hypercone_Segmented_Counter_Collar"
+    },
+    {
+      "name": "Hypercone_Collar_Armor_01",
+      "source": "Hypercone_Collar_Armor_01",
+      "parent": "Hypercone_Segmented_Counter_Collar"
+    },
+    {
+      "name": "Hypercone_Collar_Armor_02",
+      "source": "Hypercone_Collar_Armor_02",
+      "parent": "Hypercone_Segmented_Counter_Collar"
+    },
+    {
+      "name": "Hypercone_Collar_Armor_03",
+      "source": "Hypercone_Collar_Armor_03",
+      "parent": "Hypercone_Segmented_Counter_Collar"
+    },
+    {
+      "name": "Hypercone_Collar_Armor_04",
+      "source": "Hypercone_Collar_Armor_04",
+      "parent": "Hypercone_Segmented_Counter_Collar"
+    },
+    {
+      "name": "Hypercone_Collar_Armor_05",
+      "source": "Hypercone_Collar_Armor_05",
+      "parent": "Hypercone_Segmented_Counter_Collar"
+    },
+    {
+      "name": "Hypercone_Collar_Armor_06",
+      "source": "Hypercone_Collar_Armor_06",
+      "parent": "Hypercone_Segmented_Counter_Collar"
+    },
+    {
+      "name": "Hypercone_Collar_Armor_07",
+      "source": "Hypercone_Collar_Armor_07",
+      "parent": "Hypercone_Segmented_Counter_Collar"
+    },
+    {
+      "name": "Hypercone_Collar_Armor_08",
+      "source": "Hypercone_Collar_Armor_08",
+      "parent": "Hypercone_Segmented_Counter_Collar"
+    },
+    {
+      "name": "Hypercone_Collar_Armor_09",
+      "source": "Hypercone_Collar_Armor_09",
+      "parent": "Hypercone_Segmented_Counter_Collar"
+    },
+    {
+      "name": "Hypercone_Collar_Armor_10",
+      "source": "Hypercone_Collar_Armor_10",
+      "parent": "Hypercone_Segmented_Counter_Collar"
+    },
+    {
+      "name": "Hypercone_Collar_Armor_11",
+      "source": "Hypercone_Collar_Armor_11",
+      "parent": "Hypercone_Segmented_Counter_Collar"
+    },
+    {
+      "name": "Hypercone_Collar_Inlay_00",
+      "source": "Hypercone_Collar_Inlay_00",
+      "parent": "Hypercone_Segmented_Counter_Collar"
+    },
+    {
+      "name": "Hypercone_Collar_Inlay_03",
+      "source": "Hypercone_Collar_Inlay_03",
+      "parent": "Hypercone_Segmented_Counter_Collar"
+    },
+    {
+      "name": "Hypercone_Collar_Inlay_06",
+      "source": "Hypercone_Collar_Inlay_06",
+      "parent": "Hypercone_Segmented_Counter_Collar"
+    },
+    {
+      "name": "Hypercone_Collar_Inlay_09",
+      "source": "Hypercone_Collar_Inlay_09",
+      "parent": "Hypercone_Segmented_Counter_Collar"
+    },
+    {
+      "name": "Hypercone_Counter_Collar_Base",
+      "source": "Hypercone_Counter_Collar_Base",
+      "parent": "Hypercone_Segmented_Counter_Collar"
+    },
+    {
+      "name": "Hypercone_Side_Service_Inset__1",
+      "source": "Hypercone_Side_Service_Inset_-1",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Hypercone_Side_Service_Inset_1",
+      "source": "Hypercone_Side_Service_Inset_1",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Hypercone_Spine_Bottom_Recess",
+      "source": "Hypercone_Spine_Bottom_Recess",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Hypercone_Spine_Top_Panel",
+      "source": "Hypercone_Spine_Top_Panel",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Hypercone_Telescoping_Cutting_Point",
+      "source": "Hypercone_Telescoping_Cutting_Point",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Hypercone_Cutting_Point_Guide",
+      "source": "Hypercone_Cutting_Point_Guide",
+      "parent": "Hypercone_Telescoping_Cutting_Point"
+    },
+    {
+      "name": "Hypercone_Lance_Cutting_Point",
+      "source": "Hypercone_Lance_Cutting_Point",
+      "parent": "Hypercone_Telescoping_Cutting_Point"
+    },
+    {
+      "name": "Hypercone_Torque_Rail_Bolt__1_0",
+      "source": "Hypercone_Torque_Rail_Bolt_-1_0",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Hypercone_Torque_Rail_Bolt__1_1",
+      "source": "Hypercone_Torque_Rail_Bolt_-1_1",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Hypercone_Torque_Rail_Bolt__1_2",
+      "source": "Hypercone_Torque_Rail_Bolt_-1_2",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Hypercone_Torque_Rail_Bolt__1_3",
+      "source": "Hypercone_Torque_Rail_Bolt_-1_3",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Hypercone_Torque_Rail_Bolt_1_0",
+      "source": "Hypercone_Torque_Rail_Bolt_1_0",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Hypercone_Torque_Rail_Bolt_1_1",
+      "source": "Hypercone_Torque_Rail_Bolt_1_1",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Hypercone_Torque_Rail_Bolt_1_2",
+      "source": "Hypercone_Torque_Rail_Bolt_1_2",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Hypercone_Torque_Rail_Bolt_1_3",
+      "source": "Hypercone_Torque_Rail_Bolt_1_3",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "ModulatorSocket01",
+      "source": "ModulatorSocket01",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Bay_01___captive_stud__1",
+      "source": "Bay 01 | captive stud -1",
+      "parent": "ModulatorSocket01"
+    },
+    {
+      "name": "Bay_01___captive_stud_1",
+      "source": "Bay 01 | captive stud 1",
+      "parent": "ModulatorSocket01"
+    },
+    {
+      "name": "Bay_01___fitted_mounting_tile",
+      "source": "Bay 01 | fitted mounting tile",
+      "parent": "ModulatorSocket01"
+    },
+    {
+      "name": "EmptyContact1",
+      "source": "Modulator 01 | empty contact -1",
+      "parent": "ModulatorSocket01"
+    },
+    {
+      "name": "EmptyContact1.001",
+      "source": "Modulator 01 | empty contact 1",
+      "parent": "ModulatorSocket01"
+    },
+    {
+      "name": "LockedCover",
+      "source": "Modulator 01 | locked cover",
+      "parent": "ModulatorSocket01"
+    },
+    {
+      "name": "LockedWitness",
+      "source": "Modulator 01 | locked witness",
+      "parent": "ModulatorSocket01"
+    },
+    {
+      "name": "RecessedSocketLip",
+      "source": "Modulator 01 | recessed socket lip",
+      "parent": "ModulatorSocket01"
+    },
+    {
+      "name": "Cartridge",
+      "source": "Modulator 01 | Sharpened Form",
+      "parent": "ModulatorSocket01"
+    },
+    {
+      "name": "IdentityBar0",
+      "source": "Modulator 01 | identity bar 0",
+      "parent": "Cartridge"
+    },
+    {
+      "name": "InsetFace",
+      "source": "Modulator 01 | inset face",
+      "parent": "Cartridge"
+    },
+    {
+      "name": "RaisedKey",
+      "source": "Modulator 01 | raised key",
+      "parent": "Cartridge"
+    },
+    {
+      "name": "TypeColor",
+      "source": "Modulator 01 | type color",
+      "parent": "Cartridge"
+    },
+    {
+      "name": "SocketInterior",
+      "source": "Modulator 01 | socket interior",
+      "parent": "ModulatorSocket01"
+    },
+    {
+      "name": "ModulatorSocket02",
+      "source": "ModulatorSocket02",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Bay_02___captive_stud__1",
+      "source": "Bay 02 | captive stud -1",
+      "parent": "ModulatorSocket02"
+    },
+    {
+      "name": "Bay_02___captive_stud_1",
+      "source": "Bay 02 | captive stud 1",
+      "parent": "ModulatorSocket02"
+    },
+    {
+      "name": "Bay_02___fitted_mounting_tile",
+      "source": "Bay 02 | fitted mounting tile",
+      "parent": "ModulatorSocket02"
+    },
+    {
+      "name": "EmptyContact1.002",
+      "source": "Modulator 02 | empty contact -1",
+      "parent": "ModulatorSocket02"
+    },
+    {
+      "name": "EmptyContact1.003",
+      "source": "Modulator 02 | empty contact 1",
+      "parent": "ModulatorSocket02"
+    },
+    {
+      "name": "LockedCover.001",
+      "source": "Modulator 02 | locked cover",
+      "parent": "ModulatorSocket02"
+    },
+    {
+      "name": "LockedWitness.001",
+      "source": "Modulator 02 | locked witness",
+      "parent": "ModulatorSocket02"
+    },
+    {
+      "name": "Cartridge.001",
+      "source": "Modulator 02 | Quickened Core",
+      "parent": "ModulatorSocket02"
+    },
+    {
+      "name": "IdentityBar0.001",
+      "source": "Modulator 02 | identity bar 0",
+      "parent": "Cartridge.001"
+    },
+    {
+      "name": "IdentityBar1",
+      "source": "Modulator 02 | identity bar 1",
+      "parent": "Cartridge.001"
+    },
+    {
+      "name": "InsetFace.001",
+      "source": "Modulator 02 | inset face",
+      "parent": "Cartridge.001"
+    },
+    {
+      "name": "RaisedKey.001",
+      "source": "Modulator 02 | raised key",
+      "parent": "Cartridge.001"
+    },
+    {
+      "name": "TypeColor.001",
+      "source": "Modulator 02 | type color",
+      "parent": "Cartridge.001"
+    },
+    {
+      "name": "RecessedSocketLip.001",
+      "source": "Modulator 02 | recessed socket lip",
+      "parent": "ModulatorSocket02"
+    },
+    {
+      "name": "SocketInterior.001",
+      "source": "Modulator 02 | socket interior",
+      "parent": "ModulatorSocket02"
+    },
+    {
+      "name": "ModulatorSocket03",
+      "source": "ModulatorSocket03",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Bay_03___captive_stud__1",
+      "source": "Bay 03 | captive stud -1",
+      "parent": "ModulatorSocket03"
+    },
+    {
+      "name": "Bay_03___captive_stud_1",
+      "source": "Bay 03 | captive stud 1",
+      "parent": "ModulatorSocket03"
+    },
+    {
+      "name": "Bay_03___fitted_mounting_tile",
+      "source": "Bay 03 | fitted mounting tile",
+      "parent": "ModulatorSocket03"
+    },
+    {
+      "name": "EmptyContact1.004",
+      "source": "Modulator 03 | empty contact -1",
+      "parent": "ModulatorSocket03"
+    },
+    {
+      "name": "EmptyContact1.005",
+      "source": "Modulator 03 | empty contact 1",
+      "parent": "ModulatorSocket03"
+    },
+    {
+      "name": "LockedCover.002",
+      "source": "Modulator 03 | locked cover",
+      "parent": "ModulatorSocket03"
+    },
+    {
+      "name": "LockedWitness.002",
+      "source": "Modulator 03 | locked witness",
+      "parent": "ModulatorSocket03"
+    },
+    {
+      "name": "Cartridge.002",
+      "source": "Modulator 03 | Long Reach",
+      "parent": "ModulatorSocket03"
+    },
+    {
+      "name": "IdentityBar0.002",
+      "source": "Modulator 03 | identity bar 0",
+      "parent": "Cartridge.002"
+    },
+    {
+      "name": "IdentityBar1.001",
+      "source": "Modulator 03 | identity bar 1",
+      "parent": "Cartridge.002"
+    },
+    {
+      "name": "IdentityBar2",
+      "source": "Modulator 03 | identity bar 2",
+      "parent": "Cartridge.002"
+    },
+    {
+      "name": "InsetFace.002",
+      "source": "Modulator 03 | inset face",
+      "parent": "Cartridge.002"
+    },
+    {
+      "name": "RaisedKey.002",
+      "source": "Modulator 03 | raised key",
+      "parent": "Cartridge.002"
+    },
+    {
+      "name": "TypeColor.002",
+      "source": "Modulator 03 | type color",
+      "parent": "Cartridge.002"
+    },
+    {
+      "name": "RecessedSocketLip.002",
+      "source": "Modulator 03 | recessed socket lip",
+      "parent": "ModulatorSocket03"
+    },
+    {
+      "name": "SocketInterior.002",
+      "source": "Modulator 03 | socket interior",
+      "parent": "ModulatorSocket03"
+    },
+    {
+      "name": "ModulatorSocket04",
+      "source": "ModulatorSocket04",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Bay_04___captive_stud__1",
+      "source": "Bay 04 | captive stud -1",
+      "parent": "ModulatorSocket04"
+    },
+    {
+      "name": "Bay_04___captive_stud_1",
+      "source": "Bay 04 | captive stud 1",
+      "parent": "ModulatorSocket04"
+    },
+    {
+      "name": "Bay_04___fitted_mounting_tile",
+      "source": "Bay 04 | fitted mounting tile",
+      "parent": "ModulatorSocket04"
+    },
+    {
+      "name": "EmptyContact1.006",
+      "source": "Modulator 04 | empty contact -1",
+      "parent": "ModulatorSocket04"
+    },
+    {
+      "name": "EmptyContact1.007",
+      "source": "Modulator 04 | empty contact 1",
+      "parent": "ModulatorSocket04"
+    },
+    {
+      "name": "Cartridge.003",
+      "source": "Modulator 04 | Expanded Shape",
+      "parent": "ModulatorSocket04"
+    },
+    {
+      "name": "IdentityBar0.003",
+      "source": "Modulator 04 | identity bar 0",
+      "parent": "Cartridge.003"
+    },
+    {
+      "name": "InsetFace.003",
+      "source": "Modulator 04 | inset face",
+      "parent": "Cartridge.003"
+    },
+    {
+      "name": "RaisedKey.003",
+      "source": "Modulator 04 | raised key",
+      "parent": "Cartridge.003"
+    },
+    {
+      "name": "TypeColor.003",
+      "source": "Modulator 04 | type color",
+      "parent": "Cartridge.003"
+    },
+    {
+      "name": "LockedCover.003",
+      "source": "Modulator 04 | locked cover",
+      "parent": "ModulatorSocket04"
+    },
+    {
+      "name": "LockedWitness.003",
+      "source": "Modulator 04 | locked witness",
+      "parent": "ModulatorSocket04"
+    },
+    {
+      "name": "RecessedSocketLip.003",
+      "source": "Modulator 04 | recessed socket lip",
+      "parent": "ModulatorSocket04"
+    },
+    {
+      "name": "SocketInterior.003",
+      "source": "Modulator 04 | socket interior",
+      "parent": "ModulatorSocket04"
+    },
+    {
+      "name": "ModulatorSocket05",
+      "source": "ModulatorSocket05",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Bay_05___captive_stud__1",
+      "source": "Bay 05 | captive stud -1",
+      "parent": "ModulatorSocket05"
+    },
+    {
+      "name": "Bay_05___captive_stud_1",
+      "source": "Bay 05 | captive stud 1",
+      "parent": "ModulatorSocket05"
+    },
+    {
+      "name": "Bay_05___fitted_mounting_tile",
+      "source": "Bay 05 | fitted mounting tile",
+      "parent": "ModulatorSocket05"
+    },
+    {
+      "name": "Cartridge.004",
+      "source": "Modulator 05 | Accelerated Flight",
+      "parent": "ModulatorSocket05"
+    },
+    {
+      "name": "IdentityBar0.004",
+      "source": "Modulator 05 | identity bar 0",
+      "parent": "Cartridge.004"
+    },
+    {
+      "name": "IdentityBar1.002",
+      "source": "Modulator 05 | identity bar 1",
+      "parent": "Cartridge.004"
+    },
+    {
+      "name": "InsetFace.004",
+      "source": "Modulator 05 | inset face",
+      "parent": "Cartridge.004"
+    },
+    {
+      "name": "RaisedKey.004",
+      "source": "Modulator 05 | raised key",
+      "parent": "Cartridge.004"
+    },
+    {
+      "name": "TypeColor.004",
+      "source": "Modulator 05 | type color",
+      "parent": "Cartridge.004"
+    },
+    {
+      "name": "EmptyContact1.008",
+      "source": "Modulator 05 | empty contact -1",
+      "parent": "ModulatorSocket05"
+    },
+    {
+      "name": "EmptyContact1.009",
+      "source": "Modulator 05 | empty contact 1",
+      "parent": "ModulatorSocket05"
+    },
+    {
+      "name": "LockedCover.004",
+      "source": "Modulator 05 | locked cover",
+      "parent": "ModulatorSocket05"
+    },
+    {
+      "name": "LockedWitness.004",
+      "source": "Modulator 05 | locked witness",
+      "parent": "ModulatorSocket05"
+    },
+    {
+      "name": "RecessedSocketLip.004",
+      "source": "Modulator 05 | recessed socket lip",
+      "parent": "ModulatorSocket05"
+    },
+    {
+      "name": "SocketInterior.004",
+      "source": "Modulator 05 | socket interior",
+      "parent": "ModulatorSocket05"
+    },
+    {
+      "name": "ModulatorSocket06",
+      "source": "ModulatorSocket06",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Bay_06___captive_stud__1",
+      "source": "Bay 06 | captive stud -1",
+      "parent": "ModulatorSocket06"
+    },
+    {
+      "name": "Bay_06___captive_stud_1",
+      "source": "Bay 06 | captive stud 1",
+      "parent": "ModulatorSocket06"
+    },
+    {
+      "name": "Bay_06___fitted_mounting_tile",
+      "source": "Bay 06 | fitted mounting tile",
+      "parent": "ModulatorSocket06"
+    },
+    {
+      "name": "EmptyContact1.010",
+      "source": "Modulator 06 | empty contact -1",
+      "parent": "ModulatorSocket06"
+    },
+    {
+      "name": "EmptyContact1.011",
+      "source": "Modulator 06 | empty contact 1",
+      "parent": "ModulatorSocket06"
+    },
+    {
+      "name": "LockedCover.005",
+      "source": "Modulator 06 | locked cover",
+      "parent": "ModulatorSocket06"
+    },
+    {
+      "name": "LockedWitness.005",
+      "source": "Modulator 06 | locked witness",
+      "parent": "ModulatorSocket06"
+    },
+    {
+      "name": "RecessedSocketLip.005",
+      "source": "Modulator 06 | recessed socket lip",
+      "parent": "ModulatorSocket06"
+    },
+    {
+      "name": "Cartridge.005",
+      "source": "Modulator 06 | Sharpened Form",
+      "parent": "ModulatorSocket06"
+    },
+    {
+      "name": "IdentityBar0.005",
+      "source": "Modulator 06 | identity bar 0",
+      "parent": "Cartridge.005"
+    },
+    {
+      "name": "IdentityBar1.003",
+      "source": "Modulator 06 | identity bar 1",
+      "parent": "Cartridge.005"
+    },
+    {
+      "name": "IdentityBar2.001",
+      "source": "Modulator 06 | identity bar 2",
+      "parent": "Cartridge.005"
+    },
+    {
+      "name": "InsetFace.005",
+      "source": "Modulator 06 | inset face",
+      "parent": "Cartridge.005"
+    },
+    {
+      "name": "RaisedKey.005",
+      "source": "Modulator 06 | raised key",
+      "parent": "Cartridge.005"
+    },
+    {
+      "name": "TypeColor.005",
+      "source": "Modulator 06 | type color",
+      "parent": "Cartridge.005"
+    },
+    {
+      "name": "SocketInterior.005",
+      "source": "Modulator 06 | socket interior",
+      "parent": "ModulatorSocket06"
+    },
+    {
+      "name": "ModulatorSocket07",
+      "source": "ModulatorSocket07",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Bay_07___captive_stud__1",
+      "source": "Bay 07 | captive stud -1",
+      "parent": "ModulatorSocket07"
+    },
+    {
+      "name": "Bay_07___captive_stud_1",
+      "source": "Bay 07 | captive stud 1",
+      "parent": "ModulatorSocket07"
+    },
+    {
+      "name": "Bay_07___fitted_mounting_tile",
+      "source": "Bay 07 | fitted mounting tile",
+      "parent": "ModulatorSocket07"
+    },
+    {
+      "name": "EmptyContact1.012",
+      "source": "Modulator 07 | empty contact -1",
+      "parent": "ModulatorSocket07"
+    },
+    {
+      "name": "EmptyContact1.013",
+      "source": "Modulator 07 | empty contact 1",
+      "parent": "ModulatorSocket07"
+    },
+    {
+      "name": "LockedCover.006",
+      "source": "Modulator 07 | locked cover",
+      "parent": "ModulatorSocket07"
+    },
+    {
+      "name": "LockedWitness.006",
+      "source": "Modulator 07 | locked witness",
+      "parent": "ModulatorSocket07"
+    },
+    {
+      "name": "Cartridge.006",
+      "source": "Modulator 07 | Quickened Core",
+      "parent": "ModulatorSocket07"
+    },
+    {
+      "name": "IdentityBar0.006",
+      "source": "Modulator 07 | identity bar 0",
+      "parent": "Cartridge.006"
+    },
+    {
+      "name": "InsetFace.006",
+      "source": "Modulator 07 | inset face",
+      "parent": "Cartridge.006"
+    },
+    {
+      "name": "RaisedKey.006",
+      "source": "Modulator 07 | raised key",
+      "parent": "Cartridge.006"
+    },
+    {
+      "name": "TypeColor.006",
+      "source": "Modulator 07 | type color",
+      "parent": "Cartridge.006"
+    },
+    {
+      "name": "RecessedSocketLip.006",
+      "source": "Modulator 07 | recessed socket lip",
+      "parent": "ModulatorSocket07"
+    },
+    {
+      "name": "SocketInterior.006",
+      "source": "Modulator 07 | socket interior",
+      "parent": "ModulatorSocket07"
+    },
+    {
+      "name": "ModulatorSocket08",
+      "source": "ModulatorSocket08",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Bay_08___captive_stud__1",
+      "source": "Bay 08 | captive stud -1",
+      "parent": "ModulatorSocket08"
+    },
+    {
+      "name": "Bay_08___captive_stud_1",
+      "source": "Bay 08 | captive stud 1",
+      "parent": "ModulatorSocket08"
+    },
+    {
+      "name": "Bay_08___fitted_mounting_tile",
+      "source": "Bay 08 | fitted mounting tile",
+      "parent": "ModulatorSocket08"
+    },
+    {
+      "name": "EmptyContact1.014",
+      "source": "Modulator 08 | empty contact -1",
+      "parent": "ModulatorSocket08"
+    },
+    {
+      "name": "EmptyContact1.015",
+      "source": "Modulator 08 | empty contact 1",
+      "parent": "ModulatorSocket08"
+    },
+    {
+      "name": "LockedCover.007",
+      "source": "Modulator 08 | locked cover",
+      "parent": "ModulatorSocket08"
+    },
+    {
+      "name": "LockedWitness.007",
+      "source": "Modulator 08 | locked witness",
+      "parent": "ModulatorSocket08"
+    },
+    {
+      "name": "Cartridge.007",
+      "source": "Modulator 08 | Long Reach",
+      "parent": "ModulatorSocket08"
+    },
+    {
+      "name": "IdentityBar0.007",
+      "source": "Modulator 08 | identity bar 0",
+      "parent": "Cartridge.007"
+    },
+    {
+      "name": "IdentityBar1.004",
+      "source": "Modulator 08 | identity bar 1",
+      "parent": "Cartridge.007"
+    },
+    {
+      "name": "InsetFace.007",
+      "source": "Modulator 08 | inset face",
+      "parent": "Cartridge.007"
+    },
+    {
+      "name": "RaisedKey.007",
+      "source": "Modulator 08 | raised key",
+      "parent": "Cartridge.007"
+    },
+    {
+      "name": "TypeColor.007",
+      "source": "Modulator 08 | type color",
+      "parent": "Cartridge.007"
+    },
+    {
+      "name": "RecessedSocketLip.007",
+      "source": "Modulator 08 | recessed socket lip",
+      "parent": "ModulatorSocket08"
+    },
+    {
+      "name": "SocketInterior.007",
+      "source": "Modulator 08 | socket interior",
+      "parent": "ModulatorSocket08"
+    },
+    {
+      "name": "ModulatorSocket09",
+      "source": "ModulatorSocket09",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Bay_09___captive_stud__1",
+      "source": "Bay 09 | captive stud -1",
+      "parent": "ModulatorSocket09"
+    },
+    {
+      "name": "Bay_09___captive_stud_1",
+      "source": "Bay 09 | captive stud 1",
+      "parent": "ModulatorSocket09"
+    },
+    {
+      "name": "Bay_09___fitted_mounting_tile",
+      "source": "Bay 09 | fitted mounting tile",
+      "parent": "ModulatorSocket09"
+    },
+    {
+      "name": "EmptyContact1.016",
+      "source": "Modulator 09 | empty contact -1",
+      "parent": "ModulatorSocket09"
+    },
+    {
+      "name": "EmptyContact1.017",
+      "source": "Modulator 09 | empty contact 1",
+      "parent": "ModulatorSocket09"
+    },
+    {
+      "name": "Cartridge.008",
+      "source": "Modulator 09 | Expanded Shape",
+      "parent": "ModulatorSocket09"
+    },
+    {
+      "name": "IdentityBar0.008",
+      "source": "Modulator 09 | identity bar 0",
+      "parent": "Cartridge.008"
+    },
+    {
+      "name": "IdentityBar1.005",
+      "source": "Modulator 09 | identity bar 1",
+      "parent": "Cartridge.008"
+    },
+    {
+      "name": "IdentityBar2.002",
+      "source": "Modulator 09 | identity bar 2",
+      "parent": "Cartridge.008"
+    },
+    {
+      "name": "InsetFace.008",
+      "source": "Modulator 09 | inset face",
+      "parent": "Cartridge.008"
+    },
+    {
+      "name": "RaisedKey.008",
+      "source": "Modulator 09 | raised key",
+      "parent": "Cartridge.008"
+    },
+    {
+      "name": "TypeColor.008",
+      "source": "Modulator 09 | type color",
+      "parent": "Cartridge.008"
+    },
+    {
+      "name": "LockedCover.008",
+      "source": "Modulator 09 | locked cover",
+      "parent": "ModulatorSocket09"
+    },
+    {
+      "name": "LockedWitness.008",
+      "source": "Modulator 09 | locked witness",
+      "parent": "ModulatorSocket09"
+    },
+    {
+      "name": "RecessedSocketLip.008",
+      "source": "Modulator 09 | recessed socket lip",
+      "parent": "ModulatorSocket09"
+    },
+    {
+      "name": "SocketInterior.008",
+      "source": "Modulator 09 | socket interior",
+      "parent": "ModulatorSocket09"
+    },
+    {
+      "name": "ModulatorSocket10",
+      "source": "ModulatorSocket10",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Bay_10___captive_stud__1",
+      "source": "Bay 10 | captive stud -1",
+      "parent": "ModulatorSocket10"
+    },
+    {
+      "name": "Bay_10___captive_stud_1",
+      "source": "Bay 10 | captive stud 1",
+      "parent": "ModulatorSocket10"
+    },
+    {
+      "name": "Bay_10___fitted_mounting_tile",
+      "source": "Bay 10 | fitted mounting tile",
+      "parent": "ModulatorSocket10"
+    },
+    {
+      "name": "Cartridge.009",
+      "source": "Modulator 10 | Accelerated Flight",
+      "parent": "ModulatorSocket10"
+    },
+    {
+      "name": "IdentityBar0.009",
+      "source": "Modulator 10 | identity bar 0",
+      "parent": "Cartridge.009"
+    },
+    {
+      "name": "InsetFace.009",
+      "source": "Modulator 10 | inset face",
+      "parent": "Cartridge.009"
+    },
+    {
+      "name": "RaisedKey.009",
+      "source": "Modulator 10 | raised key",
+      "parent": "Cartridge.009"
+    },
+    {
+      "name": "TypeColor.009",
+      "source": "Modulator 10 | type color",
+      "parent": "Cartridge.009"
+    },
+    {
+      "name": "EmptyContact1.018",
+      "source": "Modulator 10 | empty contact -1",
+      "parent": "ModulatorSocket10"
+    },
+    {
+      "name": "EmptyContact1.019",
+      "source": "Modulator 10 | empty contact 1",
+      "parent": "ModulatorSocket10"
+    },
+    {
+      "name": "LockedCover.009",
+      "source": "Modulator 10 | locked cover",
+      "parent": "ModulatorSocket10"
+    },
+    {
+      "name": "LockedWitness.009",
+      "source": "Modulator 10 | locked witness",
+      "parent": "ModulatorSocket10"
+    },
+    {
+      "name": "RecessedSocketLip.009",
+      "source": "Modulator 10 | recessed socket lip",
+      "parent": "ModulatorSocket10"
+    },
+    {
+      "name": "SocketInterior.009",
+      "source": "Modulator 10 | socket interior",
+      "parent": "ModulatorSocket10"
+    },
+    {
+      "name": "MuzzleAnchor",
+      "source": "MuzzleAnchor",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "ShapeSocket",
+      "source": "ShapeSocket",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "Dock___captive_stud__1",
+      "source": "Dock | captive stud -1",
+      "parent": "ShapeSocket"
+    },
+    {
+      "name": "Dock___captive_stud_1",
+      "source": "Dock | captive stud 1",
+      "parent": "ShapeSocket"
+    },
+    {
+      "name": "Dock___fitted_end_rail__1",
+      "source": "Dock | fitted end rail -1",
+      "parent": "ShapeSocket"
+    },
+    {
+      "name": "Dock___fitted_end_rail_1",
+      "source": "Dock | fitted end rail 1",
+      "parent": "ShapeSocket"
+    },
+    {
+      "name": "Dock___fitted_side_rail__1",
+      "source": "Dock | fitted side rail -1",
+      "parent": "ShapeSocket"
+    },
+    {
+      "name": "Dock___fitted_side_rail_1",
+      "source": "Dock | fitted side rail 1",
+      "parent": "ShapeSocket"
+    },
+    {
+      "name": "Dock___isolated_pocket_floor",
+      "source": "Dock | isolated pocket floor",
+      "parent": "ShapeSocket"
+    },
+    {
+      "name": "Dock___latch_status",
+      "source": "Dock | latch status",
+      "parent": "ShapeSocket"
+    },
+    {
+      "name": "Dock___new_universal_carrier",
+      "source": "Dock | new universal carrier",
+      "parent": "ShapeSocket"
+    },
+    {
+      "name": "Dock___positive_latch",
+      "source": "Dock | positive latch",
+      "parent": "ShapeSocket"
+    },
+    {
+      "name": "HyperconeInsert___removable_shape_cartridge",
+      "source": "HyperconeInsert | removable shape cartridge",
+      "parent": "ShapeSocket"
+    },
+    {
+      "name": "HyperconeInsert_Layer_0",
+      "source": "HyperconeInsert_Layer_0",
+      "parent": "HyperconeInsert___removable_shape_cartridge"
+    },
+    {
+      "name": "HyperconeInsert_Layer_1",
+      "source": "HyperconeInsert_Layer_1",
+      "parent": "HyperconeInsert___removable_shape_cartridge"
+    },
+    {
+      "name": "HyperconeInsert_Layer_2",
+      "source": "HyperconeInsert_Layer_2",
+      "parent": "HyperconeInsert___removable_shape_cartridge"
+    },
+    {
+      "name": "HyperconeInsert_Layer_Collar_0",
+      "source": "HyperconeInsert_Layer_Collar_0",
+      "parent": "HyperconeInsert___removable_shape_cartridge"
+    },
+    {
+      "name": "HyperconeInsert_Layer_Collar_1",
+      "source": "HyperconeInsert_Layer_Collar_1",
+      "parent": "HyperconeInsert___removable_shape_cartridge"
+    },
+    {
+      "name": "HyperconeInsert_Layer_Collar_2",
+      "source": "HyperconeInsert_Layer_Collar_2",
+      "parent": "HyperconeInsert___removable_shape_cartridge"
+    }
+  ]
+}

@@ -9,8 +9,6 @@ namespace SuperGatchaRebuild.Fps;
 
 public partial class FpsPlayerController : CharacterBody3D
 {
-	private static readonly Vector3 ViewModelBasePosition = new(0.30f, -0.24f, -0.55f);
-
 	[Export] public float MouseSensitivity = 0.0018f;
 	[Export] public float MoveSpeed = 9.6f;
 	[Export] public float AirControl = 0.28f;
@@ -30,6 +28,8 @@ public partial class FpsPlayerController : CharacterBody3D
 	[Export] public float HeadBobSpeed = 11.5f;
 	[Export] public float RecoilKick = 0.085f;
 	[Export] public float RecoilReturnSpeed = 1.6f;
+	[Export] public Vector3 ViewModelBasePosition { get; set; } = new(0.30f, -0.24f, -0.55f);
+	[Export(PropertyHint.Range, "0.1,4,0.05")] public float ViewModelScale { get; set; } = 1.6f;
 
 	public event Action<float, float>? HealthChanged;
 	public event Action? Died;
@@ -52,6 +52,9 @@ public partial class FpsPlayerController : CharacterBody3D
 	private Node3D? _weaponItemVisual;
 	private Node3D? _weaponSocketVisuals;
 	private ModifierVisualController? _weaponModifierVisual;
+	private string _weaponShapeKey = "square";
+	private Vector3 _weaponViewCenter;
+	private float _weaponAimBlend;
 	private readonly RandomNumberGenerator _rng = new();
 
 	private bool _combatEnabled = true;
@@ -184,6 +187,7 @@ public partial class FpsPlayerController : CharacterBody3D
 		_fireCooldown = Mathf.Max(0.01f, cooldownSeconds);
 		_recoilOffset = Mathf.Clamp(_recoilOffset + RecoilKick, 0f, 0.22f);
 		direction = BuildShotDirection();
+		FpsWeaponVisualFactory.PlayFire(_weaponItemVisual, cooldownSeconds);
 		return true;
 	}
 
@@ -282,11 +286,12 @@ public partial class FpsPlayerController : CharacterBody3D
 		_weaponCore.Visible = false;
 
 		_weaponVisualFrame.Visible = true;
-		_weaponVisualFrame.Position = Vector3.Zero;
-		_weaponVisualFrame.RotationDegrees = new Vector3(0f, -8f, 0f);
-		_weaponVisualFrame.Scale = Vector3.One * 1.6f;
 		_weaponItemVisual = FpsWeaponVisualFactory.Create(weapon);
 		_weaponVisualFrame.AddChild(_weaponItemVisual);
+		_weaponShapeKey = _weaponItemVisual.GetMeta("shape_key").AsString();
+		_weaponViewCenter = FpsWeaponVisualFactory.GetVisualBounds(_weaponItemVisual)?.GetCenter() ?? Vector3.Zero;
+		_weaponAimBlend = _isAiming ? 1f : 0f;
+		UpdateWeaponPresentation();
 		// Some canonical shape variants create meshes during child _Ready.
 		ConfigureViewModelRendering(_weaponItemVisual);
 	}
@@ -427,6 +432,11 @@ public partial class FpsPlayerController : CharacterBody3D
 		_camera.Position = new Vector3(bobX, bobY, 0f);
 		_recoilOffset = Mathf.MoveToward(_recoilOffset, 0f, RecoilReturnSpeed * dt);
 		_viewModelRoot.Position = ViewModelBasePosition + new Vector3(bobX * 1.15f, bobY * 0.55f - (_recoilOffset * 0.18f), _recoilOffset);
+		if (_weaponItemVisual != null && IsInstanceValid(_weaponItemVisual))
+		{
+			_weaponAimBlend = Mathf.Lerp(_weaponAimBlend, _isAiming ? 1f : 0f, Mathf.Clamp(dt * AimLerpSpeed, 0f, 1f));
+			UpdateWeaponPresentation();
+		}
 
 		float targetFov = _isAiming ? AimFov : HipFov;
 		_camera.Fov = Mathf.Lerp(_camera.Fov, targetFov, Mathf.Clamp(dt * AimLerpSpeed, 0f, 1f));
@@ -435,6 +445,21 @@ public partial class FpsPlayerController : CharacterBody3D
 		{
 			_weaponModifierVisual.Intensity = _fireCooldown > 0f ? 1.16f : 1.08f;
 		}
+	}
+
+	private void UpdateWeaponPresentation()
+	{
+		FpsWeaponVisualFactory.ViewModelPose hip = FpsWeaponVisualFactory.GetViewModelPose(_weaponShapeKey, false);
+		FpsWeaponVisualFactory.ViewModelPose aim = FpsWeaponVisualFactory.GetViewModelPose(_weaponShapeKey, true);
+		Vector3 offset = hip.Offset.Lerp(aim.Offset, _weaponAimBlend);
+		Vector3 rotation = hip.RotationDegrees.Lerp(aim.RotationDegrees, _weaponAimBlend);
+		float scale = Mathf.Max(0.01f, ViewModelScale) * Mathf.Lerp(hip.ScaleMultiplier, aim.ScaleMultiplier, _weaponAimBlend);
+		_weaponVisualFrame.RotationDegrees = rotation;
+		_weaponVisualFrame.Scale = Vector3.One * scale;
+		// Centre only the new complete bodies. Their source origins differ substantially,
+		// and the lance otherwise extends behind the camera. Keep this fit stable during Fire.
+		_weaponVisualFrame.Position = offset - (hip.CenterOnBounds
+			? _weaponVisualFrame.Basis * _weaponViewCenter : Vector3.Zero);
 	}
 
 	private Vector3 BuildShotDirection()
@@ -459,6 +484,9 @@ public partial class FpsPlayerController : CharacterBody3D
 
 	private void ClearWeaponItemVisual()
 	{
+		_weaponShapeKey = "square";
+		_weaponViewCenter = Vector3.Zero;
+		_weaponAimBlend = 0f;
 		if (_weaponModifierVisual != null)
 		{
 			if (IsInstanceValid(_weaponModifierVisual))

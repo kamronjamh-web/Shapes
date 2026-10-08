@@ -1,0 +1,26 @@
+[
+  {
+    "asset": "CircleSawblade",
+    "blend_reopened": true,
+    "saved_animation_evaluated": true,
+    "glb_imported": true,
+    "imported_meshes": 167,
+    "imported_sockets": 10
+  },
+  {
+    "asset": "TriangleBeamCarbine",
+    "blend_reopened": true,
+    "saved_animation_evaluated": true,
+    "glb_imported": true,
+    "imported_meshes": 166,
+    "imported_sockets": 10
+  },
+  {
+    "asset": "HexagonMineLauncher",
+    "blend_reopened": true,
+    "saved_animation_evaluated": true,
+    "glb_imported": true,
+    "imported_meshes": 175,
+    "imported_sockets": 10
+  }
+]

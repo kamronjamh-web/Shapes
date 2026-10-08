@@ -8,6 +8,8 @@ Read this file and LAST_CHANGES.md at the start of a fresh session.
 - Main solution/build target: `SuperGatchaRebuild.csproj`.
 - Fast validation command: `dotnet build "SuperGatchaRebuild.csproj"`.
 - Build success is useful, but combat/content changes still need a Godot runtime playtest when behavior matters.
+- MultiWeapon now uses Blender models for all sixteen shapes, including Cone and the eight redesigned 3-/4-star forms. `FpsWeaponVisualFactory` shares the complete `Resources/Weapons` exports between first person and inspection; actual rarity and modulator data customize each instance. Successful shots play the fifteen imported mechanism animations. The redesigned bodies have individual hip/aim poses centered on their resting bounds; inspection retains authored metre-scale geometry. Runtime exports regenerate with `Tools/Art/ExportMultiWeaponRuntime.py` using Microsoft Store `blender-launcher.exe`; concept GLBs are static review snapshots. Weapon inspection: 1,054 checks; modulator regression: 417 checks; rendered hip/aim/fire/inspection/mechanism views reviewed in `.tmp/weapon-inspection-capture`.
+- Editable art sources cover all sixteen shapes. The eight 3-/4-star forms have complete new bodies (specialized tools, wearables and floating artifacts) with shared Square materials and cartridge interfaces. Review `Art/WeaponConcepts/MultiWeaponCollection/Weapons.html`; commands are in `Tools/Art/README.txt`. All eight redesigns passed 720 customization cases, source reopen/motion/reset checks and GLB reimports before runtime integration. Mobius disables generated mesh LODs to preserve its layered ribbon surfaces; keep that import setting when regenerating its runtime GLB.
 
 ## Horde Defense Direction and First Map
 

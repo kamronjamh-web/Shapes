@@ -1,0 +1,38 @@
+[
+  {
+    "asset": "MobiusEchoWeaver",
+    "shape_stars": 4,
+    "blend_reopened": true,
+    "saved_animation_evaluated": true,
+    "animation_returns_to_rest": true,
+    "glb_imported": true,
+    "imported_meshes": 132,
+    "imported_sockets": 10,
+    "review_display_scale": 1.2332453360861761,
+    "display_sizes_normalized": true
+  },
+  {
+    "asset": "KleinAuraVessel",
+    "shape_stars": 4,
+    "blend_reopened": true,
+    "saved_animation_evaluated": true,
+    "animation_returns_to_rest": true,
+    "glb_imported": true,
+    "imported_meshes": 190,
+    "imported_sockets": 10,
+    "review_display_scale": 0.9212582954918394,
+    "display_sizes_normalized": true
+  },
+  {
+    "asset": "BoysSurfaceClonePrism",
+    "shape_stars": 4,
+    "blend_reopened": true,
+    "saved_animation_evaluated": true,
+    "animation_returns_to_rest": true,
+    "glb_imported": true,
+    "imported_meshes": 159,
+    "imported_sockets": 10,
+    "review_display_scale": 0.9421813654367425,
+    "display_sizes_normalized": true
+  }
+]

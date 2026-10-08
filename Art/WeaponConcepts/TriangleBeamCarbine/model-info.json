@@ -1,0 +1,39 @@
+{
+  "rarity_level_equipment_cases": 90,
+  "modulator_sockets": 10,
+  "visible_triangles_at_default": 15780,
+  "dimensions_metres": [
+    0.0675722286105156,
+    0.41004493832588196,
+    0.2683663070201874
+  ],
+  "model_objects": 249,
+  "model": "TriangleBeamCarbine",
+  "title": "Triangle - Beam Carbine",
+  "equipped_shape": "triangle",
+  "source": "SquareHandgun.blend",
+  "source_sha256": "cfdb814fe2d8c6ee7f2884651ef4584892481ded02536fd5da0e6884dc96dd94",
+  "blender_version": "5.2.2 LTS",
+  "description": "Triangle beam carbine with three tapered polygonal accelerator rails, an open triangular throat, and a restrained charge-convergence animation.",
+  "moving_parts": [
+    "TRI_AcceleratorRail_0",
+    "TRI_AcceleratorRail_1",
+    "TRI_AcceleratorRail_2"
+  ],
+  "source_file": "TriangleBeamCarbine.blend",
+  "review_export": "TriangleBeamCarbine.glb",
+  "coordinates": "metres; Blender +Y forward/+Z up; GLB -Z forward/+Y up",
+  "rarity_control": "TriangleInsert | removable shape cartridge.rarity_tier",
+  "default_preview": "Rare / level 5 / three installed modulators",
+  "animation_frames": [
+    1,
+    40
+  ],
+  "animation_fps": 30,
+  "integration": "Runtime export in Resources/Weapons; generated separately by ExportMultiWeaponRuntime.py",
+  "glb_nodes": 182,
+  "glb_meshes": 166,
+  "glb_bytes": 918088,
+  "glb_checked": true,
+  "blend_reopen_checked": true
+}

@@ -11,7 +11,49 @@ namespace SuperGatchaRebuild.Fps;
 public static partial class FpsWeaponVisualFactory
 {
     public const string SquareScenePath = "res://Resources/Weapons/SquareHandgun.glb";
-    private static PackedScene? _squareScene;
+    private static readonly Dictionary<string, string> AuthoredScenePaths = new(StringComparer.Ordinal)
+    {
+        ["square"] = SquareScenePath,
+        ["circle"] = "res://Resources/Weapons/CircleSawblade.glb",
+        ["triangle"] = "res://Resources/Weapons/TriangleBeamCarbine.glb",
+        ["hexagon"] = "res://Resources/Weapons/HexagonMineLauncher.glb",
+        ["sphere"] = "res://Resources/Weapons/SpherePulseCannon.glb",
+        ["cube"] = "res://Resources/Weapons/CubeGuardProjector.glb",
+        ["pyramid"] = "res://Resources/Weapons/PyramidSeekerLauncher.glb",
+        ["cone"] = "res://Resources/Weapons/ConeFlameProjector.glb",
+        ["tesseract"] = "res://Resources/Weapons/TesseractRiftEngine.glb",
+        ["hyperphere"] = "res://Resources/Weapons/HyperphereMortar.glb",
+        ["pentachoron"] = "res://Resources/Weapons/PentachoronArcLattice.glb",
+        ["hypercone"] = "res://Resources/Weapons/HyperconeDrill.glb",
+        ["impossiblecube"] = "res://Resources/Weapons/ImpossibleCubeSingularity.glb",
+        ["mobius"] = "res://Resources/Weapons/MobiusEchoWeaver.glb",
+        ["klein"] = "res://Resources/Weapons/KleinAuraVessel.glb",
+        ["boys"] = "res://Resources/Weapons/BoysSurfaceClonePrism.glb",
+    };
+    private static readonly Dictionary<string, PackedScene> SceneCache = new(StringComparer.Ordinal);
+
+    /// <summary>Camera presentation only; inspection and authored metre-scale geometry stay independent.</summary>
+    public readonly record struct ViewModelPose(Vector3 Offset, Vector3 RotationDegrees,
+        float ScaleMultiplier, bool CenterOnBounds);
+
+    public static ViewModelPose GetViewModelPose(string? shapeKey, bool aiming) => NormalizeShapeKey(shapeKey) switch
+    {
+        "tesseract" => new(aiming ? new(-.07f, 0f, -.30f) : new(-.06f, -.03f, -.22f), new(0f, -12f, 0f), .40f, true),
+        "hyperphere" => new(aiming ? new(0f, .03f, -.27f) : new(.02f, 0f, -.17f), new(0f, -12f, 0f), .52f, true),
+        "pentachoron" => new(aiming ? new(-.04f, .055f, -.18f) : new(-.03f, .015f, -.07f), new(-5f, -12f, -4f), .65f, true),
+        "hypercone" => new(aiming ? new(-.05f, .03f, -.44f) : new(-.05f, -.005f, -.30f), new(12f, 40f, 3f), .50f, true),
+        "impossiblecube" => new(aiming ? new(-.01f, .03f, -.35f) : new(.02f, .005f, -.24f), new(0f, -20f, 6f), .36f, true),
+        "mobius" => new(aiming ? new(0f, .03f, -.24f) : new(.01f, 0f, -.12f), new(-5f, -18f, -8f), .90f, true),
+        "klein" => new(aiming ? new(0f, .04f, -.32f) : new(.04f, 0f, -.22f), new(0f, -24f, -6f), .65f, true),
+        "boys" => new(aiming ? new(0f, .02f, -.34f) : new(.02f, 0f, -.22f), new(0f, -18f, 4f), .80f, true),
+        _ => new(Vector3.Zero, new(0f, -8f, 0f), 1f, false),
+    };
+
+    private static string NormalizeShapeKey(string? shapeKey)
+    {
+        string key = (shapeKey ?? "square").Trim().ToLowerInvariant();
+        return key == "hypersphere" ? "hyperphere" : key;
+    }
 
     private sealed partial class FittedShape : Node3D
     {
@@ -43,13 +85,39 @@ public static partial class FpsWeaponVisualFactory
     public static Node3D Create(EquipmentItem weapon)
     {
         ArgumentNullException.ThrowIfNull(weapon);
-        _squareScene ??= GD.Load<PackedScene>(SquareScenePath);
-        Node3D root = _squareScene.Instantiate<Node3D>();
+        string key = NormalizeShapeKey(weapon.Shape?.Key);
+        bool authored = AuthoredScenePaths.TryGetValue(key, out string? scenePath) &&
+            ResourceLoader.Exists(scenePath);
+        scenePath = authored ? scenePath! : SquareScenePath;
+        if (!SceneCache.TryGetValue(scenePath, out PackedScene? scene))
+        {
+            scene = GD.Load<PackedScene>(scenePath) ??
+                throw new InvalidOperationException($"Runtime weapon scene could not be loaded: {scenePath}");
+            SceneCache.Add(scenePath, scene);
+        }
+        Node3D root = scene.Instantiate<Node3D>();
         root.Name = "EquippedHandgun";
-        string key = (weapon.Shape?.Key ?? "square").Trim().ToLowerInvariant();
-        if (key == "hypersphere") key = "hyperphere";
+        List<(Node3D Part, Transform3D Pose)> mechanismRest = new();
+        foreach (Node node in Descendants(root))
+            if (node is Node3D part) mechanismRest.Add((part, part.Transform));
+        foreach (Node node in Descendants(root))
+        {
+            if (node is not AnimationPlayer player) continue;
+            player.Autoplay = "";
+            player.Stop();
+            player.AnimationFinished += name =>
+            {
+                if (name != "Fire") return;
+                // Indexed mechanisms can finish at a different equivalent face.
+                // Restore their authored pose so each shot begins consistently.
+                foreach ((Node3D part, Transform3D rest) in mechanismRest)
+                    if (GodotObject.IsInstanceValid(part) && !part.IsQueuedForDeletion()) part.Transform = rest;
+            };
+        }
         Color rarity = weapon.Rarity?.UiColor ?? Colors.White;
         root.SetMeta("shape_key", key);
+        root.SetMeta("visual_source", scenePath);
+        root.SetMeta("authored", authored);
         root.SetMeta("rarity_color", rarity);
         root.SetMeta("unlocked_modulator_slots", weapon.UnlockedModulatorSlots);
         root.SetMeta("units", "meters; forward -Z; up +Y");
@@ -92,8 +160,28 @@ public static partial class FpsWeaponVisualFactory
             }
         }
 
-        if (key != "square") BuildShapeUpper(root, weapon.Shape, key, rarity);
+        if (!authored && key != "square") BuildShapeUpper(root, weapon.Shape, key, rarity);
         return root;
+    }
+
+    /// <summary>Restart the imported visual mechanism, fitting its cycle to the weapon cooldown.</summary>
+    public static bool PlayFire(Node3D? root, float cooldownSeconds)
+    {
+        if (root == null || !GodotObject.IsInstanceValid(root) || root.IsQueuedForDeletion()) return false;
+        foreach (Node node in Descendants(root))
+        {
+            if (node is not AnimationPlayer player || !player.HasAnimation("Fire")) continue;
+            Animation clip = player.GetAnimation("Fire");
+            double duration = float.IsFinite(cooldownSeconds)
+                ? Math.Clamp(cooldownSeconds, .12f, 1.3f) : 1.3;
+            double speed = clip.Length > 0 ? clip.Length / duration : 1;
+            player.Stop();
+            player.SpeedScale = 1;
+            player.Play("Fire", customSpeed: (float)speed);
+            player.Advance(0);
+            return true;
+        }
+        return false;
     }
 
     private static void BuildShapeUpper(Node3D root, ShapeData? shape, string key, Color rarity)

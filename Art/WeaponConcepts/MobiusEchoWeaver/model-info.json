@@ -1,0 +1,46 @@
+{
+  "rarity_level_equipment_cases": 90,
+  "modulator_sockets": 10,
+  "visible_triangles_at_default": 37168,
+  "dimensions_metres": [
+    0.21949999779462814,
+    0.18339387327432632,
+    0.23785728216171265
+  ],
+  "model_objects": 217,
+  "full_body_redesign": true,
+  "model": "MobiusEchoWeaver",
+  "title": "Mobius - Echo Weaver",
+  "equipped_shape": "mobius",
+  "shape_stars": 4,
+  "star_design": "Sculptural topology, interlocking conduits, multiple containment layers and fine precision details",
+  "source": "SquareHandgun.blend",
+  "source_sha256": "cfdb814fe2d8c6ee7f2884651ef4584892481ded02536fd5da0e6884dc96dd94",
+  "blender_version": "5.2.2 LTS",
+  "description": "Wearable broad continuous metallic half-twist ribbon enclosing an open forearm channel. Two captured temporal emitters travel along the twisted surface; a primary pulse is followed by a delayed expanding ghost pulse. Bonded control panels carry the dock and ten modulator bays. No pistol chassis.",
+  "design_name": "Mobius Forearm Echo Band",
+  "moving_parts": [
+    "Mobius_TravellingTemporalEmitter_0",
+    "Mobius_DelayedGhostPulse_0",
+    "Mobius_TravellingTemporalEmitter_1",
+    "Mobius_DelayedGhostPulse_1"
+  ],
+  "source_file": "MobiusEchoWeaver.blend",
+  "review_export": "MobiusEchoWeaver.glb",
+  "shape_insert": "dimensional mobius",
+  "coordinates": "metres; Blender +Y forward/+Z up; GLB -Z forward/+Y up",
+  "rarity_control": "MobiusInsert | removable shape cartridge.rarity_tier",
+  "default_preview": "Rare / level 5 / three installed modulators",
+  "animation_frames": [
+    1,
+    40
+  ],
+  "animation_fps": 30,
+  "integration": "Editable art and static review export; runtime export is a separate step using ExportMultiWeaponRuntime.py",
+  "glb_nodes": 150,
+  "glb_meshes": 132,
+  "glb_bytes": 1312916,
+  "glb_checked": true,
+  "blend_reopen_checked": true,
+  "saved_animation_evaluated": true
+}

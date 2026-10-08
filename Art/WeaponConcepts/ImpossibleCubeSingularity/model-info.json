@@ -1,0 +1,52 @@
+{
+  "rarity_level_equipment_cases": 90,
+  "modulator_sockets": 10,
+  "visible_triangles_at_default": 43228,
+  "dimensions_metres": [
+    0.5870000123977661,
+    0.5869999974966049,
+    0.6040000021457672
+  ],
+  "model_objects": 478,
+  "full_body_redesign": true,
+  "model": "ImpossibleCubeSingularity",
+  "title": "Impossible Cube - Singularity",
+  "equipped_shape": "impossiblecube",
+  "shape_stars": 4,
+  "star_design": "Sculptural topology, interlocking conduits, multiple containment layers and fine precision details",
+  "source": "SquareHandgun.blend",
+  "source_sha256": "cfdb814fe2d8c6ee7f2884651ef4584892481ded02536fd5da0e6884dc96dd94",
+  "blender_version": "5.2.2 LTS",
+  "description": "Floating impossible cube of eight suspended armored corner fragments and stepped half-beams, splitting and rotating around a dark singularity, offset Penrose return cage, and orthogonal trapping fields.",
+  "design_name": "Floating Fractured Singularity Cube",
+  "moving_parts": [
+    "ImpossibleCube_Suspended_Fragment_00",
+    "ImpossibleCube_Suspended_Fragment_01",
+    "ImpossibleCube_Suspended_Fragment_02",
+    "ImpossibleCube_Suspended_Fragment_03",
+    "ImpossibleCube_Suspended_Fragment_04",
+    "ImpossibleCube_Suspended_Fragment_05",
+    "ImpossibleCube_Suspended_Fragment_06",
+    "ImpossibleCube_Suspended_Fragment_07",
+    "ImpossibleCube_Offset_Inner_Frame",
+    "ImpossibleCube_Dark_Singularity_Pulse"
+  ],
+  "source_file": "ImpossibleCubeSingularity.blend",
+  "review_export": "ImpossibleCubeSingularity.glb",
+  "shape_insert": "dimensional impossiblecube",
+  "coordinates": "metres; Blender +Y forward/+Z up; GLB -Z forward/+Y up",
+  "rarity_control": "ImpossiblecubeInsert | removable shape cartridge.rarity_tier",
+  "default_preview": "Rare / level 5 / three installed modulators",
+  "animation_frames": [
+    1,
+    40
+  ],
+  "animation_fps": 30,
+  "integration": "Editable art and static review export; runtime export is a separate step using ExportMultiWeaponRuntime.py",
+  "glb_nodes": 411,
+  "glb_meshes": 387,
+  "glb_bytes": 2262076,
+  "glb_checked": true,
+  "blend_reopen_checked": true,
+  "saved_animation_evaluated": true
+}

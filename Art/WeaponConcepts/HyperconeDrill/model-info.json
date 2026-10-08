@@ -1,0 +1,45 @@
+{
+  "rarity_level_equipment_cases": 90,
+  "modulator_sockets": 10,
+  "visible_triangles_at_default": 25004,
+  "dimensions_metres": [
+    0.36500000953674316,
+    0.875,
+    0.328000009059906
+  ],
+  "model_objects": 250,
+  "full_body_redesign": true,
+  "model": "HyperconeDrill",
+  "title": "Hypercone - Drill",
+  "equipped_shape": "hypercone",
+  "shape_stars": 3,
+  "star_design": "Layered containment structures, nested cores and interacting precision mechanisms",
+  "source": "SquareHandgun.blend",
+  "source_sha256": "cfdb814fe2d8c6ee7f2884651ef4584892481ded02536fd5da0e6884dc96dd94",
+  "blender_version": "5.2.2 LTS",
+  "description": "Long drilling lance with rear transverse bracing and secondary side hold, three coaxial tapered sleeves, helical cutting vanes, segmented counter collar, and a telescoping faceted cutting point.",
+  "design_name": "Telescoping Drilling Lance",
+  "moving_parts": [
+    "Hypercone_Counterrotating_Telescopic_Sleeves",
+    "Hypercone_Segmented_Counter_Collar",
+    "Hypercone_Telescoping_Cutting_Point"
+  ],
+  "source_file": "HyperconeDrill.blend",
+  "review_export": "HyperconeDrill.glb",
+  "shape_insert": "dimensional hypercone",
+  "coordinates": "metres; Blender +Y forward/+Z up; GLB -Z forward/+Y up",
+  "rarity_control": "HyperconeInsert | removable shape cartridge.rarity_tier",
+  "default_preview": "Rare / level 5 / three installed modulators",
+  "animation_frames": [
+    1,
+    40
+  ],
+  "animation_fps": 30,
+  "integration": "Editable art and static review export; runtime export is a separate step using ExportMultiWeaponRuntime.py",
+  "glb_nodes": 183,
+  "glb_meshes": 167,
+  "glb_bytes": 1272884,
+  "glb_checked": true,
+  "blend_reopen_checked": true,
+  "saved_animation_evaluated": true
+}

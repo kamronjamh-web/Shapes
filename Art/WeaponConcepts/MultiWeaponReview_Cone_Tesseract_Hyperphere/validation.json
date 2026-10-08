@@ -1,0 +1,38 @@
+[
+  {
+    "asset": "ConeFlameProjector",
+    "shape_stars": 2,
+    "blend_reopened": true,
+    "saved_animation_evaluated": true,
+    "animation_returns_to_rest": true,
+    "glb_imported": true,
+    "imported_meshes": 146,
+    "imported_sockets": 10,
+    "review_display_scale": 1.0146239351887596,
+    "display_sizes_normalized": true
+  },
+  {
+    "asset": "TesseractRiftEngine",
+    "shape_stars": 3,
+    "blend_reopened": true,
+    "saved_animation_evaluated": true,
+    "animation_returns_to_rest": true,
+    "glb_imported": true,
+    "imported_meshes": 240,
+    "imported_sockets": 10,
+    "review_display_scale": 0.37733852353612274,
+    "display_sizes_normalized": true
+  },
+  {
+    "asset": "HyperphereMortar",
+    "shape_stars": 3,
+    "blend_reopened": true,
+    "saved_animation_evaluated": true,
+    "animation_returns_to_rest": true,
+    "glb_imported": true,
+    "imported_meshes": 147,
+    "imported_sockets": 10,
+    "review_display_scale": 0.7016371313575342,
+    "display_sizes_normalized": true
+  }
+]

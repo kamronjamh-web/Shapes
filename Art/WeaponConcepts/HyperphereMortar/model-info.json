@@ -1,0 +1,47 @@
+{
+  "rarity_level_equipment_cases": 90,
+  "modulator_sockets": 10,
+  "visible_triangles_at_default": 45480,
+  "dimensions_metres": [
+    0.4717196524143219,
+    0.42864903807640076,
+    0.36206386238336563
+  ],
+  "model_objects": 232,
+  "full_body_redesign": true,
+  "model": "HyperphereMortar",
+  "title": "Hyperphere - Dimensional Mortar",
+  "equipped_shape": "hyperphere",
+  "shape_stars": 3,
+  "star_design": "Layered containment structures, nested cores and interacting precision mechanisms",
+  "source": "SquareHandgun.blend",
+  "source_sha256": "cfdb814fe2d8c6ee7f2884651ef4584892481ded02536fd5da0e6884dc96dd94",
+  "blender_version": "5.2.2 LTS",
+  "description": "Shoulder-mounted dimensional mortar: armored spherical globe in rotating containment gimbals, launch iris, curved shoulder saddle and offset grab handles.",
+  "design_name": "Hyperphere Shoulder Mortar",
+  "moving_parts": [
+    "Hyperphere_Shoulder_Elevation_Pivot",
+    "Hyperphere_Launch_Iris_Pivot",
+    "Hyperphere_Containment_Gimbal_0",
+    "Hyperphere_Containment_Gimbal_1",
+    "Hyperphere_Containment_Gimbal_2"
+  ],
+  "source_file": "HyperphereMortar.blend",
+  "review_export": "HyperphereMortar.glb",
+  "shape_insert": "dimensional hyperphere",
+  "coordinates": "metres; Blender +Y forward/+Z up; GLB -Z forward/+Y up",
+  "rarity_control": "HyperphereInsert | removable shape cartridge.rarity_tier",
+  "default_preview": "Rare / level 5 / three installed modulators",
+  "animation_frames": [
+    1,
+    40
+  ],
+  "animation_fps": 30,
+  "integration": "Editable art and static review export; runtime export is a separate step using ExportMultiWeaponRuntime.py",
+  "glb_nodes": 165,
+  "glb_meshes": 147,
+  "glb_bytes": 2312632,
+  "glb_checked": true,
+  "blend_reopen_checked": true,
+  "saved_animation_evaluated": true
+}

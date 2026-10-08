@@ -1,0 +1,47 @@
+{
+  "rarity_level_equipment_cases": 90,
+  "modulator_sockets": 10,
+  "visible_triangles_at_default": 22056,
+  "dimensions_metres": [
+    0.16899999976158142,
+    0.3139999955892563,
+    0.17750000208616257
+  ],
+  "model_objects": 268,
+  "full_body_redesign": true,
+  "model": "PentachoronArcLattice",
+  "title": "Pentachoron - Arc Lattice",
+  "equipped_shape": "pentachoron",
+  "shape_stars": 3,
+  "star_design": "Layered containment structures, nested cores and interacting precision mechanisms",
+  "source": "SquareHandgun.blend",
+  "source_sha256": "cfdb814fe2d8c6ee7f2884651ef4584892481ded02536fd5da0e6884dc96dd94",
+  "blender_version": "5.2.2 LTS",
+  "description": "Electrical forearm gauntlet with an open hollow wrist cuff, five articulated triangular capacitor knuckles and all ten conduction paths of a projected pentachoron surrounding the hand space. No handgun body.",
+  "design_name": "Pentachoron Electrical Gauntlet",
+  "moving_parts": [
+    "Pentachoron_ArticulatedCapacitor_0",
+    "Pentachoron_ArticulatedCapacitor_1",
+    "Pentachoron_ArticulatedCapacitor_2",
+    "Pentachoron_ArticulatedCapacitor_3",
+    "Pentachoron_ArticulatedCapacitor_4"
+  ],
+  "source_file": "PentachoronArcLattice.blend",
+  "review_export": "PentachoronArcLattice.glb",
+  "shape_insert": "dimensional pentachoron",
+  "coordinates": "metres; Blender +Y forward/+Z up; GLB -Z forward/+Y up",
+  "rarity_control": "PentachoronInsert | removable shape cartridge.rarity_tier",
+  "default_preview": "Rare / level 5 / three installed modulators",
+  "animation_frames": [
+    1,
+    40
+  ],
+  "animation_fps": 30,
+  "integration": "Editable art and static review export; runtime export is a separate step using ExportMultiWeaponRuntime.py",
+  "glb_nodes": 201,
+  "glb_meshes": 183,
+  "glb_bytes": 1109944,
+  "glb_checked": true,
+  "blend_reopen_checked": true,
+  "saved_animation_evaluated": true
+}

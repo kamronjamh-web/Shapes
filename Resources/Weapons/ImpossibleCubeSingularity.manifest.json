@@ -1,0 +1,2502 @@
+{
+  "shape": "impossiblecube",
+  "source": "Art/WeaponConcepts/ImpossibleCubeSingularity/ImpossibleCubeSingularity.blend",
+  "source_sha256": "0e124bf8165931f11387e01523573a69b289cef35be4e5b7e58fb07ecdd0ae4e",
+  "blender_version": "5.2.2 LTS",
+  "coordinates": "meters; Godot +X right, +Y up, -Z forward; Blender (x,y,z) -> (x,z,-y)",
+  "animation": {
+    "name": "Fire",
+    "fps": 30,
+    "frames": [
+      1,
+      40
+    ],
+    "moving_parts": [
+      "ImpossibleCube_Suspended_Fragment_00",
+      "ImpossibleCube_Suspended_Fragment_01",
+      "ImpossibleCube_Suspended_Fragment_02",
+      "ImpossibleCube_Suspended_Fragment_03",
+      "ImpossibleCube_Suspended_Fragment_04",
+      "ImpossibleCube_Suspended_Fragment_05",
+      "ImpossibleCube_Suspended_Fragment_06",
+      "ImpossibleCube_Suspended_Fragment_07",
+      "ImpossibleCube_Offset_Inner_Frame",
+      "ImpossibleCube_Dark_Singularity_Pulse"
+    ]
+  },
+  "mechanism_parts": [
+    "ImpossibleCube_Suspended_Fragment_00",
+    "ImpossibleCube_Suspended_Fragment_01",
+    "ImpossibleCube_Suspended_Fragment_02",
+    "ImpossibleCube_Suspended_Fragment_03",
+    "ImpossibleCube_Suspended_Fragment_04",
+    "ImpossibleCube_Suspended_Fragment_05",
+    "ImpossibleCube_Suspended_Fragment_06",
+    "ImpossibleCube_Suspended_Fragment_07",
+    "ImpossibleCube_Offset_Inner_Frame",
+    "ImpossibleCube_Dark_Singularity_Pulse"
+  ],
+  "attachments": {
+    "ShapeSocket": {
+      "parent": "ImpossibleCube_Suspended_Fragment_03",
+      "animated_ancestors": [
+        "ImpossibleCube_Suspended_Fragment_03"
+      ]
+    },
+    "ModulatorSocket01": {
+      "parent": "ImpossibleCube_Suspended_Fragment_04",
+      "animated_ancestors": [
+        "ImpossibleCube_Suspended_Fragment_04"
+      ]
+    },
+    "ModulatorSocket02": {
+      "parent": "ImpossibleCube_Suspended_Fragment_05",
+      "animated_ancestors": [
+        "ImpossibleCube_Suspended_Fragment_05"
+      ]
+    },
+    "ModulatorSocket03": {
+      "parent": "ImpossibleCube_Suspended_Fragment_06",
+      "animated_ancestors": [
+        "ImpossibleCube_Suspended_Fragment_06"
+      ]
+    },
+    "ModulatorSocket04": {
+      "parent": "ImpossibleCube_Suspended_Fragment_07",
+      "animated_ancestors": [
+        "ImpossibleCube_Suspended_Fragment_07"
+      ]
+    },
+    "ModulatorSocket05": {
+      "parent": "ImpossibleCube_Suspended_Fragment_00",
+      "animated_ancestors": [
+        "ImpossibleCube_Suspended_Fragment_00"
+      ]
+    },
+    "ModulatorSocket06": {
+      "parent": "ImpossibleCube_Suspended_Fragment_01",
+      "animated_ancestors": [
+        "ImpossibleCube_Suspended_Fragment_01"
+      ]
+    },
+    "ModulatorSocket07": {
+      "parent": "ImpossibleCube_Suspended_Fragment_02",
+      "animated_ancestors": [
+        "ImpossibleCube_Suspended_Fragment_02"
+      ]
+    },
+    "ModulatorSocket08": {
+      "parent": "ImpossibleCube_Suspended_Fragment_03",
+      "animated_ancestors": [
+        "ImpossibleCube_Suspended_Fragment_03"
+      ]
+    },
+    "ModulatorSocket09": {
+      "parent": "ImpossibleCube_Suspended_Fragment_00",
+      "animated_ancestors": [
+        "ImpossibleCube_Suspended_Fragment_00"
+      ]
+    },
+    "ModulatorSocket10": {
+      "parent": "ImpossibleCube_Suspended_Fragment_07",
+      "animated_ancestors": [
+        "ImpossibleCube_Suspended_Fragment_07"
+      ]
+    }
+  },
+  "nodes": 478,
+  "meshes": 454,
+  "bytes": 2593316,
+  "objects": [
+    {
+      "name": "GunRoot",
+      "source": "GunRoot",
+      "parent": null
+    },
+    {
+      "name": "ImpossibleCube_Dark_Singularity_Pulse",
+      "source": "ImpossibleCube_Dark_Singularity_Pulse",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "ImpossibleCube_Core_Restraint_X",
+      "source": "ImpossibleCube_Core_Restraint_X",
+      "parent": "ImpossibleCube_Dark_Singularity_Pulse"
+    },
+    {
+      "name": "ImpossibleCube_Core_Restraint_Y",
+      "source": "ImpossibleCube_Core_Restraint_Y",
+      "parent": "ImpossibleCube_Dark_Singularity_Pulse"
+    },
+    {
+      "name": "ImpossibleCube_Core_Restraint_Z",
+      "source": "ImpossibleCube_Core_Restraint_Z",
+      "parent": "ImpossibleCube_Dark_Singularity_Pulse"
+    },
+    {
+      "name": "ImpossibleCube_Faceted_Dark_Core",
+      "source": "ImpossibleCube_Faceted_Dark_Core",
+      "parent": "ImpossibleCube_Dark_Singularity_Pulse"
+    },
+    {
+      "name": "ImpossibleCube_Offset_Inner_Frame",
+      "source": "ImpossibleCube_Offset_Inner_Frame",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "ImpossibleCube_Field_Vane_0",
+      "source": "ImpossibleCube_Field_Vane_0",
+      "parent": "ImpossibleCube_Offset_Inner_Frame"
+    },
+    {
+      "name": "ImpossibleCube_Field_Vane_1",
+      "source": "ImpossibleCube_Field_Vane_1",
+      "parent": "ImpossibleCube_Offset_Inner_Frame"
+    },
+    {
+      "name": "ImpossibleCube_Field_Vane_2",
+      "source": "ImpossibleCube_Field_Vane_2",
+      "parent": "ImpossibleCube_Offset_Inner_Frame"
+    },
+    {
+      "name": "ImpossibleCube_Field_Vane_3",
+      "source": "ImpossibleCube_Field_Vane_3",
+      "parent": "ImpossibleCube_Offset_Inner_Frame"
+    },
+    {
+      "name": "ImpossibleCube_Field_Vane_4",
+      "source": "ImpossibleCube_Field_Vane_4",
+      "parent": "ImpossibleCube_Offset_Inner_Frame"
+    },
+    {
+      "name": "ImpossibleCube_Field_Vane_5",
+      "source": "ImpossibleCube_Field_Vane_5",
+      "parent": "ImpossibleCube_Offset_Inner_Frame"
+    },
+    {
+      "name": "ImpossibleCube_Inner_Penrose_Return_Return_0_1_0",
+      "source": "ImpossibleCube_Inner_Penrose_Return_Return_0_1_0",
+      "parent": "ImpossibleCube_Offset_Inner_Frame"
+    },
+    {
+      "name": "ImpossibleCube_Inner_Penrose_Return_Return_0_1_1",
+      "source": "ImpossibleCube_Inner_Penrose_Return_Return_0_1_1",
+      "parent": "ImpossibleCube_Offset_Inner_Frame"
+    },
+    {
+      "name": "ImpossibleCube_Inner_Penrose_Return_Return_0_1_2",
+      "source": "ImpossibleCube_Inner_Penrose_Return_Return_0_1_2",
+      "parent": "ImpossibleCube_Offset_Inner_Frame"
+    },
+    {
+      "name": "ImpossibleCube_Inner_Penrose_Return_Return_0_1_3",
+      "source": "ImpossibleCube_Inner_Penrose_Return_Return_0_1_3",
+      "parent": "ImpossibleCube_Offset_Inner_Frame"
+    },
+    {
+      "name": "ImpossibleCube_Inner_Penrose_Return_Return_0_1_4",
+      "source": "ImpossibleCube_Inner_Penrose_Return_Return_0_1_4",
+      "parent": "ImpossibleCube_Offset_Inner_Frame"
+    },
+    {
+      "name": "ImpossibleCube_Inner_Penrose_Return_Return_0_2_0",
+      "source": "ImpossibleCube_Inner_Penrose_Return_Return_0_2_0",
+      "parent": "ImpossibleCube_Offset_Inner_Frame"
+    },
+    {
+      "name": "ImpossibleCube_Inner_Penrose_Return_Return_0_2_1",
+      "source": "ImpossibleCube_Inner_Penrose_Return_Return_0_2_1",
+      "parent": "ImpossibleCube_Offset_Inner_Frame"
+    },
+    {
+      "name": "ImpossibleCube_Inner_Penrose_Return_Return_0_2_2",
+      "source": "ImpossibleCube_Inner_Penrose_Return_Return_0_2_2",
+      "parent": "ImpossibleCube_Offset_Inner_Frame"
+    },
+    {
+      "name": "ImpossibleCube_Inner_Penrose_Return_Return_0_2_3",
+      "source": "ImpossibleCube_Inner_Penrose_Return_Return_0_2_3",
+      "parent": "ImpossibleCube_Offset_Inner_Frame"
+    },
+    {
+      "name": "ImpossibleCube_Inner_Penrose_Return_Return_0_2_4",
+      "source": "ImpossibleCube_Inner_Penrose_Return_Return_0_2_4",
+      "parent": "ImpossibleCube_Offset_Inner_Frame"
+    },
+    {
+      "name": "ImpossibleCube_Inner_Penrose_Return_Return_0_4_0",
+      "source": "ImpossibleCube_Inner_Penrose_Return_Return_0_4_0",
+      "parent": "ImpossibleCube_Offset_Inner_Frame"
+    },
+    {
+      "name": "ImpossibleCube_Inner_Penrose_Return_Return_0_4_1",
+      "source": "ImpossibleCube_Inner_Penrose_Return_Return_0_4_1",
+      "parent": "ImpossibleCube_Offset_Inner_Frame"
+    },
+    {
+      "name": "ImpossibleCube_Inner_Penrose_Return_Return_0_4_2",
+      "source": "ImpossibleCube_Inner_Penrose_Return_Return_0_4_2",
+      "parent": "ImpossibleCube_Offset_Inner_Frame"
+    },
+    {
+      "name": "ImpossibleCube_Inner_Penrose_Return_Return_0_4_3",
+      "source": "ImpossibleCube_Inner_Penrose_Return_Return_0_4_3",
+      "parent": "ImpossibleCube_Offset_Inner_Frame"
+    },
+    {
+      "name": "ImpossibleCube_Inner_Penrose_Return_Return_0_4_4",
+      "source": "ImpossibleCube_Inner_Penrose_Return_Return_0_4_4",
+      "parent": "ImpossibleCube_Offset_Inner_Frame"
+    },
+    {
+      "name": "ImpossibleCube_Inner_Penrose_Return_Return_1_3_0",
+      "source": "ImpossibleCube_Inner_Penrose_Return_Return_1_3_0",
+      "parent": "ImpossibleCube_Offset_Inner_Frame"
+    },
+    {
+      "name": "ImpossibleCube_Inner_Penrose_Return_Return_1_3_1",
+      "source": "ImpossibleCube_Inner_Penrose_Return_Return_1_3_1",
+      "parent": "ImpossibleCube_Offset_Inner_Frame"
+    },
+    {
+      "name": "ImpossibleCube_Inner_Penrose_Return_Return_1_3_2",
+      "source": "ImpossibleCube_Inner_Penrose_Return_Return_1_3_2",
+      "parent": "ImpossibleCube_Offset_Inner_Frame"
+    },
+    {
+      "name": "ImpossibleCube_Inner_Penrose_Return_Return_1_3_3",
+      "source": "ImpossibleCube_Inner_Penrose_Return_Return_1_3_3",
+      "parent": "ImpossibleCube_Offset_Inner_Frame"
+    },
+    {
+      "name": "ImpossibleCube_Inner_Penrose_Return_Return_1_3_4",
+      "source": "ImpossibleCube_Inner_Penrose_Return_Return_1_3_4",
+      "parent": "ImpossibleCube_Offset_Inner_Frame"
+    },
+    {
+      "name": "ImpossibleCube_Inner_Penrose_Return_Return_1_5_0",
+      "source": "ImpossibleCube_Inner_Penrose_Return_Return_1_5_0",
+      "parent": "ImpossibleCube_Offset_Inner_Frame"
+    },
+    {
+      "name": "ImpossibleCube_Inner_Penrose_Return_Return_1_5_1",
+      "source": "ImpossibleCube_Inner_Penrose_Return_Return_1_5_1",
+      "parent": "ImpossibleCube_Offset_Inner_Frame"
+    },
+    {
+      "name": "ImpossibleCube_Inner_Penrose_Return_Return_1_5_2",
+      "source": "ImpossibleCube_Inner_Penrose_Return_Return_1_5_2",
+      "parent": "ImpossibleCube_Offset_Inner_Frame"
+    },
+    {
+      "name": "ImpossibleCube_Inner_Penrose_Return_Return_1_5_3",
+      "source": "ImpossibleCube_Inner_Penrose_Return_Return_1_5_3",
+      "parent": "ImpossibleCube_Offset_Inner_Frame"
+    },
+    {
+      "name": "ImpossibleCube_Inner_Penrose_Return_Return_1_5_4",
+      "source": "ImpossibleCube_Inner_Penrose_Return_Return_1_5_4",
+      "parent": "ImpossibleCube_Offset_Inner_Frame"
+    },
+    {
+      "name": "ImpossibleCube_Inner_Penrose_Return_Return_2_3_0",
+      "source": "ImpossibleCube_Inner_Penrose_Return_Return_2_3_0",
+      "parent": "ImpossibleCube_Offset_Inner_Frame"
+    },
+    {
+      "name": "ImpossibleCube_Inner_Penrose_Return_Return_2_3_1",
+      "source": "ImpossibleCube_Inner_Penrose_Return_Return_2_3_1",
+      "parent": "ImpossibleCube_Offset_Inner_Frame"
+    },
+    {
+      "name": "ImpossibleCube_Inner_Penrose_Return_Return_2_3_2",
+      "source": "ImpossibleCube_Inner_Penrose_Return_Return_2_3_2",
+      "parent": "ImpossibleCube_Offset_Inner_Frame"
+    },
+    {
+      "name": "ImpossibleCube_Inner_Penrose_Return_Return_2_3_3",
+      "source": "ImpossibleCube_Inner_Penrose_Return_Return_2_3_3",
+      "parent": "ImpossibleCube_Offset_Inner_Frame"
+    },
+    {
+      "name": "ImpossibleCube_Inner_Penrose_Return_Return_2_3_4",
+      "source": "ImpossibleCube_Inner_Penrose_Return_Return_2_3_4",
+      "parent": "ImpossibleCube_Offset_Inner_Frame"
+    },
+    {
+      "name": "ImpossibleCube_Inner_Penrose_Return_Return_2_6_0",
+      "source": "ImpossibleCube_Inner_Penrose_Return_Return_2_6_0",
+      "parent": "ImpossibleCube_Offset_Inner_Frame"
+    },
+    {
+      "name": "ImpossibleCube_Inner_Penrose_Return_Return_2_6_1",
+      "source": "ImpossibleCube_Inner_Penrose_Return_Return_2_6_1",
+      "parent": "ImpossibleCube_Offset_Inner_Frame"
+    },
+    {
+      "name": "ImpossibleCube_Inner_Penrose_Return_Return_2_6_2",
+      "source": "ImpossibleCube_Inner_Penrose_Return_Return_2_6_2",
+      "parent": "ImpossibleCube_Offset_Inner_Frame"
+    },
+    {
+      "name": "ImpossibleCube_Inner_Penrose_Return_Return_2_6_3",
+      "source": "ImpossibleCube_Inner_Penrose_Return_Return_2_6_3",
+      "parent": "ImpossibleCube_Offset_Inner_Frame"
+    },
+    {
+      "name": "ImpossibleCube_Inner_Penrose_Return_Return_2_6_4",
+      "source": "ImpossibleCube_Inner_Penrose_Return_Return_2_6_4",
+      "parent": "ImpossibleCube_Offset_Inner_Frame"
+    },
+    {
+      "name": "ImpossibleCube_Inner_Penrose_Return_Return_3_7_0",
+      "source": "ImpossibleCube_Inner_Penrose_Return_Return_3_7_0",
+      "parent": "ImpossibleCube_Offset_Inner_Frame"
+    },
+    {
+      "name": "ImpossibleCube_Inner_Penrose_Return_Return_3_7_1",
+      "source": "ImpossibleCube_Inner_Penrose_Return_Return_3_7_1",
+      "parent": "ImpossibleCube_Offset_Inner_Frame"
+    },
+    {
+      "name": "ImpossibleCube_Inner_Penrose_Return_Return_3_7_2",
+      "source": "ImpossibleCube_Inner_Penrose_Return_Return_3_7_2",
+      "parent": "ImpossibleCube_Offset_Inner_Frame"
+    },
+    {
+      "name": "ImpossibleCube_Inner_Penrose_Return_Return_3_7_3",
+      "source": "ImpossibleCube_Inner_Penrose_Return_Return_3_7_3",
+      "parent": "ImpossibleCube_Offset_Inner_Frame"
+    },
+    {
+      "name": "ImpossibleCube_Inner_Penrose_Return_Return_3_7_4",
+      "source": "ImpossibleCube_Inner_Penrose_Return_Return_3_7_4",
+      "parent": "ImpossibleCube_Offset_Inner_Frame"
+    },
+    {
+      "name": "ImpossibleCube_Inner_Penrose_Return_Return_4_5_0",
+      "source": "ImpossibleCube_Inner_Penrose_Return_Return_4_5_0",
+      "parent": "ImpossibleCube_Offset_Inner_Frame"
+    },
+    {
+      "name": "ImpossibleCube_Inner_Penrose_Return_Return_4_5_1",
+      "source": "ImpossibleCube_Inner_Penrose_Return_Return_4_5_1",
+      "parent": "ImpossibleCube_Offset_Inner_Frame"
+    },
+    {
+      "name": "ImpossibleCube_Inner_Penrose_Return_Return_4_5_2",
+      "source": "ImpossibleCube_Inner_Penrose_Return_Return_4_5_2",
+      "parent": "ImpossibleCube_Offset_Inner_Frame"
+    },
+    {
+      "name": "ImpossibleCube_Inner_Penrose_Return_Return_4_5_3",
+      "source": "ImpossibleCube_Inner_Penrose_Return_Return_4_5_3",
+      "parent": "ImpossibleCube_Offset_Inner_Frame"
+    },
+    {
+      "name": "ImpossibleCube_Inner_Penrose_Return_Return_4_5_4",
+      "source": "ImpossibleCube_Inner_Penrose_Return_Return_4_5_4",
+      "parent": "ImpossibleCube_Offset_Inner_Frame"
+    },
+    {
+      "name": "ImpossibleCube_Inner_Penrose_Return_Return_4_6_0",
+      "source": "ImpossibleCube_Inner_Penrose_Return_Return_4_6_0",
+      "parent": "ImpossibleCube_Offset_Inner_Frame"
+    },
+    {
+      "name": "ImpossibleCube_Inner_Penrose_Return_Return_4_6_1",
+      "source": "ImpossibleCube_Inner_Penrose_Return_Return_4_6_1",
+      "parent": "ImpossibleCube_Offset_Inner_Frame"
+    },
+    {
+      "name": "ImpossibleCube_Inner_Penrose_Return_Return_4_6_2",
+      "source": "ImpossibleCube_Inner_Penrose_Return_Return_4_6_2",
+      "parent": "ImpossibleCube_Offset_Inner_Frame"
+    },
+    {
+      "name": "ImpossibleCube_Inner_Penrose_Return_Return_4_6_3",
+      "source": "ImpossibleCube_Inner_Penrose_Return_Return_4_6_3",
+      "parent": "ImpossibleCube_Offset_Inner_Frame"
+    },
+    {
+      "name": "ImpossibleCube_Inner_Penrose_Return_Return_4_6_4",
+      "source": "ImpossibleCube_Inner_Penrose_Return_Return_4_6_4",
+      "parent": "ImpossibleCube_Offset_Inner_Frame"
+    },
+    {
+      "name": "ImpossibleCube_Inner_Penrose_Return_Return_5_7_0",
+      "source": "ImpossibleCube_Inner_Penrose_Return_Return_5_7_0",
+      "parent": "ImpossibleCube_Offset_Inner_Frame"
+    },
+    {
+      "name": "ImpossibleCube_Inner_Penrose_Return_Return_5_7_1",
+      "source": "ImpossibleCube_Inner_Penrose_Return_Return_5_7_1",
+      "parent": "ImpossibleCube_Offset_Inner_Frame"
+    },
+    {
+      "name": "ImpossibleCube_Inner_Penrose_Return_Return_5_7_2",
+      "source": "ImpossibleCube_Inner_Penrose_Return_Return_5_7_2",
+      "parent": "ImpossibleCube_Offset_Inner_Frame"
+    },
+    {
+      "name": "ImpossibleCube_Inner_Penrose_Return_Return_5_7_3",
+      "source": "ImpossibleCube_Inner_Penrose_Return_Return_5_7_3",
+      "parent": "ImpossibleCube_Offset_Inner_Frame"
+    },
+    {
+      "name": "ImpossibleCube_Inner_Penrose_Return_Return_5_7_4",
+      "source": "ImpossibleCube_Inner_Penrose_Return_Return_5_7_4",
+      "parent": "ImpossibleCube_Offset_Inner_Frame"
+    },
+    {
+      "name": "ImpossibleCube_Inner_Penrose_Return_Return_6_7_0",
+      "source": "ImpossibleCube_Inner_Penrose_Return_Return_6_7_0",
+      "parent": "ImpossibleCube_Offset_Inner_Frame"
+    },
+    {
+      "name": "ImpossibleCube_Inner_Penrose_Return_Return_6_7_1",
+      "source": "ImpossibleCube_Inner_Penrose_Return_Return_6_7_1",
+      "parent": "ImpossibleCube_Offset_Inner_Frame"
+    },
+    {
+      "name": "ImpossibleCube_Inner_Penrose_Return_Return_6_7_2",
+      "source": "ImpossibleCube_Inner_Penrose_Return_Return_6_7_2",
+      "parent": "ImpossibleCube_Offset_Inner_Frame"
+    },
+    {
+      "name": "ImpossibleCube_Inner_Penrose_Return_Return_6_7_3",
+      "source": "ImpossibleCube_Inner_Penrose_Return_Return_6_7_3",
+      "parent": "ImpossibleCube_Offset_Inner_Frame"
+    },
+    {
+      "name": "ImpossibleCube_Inner_Penrose_Return_Return_6_7_4",
+      "source": "ImpossibleCube_Inner_Penrose_Return_Return_6_7_4",
+      "parent": "ImpossibleCube_Offset_Inner_Frame"
+    },
+    {
+      "name": "ImpossibleCube_Singularity_Field_X",
+      "source": "ImpossibleCube_Singularity_Field_X",
+      "parent": "ImpossibleCube_Offset_Inner_Frame"
+    },
+    {
+      "name": "ImpossibleCube_Singularity_Field_Y",
+      "source": "ImpossibleCube_Singularity_Field_Y",
+      "parent": "ImpossibleCube_Offset_Inner_Frame"
+    },
+    {
+      "name": "ImpossibleCube_Singularity_Field_Z",
+      "source": "ImpossibleCube_Singularity_Field_Z",
+      "parent": "ImpossibleCube_Offset_Inner_Frame"
+    },
+    {
+      "name": "ImpossibleCube_Suspended_Fragment_00",
+      "source": "ImpossibleCube_Suspended_Fragment_00",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "ImpossibleCube_Fractured_Corner_00",
+      "source": "ImpossibleCube_Fractured_Corner_00",
+      "parent": "ImpossibleCube_Suspended_Fragment_00"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_00_Beam_0_0",
+      "source": "ImpossibleCube_Fragment_00_Beam_0_0",
+      "parent": "ImpossibleCube_Suspended_Fragment_00"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_00_Beam_0_1",
+      "source": "ImpossibleCube_Fragment_00_Beam_0_1",
+      "parent": "ImpossibleCube_Suspended_Fragment_00"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_00_Beam_0_2",
+      "source": "ImpossibleCube_Fragment_00_Beam_0_2",
+      "parent": "ImpossibleCube_Suspended_Fragment_00"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_00_Beam_0_3",
+      "source": "ImpossibleCube_Fragment_00_Beam_0_3",
+      "parent": "ImpossibleCube_Suspended_Fragment_00"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_00_Beam_0_4",
+      "source": "ImpossibleCube_Fragment_00_Beam_0_4",
+      "parent": "ImpossibleCube_Suspended_Fragment_00"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_00_Beam_1_0",
+      "source": "ImpossibleCube_Fragment_00_Beam_1_0",
+      "parent": "ImpossibleCube_Suspended_Fragment_00"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_00_Beam_1_1",
+      "source": "ImpossibleCube_Fragment_00_Beam_1_1",
+      "parent": "ImpossibleCube_Suspended_Fragment_00"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_00_Beam_1_2",
+      "source": "ImpossibleCube_Fragment_00_Beam_1_2",
+      "parent": "ImpossibleCube_Suspended_Fragment_00"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_00_Beam_1_3",
+      "source": "ImpossibleCube_Fragment_00_Beam_1_3",
+      "parent": "ImpossibleCube_Suspended_Fragment_00"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_00_Beam_1_4",
+      "source": "ImpossibleCube_Fragment_00_Beam_1_4",
+      "parent": "ImpossibleCube_Suspended_Fragment_00"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_00_Beam_2_0",
+      "source": "ImpossibleCube_Fragment_00_Beam_2_0",
+      "parent": "ImpossibleCube_Suspended_Fragment_00"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_00_Beam_2_1",
+      "source": "ImpossibleCube_Fragment_00_Beam_2_1",
+      "parent": "ImpossibleCube_Suspended_Fragment_00"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_00_Beam_2_2",
+      "source": "ImpossibleCube_Fragment_00_Beam_2_2",
+      "parent": "ImpossibleCube_Suspended_Fragment_00"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_00_Beam_2_3",
+      "source": "ImpossibleCube_Fragment_00_Beam_2_3",
+      "parent": "ImpossibleCube_Suspended_Fragment_00"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_00_Beam_2_4",
+      "source": "ImpossibleCube_Fragment_00_Beam_2_4",
+      "parent": "ImpossibleCube_Suspended_Fragment_00"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_00_Charge",
+      "source": "ImpossibleCube_Fragment_00_Charge",
+      "parent": "ImpossibleCube_Suspended_Fragment_00"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_00_Face_Pad_0",
+      "source": "ImpossibleCube_Fragment_00_Face_Pad_0",
+      "parent": "ImpossibleCube_Suspended_Fragment_00"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_00_Face_Pad_1",
+      "source": "ImpossibleCube_Fragment_00_Face_Pad_1",
+      "parent": "ImpossibleCube_Suspended_Fragment_00"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_00_Face_Pad_2",
+      "source": "ImpossibleCube_Fragment_00_Face_Pad_2",
+      "parent": "ImpossibleCube_Suspended_Fragment_00"
+    },
+    {
+      "name": "ModulatorSocket05",
+      "source": "ModulatorSocket05",
+      "parent": "ImpossibleCube_Suspended_Fragment_00"
+    },
+    {
+      "name": "Bay_05___captive_stud__1",
+      "source": "Bay 05 | captive stud -1",
+      "parent": "ModulatorSocket05"
+    },
+    {
+      "name": "Bay_05___captive_stud_1",
+      "source": "Bay 05 | captive stud 1",
+      "parent": "ModulatorSocket05"
+    },
+    {
+      "name": "Bay_05___fitted_mounting_tile",
+      "source": "Bay 05 | fitted mounting tile",
+      "parent": "ModulatorSocket05"
+    },
+    {
+      "name": "Cartridge",
+      "source": "Modulator 05 | Accelerated Flight",
+      "parent": "ModulatorSocket05"
+    },
+    {
+      "name": "IdentityBar0",
+      "source": "Modulator 05 | identity bar 0",
+      "parent": "Cartridge"
+    },
+    {
+      "name": "IdentityBar1",
+      "source": "Modulator 05 | identity bar 1",
+      "parent": "Cartridge"
+    },
+    {
+      "name": "InsetFace",
+      "source": "Modulator 05 | inset face",
+      "parent": "Cartridge"
+    },
+    {
+      "name": "RaisedKey",
+      "source": "Modulator 05 | raised key",
+      "parent": "Cartridge"
+    },
+    {
+      "name": "TypeColor",
+      "source": "Modulator 05 | type color",
+      "parent": "Cartridge"
+    },
+    {
+      "name": "EmptyContact1",
+      "source": "Modulator 05 | empty contact -1",
+      "parent": "ModulatorSocket05"
+    },
+    {
+      "name": "EmptyContact1.001",
+      "source": "Modulator 05 | empty contact 1",
+      "parent": "ModulatorSocket05"
+    },
+    {
+      "name": "LockedCover",
+      "source": "Modulator 05 | locked cover",
+      "parent": "ModulatorSocket05"
+    },
+    {
+      "name": "LockedWitness",
+      "source": "Modulator 05 | locked witness",
+      "parent": "ModulatorSocket05"
+    },
+    {
+      "name": "RecessedSocketLip",
+      "source": "Modulator 05 | recessed socket lip",
+      "parent": "ModulatorSocket05"
+    },
+    {
+      "name": "SocketInterior",
+      "source": "Modulator 05 | socket interior",
+      "parent": "ModulatorSocket05"
+    },
+    {
+      "name": "ModulatorSocket09",
+      "source": "ModulatorSocket09",
+      "parent": "ImpossibleCube_Suspended_Fragment_00"
+    },
+    {
+      "name": "Bay_09___captive_stud__1",
+      "source": "Bay 09 | captive stud -1",
+      "parent": "ModulatorSocket09"
+    },
+    {
+      "name": "Bay_09___captive_stud_1",
+      "source": "Bay 09 | captive stud 1",
+      "parent": "ModulatorSocket09"
+    },
+    {
+      "name": "Bay_09___fitted_mounting_tile",
+      "source": "Bay 09 | fitted mounting tile",
+      "parent": "ModulatorSocket09"
+    },
+    {
+      "name": "EmptyContact1.002",
+      "source": "Modulator 09 | empty contact -1",
+      "parent": "ModulatorSocket09"
+    },
+    {
+      "name": "EmptyContact1.003",
+      "source": "Modulator 09 | empty contact 1",
+      "parent": "ModulatorSocket09"
+    },
+    {
+      "name": "Cartridge.001",
+      "source": "Modulator 09 | Expanded Shape",
+      "parent": "ModulatorSocket09"
+    },
+    {
+      "name": "IdentityBar0.001",
+      "source": "Modulator 09 | identity bar 0",
+      "parent": "Cartridge.001"
+    },
+    {
+      "name": "IdentityBar1.001",
+      "source": "Modulator 09 | identity bar 1",
+      "parent": "Cartridge.001"
+    },
+    {
+      "name": "IdentityBar2",
+      "source": "Modulator 09 | identity bar 2",
+      "parent": "Cartridge.001"
+    },
+    {
+      "name": "InsetFace.001",
+      "source": "Modulator 09 | inset face",
+      "parent": "Cartridge.001"
+    },
+    {
+      "name": "RaisedKey.001",
+      "source": "Modulator 09 | raised key",
+      "parent": "Cartridge.001"
+    },
+    {
+      "name": "TypeColor.001",
+      "source": "Modulator 09 | type color",
+      "parent": "Cartridge.001"
+    },
+    {
+      "name": "LockedCover.001",
+      "source": "Modulator 09 | locked cover",
+      "parent": "ModulatorSocket09"
+    },
+    {
+      "name": "LockedWitness.001",
+      "source": "Modulator 09 | locked witness",
+      "parent": "ModulatorSocket09"
+    },
+    {
+      "name": "RecessedSocketLip.001",
+      "source": "Modulator 09 | recessed socket lip",
+      "parent": "ModulatorSocket09"
+    },
+    {
+      "name": "SocketInterior.001",
+      "source": "Modulator 09 | socket interior",
+      "parent": "ModulatorSocket09"
+    },
+    {
+      "name": "ImpossibleCube_Suspended_Fragment_01",
+      "source": "ImpossibleCube_Suspended_Fragment_01",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "ImpossibleCube_Fractured_Corner_01",
+      "source": "ImpossibleCube_Fractured_Corner_01",
+      "parent": "ImpossibleCube_Suspended_Fragment_01"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_01_Beam_0_0",
+      "source": "ImpossibleCube_Fragment_01_Beam_0_0",
+      "parent": "ImpossibleCube_Suspended_Fragment_01"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_01_Beam_0_1",
+      "source": "ImpossibleCube_Fragment_01_Beam_0_1",
+      "parent": "ImpossibleCube_Suspended_Fragment_01"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_01_Beam_0_2",
+      "source": "ImpossibleCube_Fragment_01_Beam_0_2",
+      "parent": "ImpossibleCube_Suspended_Fragment_01"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_01_Beam_0_3",
+      "source": "ImpossibleCube_Fragment_01_Beam_0_3",
+      "parent": "ImpossibleCube_Suspended_Fragment_01"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_01_Beam_0_4",
+      "source": "ImpossibleCube_Fragment_01_Beam_0_4",
+      "parent": "ImpossibleCube_Suspended_Fragment_01"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_01_Beam_1_0",
+      "source": "ImpossibleCube_Fragment_01_Beam_1_0",
+      "parent": "ImpossibleCube_Suspended_Fragment_01"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_01_Beam_1_1",
+      "source": "ImpossibleCube_Fragment_01_Beam_1_1",
+      "parent": "ImpossibleCube_Suspended_Fragment_01"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_01_Beam_1_2",
+      "source": "ImpossibleCube_Fragment_01_Beam_1_2",
+      "parent": "ImpossibleCube_Suspended_Fragment_01"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_01_Beam_1_3",
+      "source": "ImpossibleCube_Fragment_01_Beam_1_3",
+      "parent": "ImpossibleCube_Suspended_Fragment_01"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_01_Beam_1_4",
+      "source": "ImpossibleCube_Fragment_01_Beam_1_4",
+      "parent": "ImpossibleCube_Suspended_Fragment_01"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_01_Beam_2_0",
+      "source": "ImpossibleCube_Fragment_01_Beam_2_0",
+      "parent": "ImpossibleCube_Suspended_Fragment_01"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_01_Beam_2_1",
+      "source": "ImpossibleCube_Fragment_01_Beam_2_1",
+      "parent": "ImpossibleCube_Suspended_Fragment_01"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_01_Beam_2_2",
+      "source": "ImpossibleCube_Fragment_01_Beam_2_2",
+      "parent": "ImpossibleCube_Suspended_Fragment_01"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_01_Beam_2_3",
+      "source": "ImpossibleCube_Fragment_01_Beam_2_3",
+      "parent": "ImpossibleCube_Suspended_Fragment_01"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_01_Beam_2_4",
+      "source": "ImpossibleCube_Fragment_01_Beam_2_4",
+      "parent": "ImpossibleCube_Suspended_Fragment_01"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_01_Charge",
+      "source": "ImpossibleCube_Fragment_01_Charge",
+      "parent": "ImpossibleCube_Suspended_Fragment_01"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_01_Face_Pad_0",
+      "source": "ImpossibleCube_Fragment_01_Face_Pad_0",
+      "parent": "ImpossibleCube_Suspended_Fragment_01"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_01_Face_Pad_1",
+      "source": "ImpossibleCube_Fragment_01_Face_Pad_1",
+      "parent": "ImpossibleCube_Suspended_Fragment_01"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_01_Face_Pad_2",
+      "source": "ImpossibleCube_Fragment_01_Face_Pad_2",
+      "parent": "ImpossibleCube_Suspended_Fragment_01"
+    },
+    {
+      "name": "ModulatorSocket06",
+      "source": "ModulatorSocket06",
+      "parent": "ImpossibleCube_Suspended_Fragment_01"
+    },
+    {
+      "name": "Bay_06___captive_stud__1",
+      "source": "Bay 06 | captive stud -1",
+      "parent": "ModulatorSocket06"
+    },
+    {
+      "name": "Bay_06___captive_stud_1",
+      "source": "Bay 06 | captive stud 1",
+      "parent": "ModulatorSocket06"
+    },
+    {
+      "name": "Bay_06___fitted_mounting_tile",
+      "source": "Bay 06 | fitted mounting tile",
+      "parent": "ModulatorSocket06"
+    },
+    {
+      "name": "EmptyContact1.004",
+      "source": "Modulator 06 | empty contact -1",
+      "parent": "ModulatorSocket06"
+    },
+    {
+      "name": "EmptyContact1.005",
+      "source": "Modulator 06 | empty contact 1",
+      "parent": "ModulatorSocket06"
+    },
+    {
+      "name": "LockedCover.002",
+      "source": "Modulator 06 | locked cover",
+      "parent": "ModulatorSocket06"
+    },
+    {
+      "name": "LockedWitness.002",
+      "source": "Modulator 06 | locked witness",
+      "parent": "ModulatorSocket06"
+    },
+    {
+      "name": "RecessedSocketLip.002",
+      "source": "Modulator 06 | recessed socket lip",
+      "parent": "ModulatorSocket06"
+    },
+    {
+      "name": "Cartridge.002",
+      "source": "Modulator 06 | Sharpened Form",
+      "parent": "ModulatorSocket06"
+    },
+    {
+      "name": "IdentityBar0.002",
+      "source": "Modulator 06 | identity bar 0",
+      "parent": "Cartridge.002"
+    },
+    {
+      "name": "IdentityBar1.002",
+      "source": "Modulator 06 | identity bar 1",
+      "parent": "Cartridge.002"
+    },
+    {
+      "name": "IdentityBar2.001",
+      "source": "Modulator 06 | identity bar 2",
+      "parent": "Cartridge.002"
+    },
+    {
+      "name": "InsetFace.002",
+      "source": "Modulator 06 | inset face",
+      "parent": "Cartridge.002"
+    },
+    {
+      "name": "RaisedKey.002",
+      "source": "Modulator 06 | raised key",
+      "parent": "Cartridge.002"
+    },
+    {
+      "name": "TypeColor.002",
+      "source": "Modulator 06 | type color",
+      "parent": "Cartridge.002"
+    },
+    {
+      "name": "SocketInterior.002",
+      "source": "Modulator 06 | socket interior",
+      "parent": "ModulatorSocket06"
+    },
+    {
+      "name": "ImpossibleCube_Suspended_Fragment_02",
+      "source": "ImpossibleCube_Suspended_Fragment_02",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "ImpossibleCube_Fractured_Corner_02",
+      "source": "ImpossibleCube_Fractured_Corner_02",
+      "parent": "ImpossibleCube_Suspended_Fragment_02"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_02_Beam_0_0",
+      "source": "ImpossibleCube_Fragment_02_Beam_0_0",
+      "parent": "ImpossibleCube_Suspended_Fragment_02"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_02_Beam_0_1",
+      "source": "ImpossibleCube_Fragment_02_Beam_0_1",
+      "parent": "ImpossibleCube_Suspended_Fragment_02"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_02_Beam_0_2",
+      "source": "ImpossibleCube_Fragment_02_Beam_0_2",
+      "parent": "ImpossibleCube_Suspended_Fragment_02"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_02_Beam_0_3",
+      "source": "ImpossibleCube_Fragment_02_Beam_0_3",
+      "parent": "ImpossibleCube_Suspended_Fragment_02"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_02_Beam_0_4",
+      "source": "ImpossibleCube_Fragment_02_Beam_0_4",
+      "parent": "ImpossibleCube_Suspended_Fragment_02"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_02_Beam_1_0",
+      "source": "ImpossibleCube_Fragment_02_Beam_1_0",
+      "parent": "ImpossibleCube_Suspended_Fragment_02"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_02_Beam_1_1",
+      "source": "ImpossibleCube_Fragment_02_Beam_1_1",
+      "parent": "ImpossibleCube_Suspended_Fragment_02"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_02_Beam_1_2",
+      "source": "ImpossibleCube_Fragment_02_Beam_1_2",
+      "parent": "ImpossibleCube_Suspended_Fragment_02"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_02_Beam_1_3",
+      "source": "ImpossibleCube_Fragment_02_Beam_1_3",
+      "parent": "ImpossibleCube_Suspended_Fragment_02"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_02_Beam_1_4",
+      "source": "ImpossibleCube_Fragment_02_Beam_1_4",
+      "parent": "ImpossibleCube_Suspended_Fragment_02"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_02_Beam_2_0",
+      "source": "ImpossibleCube_Fragment_02_Beam_2_0",
+      "parent": "ImpossibleCube_Suspended_Fragment_02"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_02_Beam_2_1",
+      "source": "ImpossibleCube_Fragment_02_Beam_2_1",
+      "parent": "ImpossibleCube_Suspended_Fragment_02"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_02_Beam_2_2",
+      "source": "ImpossibleCube_Fragment_02_Beam_2_2",
+      "parent": "ImpossibleCube_Suspended_Fragment_02"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_02_Beam_2_3",
+      "source": "ImpossibleCube_Fragment_02_Beam_2_3",
+      "parent": "ImpossibleCube_Suspended_Fragment_02"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_02_Beam_2_4",
+      "source": "ImpossibleCube_Fragment_02_Beam_2_4",
+      "parent": "ImpossibleCube_Suspended_Fragment_02"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_02_Charge",
+      "source": "ImpossibleCube_Fragment_02_Charge",
+      "parent": "ImpossibleCube_Suspended_Fragment_02"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_02_Face_Pad_0",
+      "source": "ImpossibleCube_Fragment_02_Face_Pad_0",
+      "parent": "ImpossibleCube_Suspended_Fragment_02"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_02_Face_Pad_1",
+      "source": "ImpossibleCube_Fragment_02_Face_Pad_1",
+      "parent": "ImpossibleCube_Suspended_Fragment_02"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_02_Face_Pad_2",
+      "source": "ImpossibleCube_Fragment_02_Face_Pad_2",
+      "parent": "ImpossibleCube_Suspended_Fragment_02"
+    },
+    {
+      "name": "ModulatorSocket07",
+      "source": "ModulatorSocket07",
+      "parent": "ImpossibleCube_Suspended_Fragment_02"
+    },
+    {
+      "name": "Bay_07___captive_stud__1",
+      "source": "Bay 07 | captive stud -1",
+      "parent": "ModulatorSocket07"
+    },
+    {
+      "name": "Bay_07___captive_stud_1",
+      "source": "Bay 07 | captive stud 1",
+      "parent": "ModulatorSocket07"
+    },
+    {
+      "name": "Bay_07___fitted_mounting_tile",
+      "source": "Bay 07 | fitted mounting tile",
+      "parent": "ModulatorSocket07"
+    },
+    {
+      "name": "EmptyContact1.006",
+      "source": "Modulator 07 | empty contact -1",
+      "parent": "ModulatorSocket07"
+    },
+    {
+      "name": "EmptyContact1.007",
+      "source": "Modulator 07 | empty contact 1",
+      "parent": "ModulatorSocket07"
+    },
+    {
+      "name": "LockedCover.003",
+      "source": "Modulator 07 | locked cover",
+      "parent": "ModulatorSocket07"
+    },
+    {
+      "name": "LockedWitness.003",
+      "source": "Modulator 07 | locked witness",
+      "parent": "ModulatorSocket07"
+    },
+    {
+      "name": "Cartridge.003",
+      "source": "Modulator 07 | Quickened Core",
+      "parent": "ModulatorSocket07"
+    },
+    {
+      "name": "IdentityBar0.003",
+      "source": "Modulator 07 | identity bar 0",
+      "parent": "Cartridge.003"
+    },
+    {
+      "name": "InsetFace.003",
+      "source": "Modulator 07 | inset face",
+      "parent": "Cartridge.003"
+    },
+    {
+      "name": "RaisedKey.003",
+      "source": "Modulator 07 | raised key",
+      "parent": "Cartridge.003"
+    },
+    {
+      "name": "TypeColor.003",
+      "source": "Modulator 07 | type color",
+      "parent": "Cartridge.003"
+    },
+    {
+      "name": "RecessedSocketLip.003",
+      "source": "Modulator 07 | recessed socket lip",
+      "parent": "ModulatorSocket07"
+    },
+    {
+      "name": "SocketInterior.003",
+      "source": "Modulator 07 | socket interior",
+      "parent": "ModulatorSocket07"
+    },
+    {
+      "name": "ImpossibleCube_Suspended_Fragment_03",
+      "source": "ImpossibleCube_Suspended_Fragment_03",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "ImpossibleCube_Fractured_Corner_03",
+      "source": "ImpossibleCube_Fractured_Corner_03",
+      "parent": "ImpossibleCube_Suspended_Fragment_03"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_03_Beam_0_0",
+      "source": "ImpossibleCube_Fragment_03_Beam_0_0",
+      "parent": "ImpossibleCube_Suspended_Fragment_03"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_03_Beam_0_1",
+      "source": "ImpossibleCube_Fragment_03_Beam_0_1",
+      "parent": "ImpossibleCube_Suspended_Fragment_03"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_03_Beam_0_2",
+      "source": "ImpossibleCube_Fragment_03_Beam_0_2",
+      "parent": "ImpossibleCube_Suspended_Fragment_03"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_03_Beam_0_3",
+      "source": "ImpossibleCube_Fragment_03_Beam_0_3",
+      "parent": "ImpossibleCube_Suspended_Fragment_03"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_03_Beam_0_4",
+      "source": "ImpossibleCube_Fragment_03_Beam_0_4",
+      "parent": "ImpossibleCube_Suspended_Fragment_03"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_03_Beam_1_0",
+      "source": "ImpossibleCube_Fragment_03_Beam_1_0",
+      "parent": "ImpossibleCube_Suspended_Fragment_03"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_03_Beam_1_1",
+      "source": "ImpossibleCube_Fragment_03_Beam_1_1",
+      "parent": "ImpossibleCube_Suspended_Fragment_03"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_03_Beam_1_2",
+      "source": "ImpossibleCube_Fragment_03_Beam_1_2",
+      "parent": "ImpossibleCube_Suspended_Fragment_03"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_03_Beam_1_3",
+      "source": "ImpossibleCube_Fragment_03_Beam_1_3",
+      "parent": "ImpossibleCube_Suspended_Fragment_03"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_03_Beam_1_4",
+      "source": "ImpossibleCube_Fragment_03_Beam_1_4",
+      "parent": "ImpossibleCube_Suspended_Fragment_03"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_03_Beam_2_0",
+      "source": "ImpossibleCube_Fragment_03_Beam_2_0",
+      "parent": "ImpossibleCube_Suspended_Fragment_03"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_03_Beam_2_1",
+      "source": "ImpossibleCube_Fragment_03_Beam_2_1",
+      "parent": "ImpossibleCube_Suspended_Fragment_03"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_03_Beam_2_2",
+      "source": "ImpossibleCube_Fragment_03_Beam_2_2",
+      "parent": "ImpossibleCube_Suspended_Fragment_03"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_03_Beam_2_3",
+      "source": "ImpossibleCube_Fragment_03_Beam_2_3",
+      "parent": "ImpossibleCube_Suspended_Fragment_03"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_03_Beam_2_4",
+      "source": "ImpossibleCube_Fragment_03_Beam_2_4",
+      "parent": "ImpossibleCube_Suspended_Fragment_03"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_03_Charge",
+      "source": "ImpossibleCube_Fragment_03_Charge",
+      "parent": "ImpossibleCube_Suspended_Fragment_03"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_03_Face_Pad_0",
+      "source": "ImpossibleCube_Fragment_03_Face_Pad_0",
+      "parent": "ImpossibleCube_Suspended_Fragment_03"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_03_Face_Pad_1",
+      "source": "ImpossibleCube_Fragment_03_Face_Pad_1",
+      "parent": "ImpossibleCube_Suspended_Fragment_03"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_03_Face_Pad_2",
+      "source": "ImpossibleCube_Fragment_03_Face_Pad_2",
+      "parent": "ImpossibleCube_Suspended_Fragment_03"
+    },
+    {
+      "name": "ModulatorSocket08",
+      "source": "ModulatorSocket08",
+      "parent": "ImpossibleCube_Suspended_Fragment_03"
+    },
+    {
+      "name": "Bay_08___captive_stud__1",
+      "source": "Bay 08 | captive stud -1",
+      "parent": "ModulatorSocket08"
+    },
+    {
+      "name": "Bay_08___captive_stud_1",
+      "source": "Bay 08 | captive stud 1",
+      "parent": "ModulatorSocket08"
+    },
+    {
+      "name": "Bay_08___fitted_mounting_tile",
+      "source": "Bay 08 | fitted mounting tile",
+      "parent": "ModulatorSocket08"
+    },
+    {
+      "name": "EmptyContact1.008",
+      "source": "Modulator 08 | empty contact -1",
+      "parent": "ModulatorSocket08"
+    },
+    {
+      "name": "EmptyContact1.009",
+      "source": "Modulator 08 | empty contact 1",
+      "parent": "ModulatorSocket08"
+    },
+    {
+      "name": "LockedCover.004",
+      "source": "Modulator 08 | locked cover",
+      "parent": "ModulatorSocket08"
+    },
+    {
+      "name": "LockedWitness.004",
+      "source": "Modulator 08 | locked witness",
+      "parent": "ModulatorSocket08"
+    },
+    {
+      "name": "Cartridge.004",
+      "source": "Modulator 08 | Long Reach",
+      "parent": "ModulatorSocket08"
+    },
+    {
+      "name": "IdentityBar0.004",
+      "source": "Modulator 08 | identity bar 0",
+      "parent": "Cartridge.004"
+    },
+    {
+      "name": "IdentityBar1.003",
+      "source": "Modulator 08 | identity bar 1",
+      "parent": "Cartridge.004"
+    },
+    {
+      "name": "InsetFace.004",
+      "source": "Modulator 08 | inset face",
+      "parent": "Cartridge.004"
+    },
+    {
+      "name": "RaisedKey.004",
+      "source": "Modulator 08 | raised key",
+      "parent": "Cartridge.004"
+    },
+    {
+      "name": "TypeColor.004",
+      "source": "Modulator 08 | type color",
+      "parent": "Cartridge.004"
+    },
+    {
+      "name": "RecessedSocketLip.004",
+      "source": "Modulator 08 | recessed socket lip",
+      "parent": "ModulatorSocket08"
+    },
+    {
+      "name": "SocketInterior.004",
+      "source": "Modulator 08 | socket interior",
+      "parent": "ModulatorSocket08"
+    },
+    {
+      "name": "ShapeSocket",
+      "source": "ShapeSocket",
+      "parent": "ImpossibleCube_Suspended_Fragment_03"
+    },
+    {
+      "name": "Dock___captive_stud__1",
+      "source": "Dock | captive stud -1",
+      "parent": "ShapeSocket"
+    },
+    {
+      "name": "Dock___captive_stud_1",
+      "source": "Dock | captive stud 1",
+      "parent": "ShapeSocket"
+    },
+    {
+      "name": "Dock___fitted_end_rail__1",
+      "source": "Dock | fitted end rail -1",
+      "parent": "ShapeSocket"
+    },
+    {
+      "name": "Dock___fitted_end_rail_1",
+      "source": "Dock | fitted end rail 1",
+      "parent": "ShapeSocket"
+    },
+    {
+      "name": "Dock___fitted_side_rail__1",
+      "source": "Dock | fitted side rail -1",
+      "parent": "ShapeSocket"
+    },
+    {
+      "name": "Dock___fitted_side_rail_1",
+      "source": "Dock | fitted side rail 1",
+      "parent": "ShapeSocket"
+    },
+    {
+      "name": "Dock___isolated_pocket_floor",
+      "source": "Dock | isolated pocket floor",
+      "parent": "ShapeSocket"
+    },
+    {
+      "name": "Dock___latch_status",
+      "source": "Dock | latch status",
+      "parent": "ShapeSocket"
+    },
+    {
+      "name": "Dock___new_universal_carrier",
+      "source": "Dock | new universal carrier",
+      "parent": "ShapeSocket"
+    },
+    {
+      "name": "Dock___positive_latch",
+      "source": "Dock | positive latch",
+      "parent": "ShapeSocket"
+    },
+    {
+      "name": "ImpossiblecubeInsert___removable_shape_cartridge",
+      "source": "ImpossiblecubeInsert | removable shape cartridge",
+      "parent": "ShapeSocket"
+    },
+    {
+      "name": "ImpossibleCubeInsert_Bent_Frame_Return_0_1_0",
+      "source": "ImpossibleCubeInsert_Bent_Frame_Return_0_1_0",
+      "parent": "ImpossiblecubeInsert___removable_shape_cartridge"
+    },
+    {
+      "name": "ImpossibleCubeInsert_Bent_Frame_Return_0_1_1",
+      "source": "ImpossibleCubeInsert_Bent_Frame_Return_0_1_1",
+      "parent": "ImpossiblecubeInsert___removable_shape_cartridge"
+    },
+    {
+      "name": "ImpossibleCubeInsert_Bent_Frame_Return_0_1_2",
+      "source": "ImpossibleCubeInsert_Bent_Frame_Return_0_1_2",
+      "parent": "ImpossiblecubeInsert___removable_shape_cartridge"
+    },
+    {
+      "name": "ImpossibleCubeInsert_Bent_Frame_Return_0_1_3",
+      "source": "ImpossibleCubeInsert_Bent_Frame_Return_0_1_3",
+      "parent": "ImpossiblecubeInsert___removable_shape_cartridge"
+    },
+    {
+      "name": "ImpossibleCubeInsert_Bent_Frame_Return_0_1_4",
+      "source": "ImpossibleCubeInsert_Bent_Frame_Return_0_1_4",
+      "parent": "ImpossiblecubeInsert___removable_shape_cartridge"
+    },
+    {
+      "name": "ImpossibleCubeInsert_Bent_Frame_Return_0_2_0",
+      "source": "ImpossibleCubeInsert_Bent_Frame_Return_0_2_0",
+      "parent": "ImpossiblecubeInsert___removable_shape_cartridge"
+    },
+    {
+      "name": "ImpossibleCubeInsert_Bent_Frame_Return_0_2_1",
+      "source": "ImpossibleCubeInsert_Bent_Frame_Return_0_2_1",
+      "parent": "ImpossiblecubeInsert___removable_shape_cartridge"
+    },
+    {
+      "name": "ImpossibleCubeInsert_Bent_Frame_Return_0_2_2",
+      "source": "ImpossibleCubeInsert_Bent_Frame_Return_0_2_2",
+      "parent": "ImpossiblecubeInsert___removable_shape_cartridge"
+    },
+    {
+      "name": "ImpossibleCubeInsert_Bent_Frame_Return_0_2_3",
+      "source": "ImpossibleCubeInsert_Bent_Frame_Return_0_2_3",
+      "parent": "ImpossiblecubeInsert___removable_shape_cartridge"
+    },
+    {
+      "name": "ImpossibleCubeInsert_Bent_Frame_Return_0_2_4",
+      "source": "ImpossibleCubeInsert_Bent_Frame_Return_0_2_4",
+      "parent": "ImpossiblecubeInsert___removable_shape_cartridge"
+    },
+    {
+      "name": "ImpossibleCubeInsert_Bent_Frame_Return_0_4_0",
+      "source": "ImpossibleCubeInsert_Bent_Frame_Return_0_4_0",
+      "parent": "ImpossiblecubeInsert___removable_shape_cartridge"
+    },
+    {
+      "name": "ImpossibleCubeInsert_Bent_Frame_Return_0_4_1",
+      "source": "ImpossibleCubeInsert_Bent_Frame_Return_0_4_1",
+      "parent": "ImpossiblecubeInsert___removable_shape_cartridge"
+    },
+    {
+      "name": "ImpossibleCubeInsert_Bent_Frame_Return_0_4_2",
+      "source": "ImpossibleCubeInsert_Bent_Frame_Return_0_4_2",
+      "parent": "ImpossiblecubeInsert___removable_shape_cartridge"
+    },
+    {
+      "name": "ImpossibleCubeInsert_Bent_Frame_Return_0_4_3",
+      "source": "ImpossibleCubeInsert_Bent_Frame_Return_0_4_3",
+      "parent": "ImpossiblecubeInsert___removable_shape_cartridge"
+    },
+    {
+      "name": "ImpossibleCubeInsert_Bent_Frame_Return_0_4_4",
+      "source": "ImpossibleCubeInsert_Bent_Frame_Return_0_4_4",
+      "parent": "ImpossiblecubeInsert___removable_shape_cartridge"
+    },
+    {
+      "name": "ImpossibleCubeInsert_Bent_Frame_Return_1_3_0",
+      "source": "ImpossibleCubeInsert_Bent_Frame_Return_1_3_0",
+      "parent": "ImpossiblecubeInsert___removable_shape_cartridge"
+    },
+    {
+      "name": "ImpossibleCubeInsert_Bent_Frame_Return_1_3_1",
+      "source": "ImpossibleCubeInsert_Bent_Frame_Return_1_3_1",
+      "parent": "ImpossiblecubeInsert___removable_shape_cartridge"
+    },
+    {
+      "name": "ImpossibleCubeInsert_Bent_Frame_Return_1_3_2",
+      "source": "ImpossibleCubeInsert_Bent_Frame_Return_1_3_2",
+      "parent": "ImpossiblecubeInsert___removable_shape_cartridge"
+    },
+    {
+      "name": "ImpossibleCubeInsert_Bent_Frame_Return_1_3_3",
+      "source": "ImpossibleCubeInsert_Bent_Frame_Return_1_3_3",
+      "parent": "ImpossiblecubeInsert___removable_shape_cartridge"
+    },
+    {
+      "name": "ImpossibleCubeInsert_Bent_Frame_Return_1_3_4",
+      "source": "ImpossibleCubeInsert_Bent_Frame_Return_1_3_4",
+      "parent": "ImpossiblecubeInsert___removable_shape_cartridge"
+    },
+    {
+      "name": "ImpossibleCubeInsert_Bent_Frame_Return_1_5_0",
+      "source": "ImpossibleCubeInsert_Bent_Frame_Return_1_5_0",
+      "parent": "ImpossiblecubeInsert___removable_shape_cartridge"
+    },
+    {
+      "name": "ImpossibleCubeInsert_Bent_Frame_Return_1_5_1",
+      "source": "ImpossibleCubeInsert_Bent_Frame_Return_1_5_1",
+      "parent": "ImpossiblecubeInsert___removable_shape_cartridge"
+    },
+    {
+      "name": "ImpossibleCubeInsert_Bent_Frame_Return_1_5_2",
+      "source": "ImpossibleCubeInsert_Bent_Frame_Return_1_5_2",
+      "parent": "ImpossiblecubeInsert___removable_shape_cartridge"
+    },
+    {
+      "name": "ImpossibleCubeInsert_Bent_Frame_Return_1_5_3",
+      "source": "ImpossibleCubeInsert_Bent_Frame_Return_1_5_3",
+      "parent": "ImpossiblecubeInsert___removable_shape_cartridge"
+    },
+    {
+      "name": "ImpossibleCubeInsert_Bent_Frame_Return_1_5_4",
+      "source": "ImpossibleCubeInsert_Bent_Frame_Return_1_5_4",
+      "parent": "ImpossiblecubeInsert___removable_shape_cartridge"
+    },
+    {
+      "name": "ImpossibleCubeInsert_Bent_Frame_Return_2_3_0",
+      "source": "ImpossibleCubeInsert_Bent_Frame_Return_2_3_0",
+      "parent": "ImpossiblecubeInsert___removable_shape_cartridge"
+    },
+    {
+      "name": "ImpossibleCubeInsert_Bent_Frame_Return_2_3_1",
+      "source": "ImpossibleCubeInsert_Bent_Frame_Return_2_3_1",
+      "parent": "ImpossiblecubeInsert___removable_shape_cartridge"
+    },
+    {
+      "name": "ImpossibleCubeInsert_Bent_Frame_Return_2_3_2",
+      "source": "ImpossibleCubeInsert_Bent_Frame_Return_2_3_2",
+      "parent": "ImpossiblecubeInsert___removable_shape_cartridge"
+    },
+    {
+      "name": "ImpossibleCubeInsert_Bent_Frame_Return_2_3_3",
+      "source": "ImpossibleCubeInsert_Bent_Frame_Return_2_3_3",
+      "parent": "ImpossiblecubeInsert___removable_shape_cartridge"
+    },
+    {
+      "name": "ImpossibleCubeInsert_Bent_Frame_Return_2_3_4",
+      "source": "ImpossibleCubeInsert_Bent_Frame_Return_2_3_4",
+      "parent": "ImpossiblecubeInsert___removable_shape_cartridge"
+    },
+    {
+      "name": "ImpossibleCubeInsert_Bent_Frame_Return_2_6_0",
+      "source": "ImpossibleCubeInsert_Bent_Frame_Return_2_6_0",
+      "parent": "ImpossiblecubeInsert___removable_shape_cartridge"
+    },
+    {
+      "name": "ImpossibleCubeInsert_Bent_Frame_Return_2_6_1",
+      "source": "ImpossibleCubeInsert_Bent_Frame_Return_2_6_1",
+      "parent": "ImpossiblecubeInsert___removable_shape_cartridge"
+    },
+    {
+      "name": "ImpossibleCubeInsert_Bent_Frame_Return_2_6_2",
+      "source": "ImpossibleCubeInsert_Bent_Frame_Return_2_6_2",
+      "parent": "ImpossiblecubeInsert___removable_shape_cartridge"
+    },
+    {
+      "name": "ImpossibleCubeInsert_Bent_Frame_Return_2_6_3",
+      "source": "ImpossibleCubeInsert_Bent_Frame_Return_2_6_3",
+      "parent": "ImpossiblecubeInsert___removable_shape_cartridge"
+    },
+    {
+      "name": "ImpossibleCubeInsert_Bent_Frame_Return_2_6_4",
+      "source": "ImpossibleCubeInsert_Bent_Frame_Return_2_6_4",
+      "parent": "ImpossiblecubeInsert___removable_shape_cartridge"
+    },
+    {
+      "name": "ImpossibleCubeInsert_Bent_Frame_Return_3_7_0",
+      "source": "ImpossibleCubeInsert_Bent_Frame_Return_3_7_0",
+      "parent": "ImpossiblecubeInsert___removable_shape_cartridge"
+    },
+    {
+      "name": "ImpossibleCubeInsert_Bent_Frame_Return_3_7_1",
+      "source": "ImpossibleCubeInsert_Bent_Frame_Return_3_7_1",
+      "parent": "ImpossiblecubeInsert___removable_shape_cartridge"
+    },
+    {
+      "name": "ImpossibleCubeInsert_Bent_Frame_Return_3_7_2",
+      "source": "ImpossibleCubeInsert_Bent_Frame_Return_3_7_2",
+      "parent": "ImpossiblecubeInsert___removable_shape_cartridge"
+    },
+    {
+      "name": "ImpossibleCubeInsert_Bent_Frame_Return_3_7_3",
+      "source": "ImpossibleCubeInsert_Bent_Frame_Return_3_7_3",
+      "parent": "ImpossiblecubeInsert___removable_shape_cartridge"
+    },
+    {
+      "name": "ImpossibleCubeInsert_Bent_Frame_Return_3_7_4",
+      "source": "ImpossibleCubeInsert_Bent_Frame_Return_3_7_4",
+      "parent": "ImpossiblecubeInsert___removable_shape_cartridge"
+    },
+    {
+      "name": "ImpossibleCubeInsert_Bent_Frame_Return_4_5_0",
+      "source": "ImpossibleCubeInsert_Bent_Frame_Return_4_5_0",
+      "parent": "ImpossiblecubeInsert___removable_shape_cartridge"
+    },
+    {
+      "name": "ImpossibleCubeInsert_Bent_Frame_Return_4_5_1",
+      "source": "ImpossibleCubeInsert_Bent_Frame_Return_4_5_1",
+      "parent": "ImpossiblecubeInsert___removable_shape_cartridge"
+    },
+    {
+      "name": "ImpossibleCubeInsert_Bent_Frame_Return_4_5_2",
+      "source": "ImpossibleCubeInsert_Bent_Frame_Return_4_5_2",
+      "parent": "ImpossiblecubeInsert___removable_shape_cartridge"
+    },
+    {
+      "name": "ImpossibleCubeInsert_Bent_Frame_Return_4_5_3",
+      "source": "ImpossibleCubeInsert_Bent_Frame_Return_4_5_3",
+      "parent": "ImpossiblecubeInsert___removable_shape_cartridge"
+    },
+    {
+      "name": "ImpossibleCubeInsert_Bent_Frame_Return_4_5_4",
+      "source": "ImpossibleCubeInsert_Bent_Frame_Return_4_5_4",
+      "parent": "ImpossiblecubeInsert___removable_shape_cartridge"
+    },
+    {
+      "name": "ImpossibleCubeInsert_Bent_Frame_Return_4_6_0",
+      "source": "ImpossibleCubeInsert_Bent_Frame_Return_4_6_0",
+      "parent": "ImpossiblecubeInsert___removable_shape_cartridge"
+    },
+    {
+      "name": "ImpossibleCubeInsert_Bent_Frame_Return_4_6_1",
+      "source": "ImpossibleCubeInsert_Bent_Frame_Return_4_6_1",
+      "parent": "ImpossiblecubeInsert___removable_shape_cartridge"
+    },
+    {
+      "name": "ImpossibleCubeInsert_Bent_Frame_Return_4_6_2",
+      "source": "ImpossibleCubeInsert_Bent_Frame_Return_4_6_2",
+      "parent": "ImpossiblecubeInsert___removable_shape_cartridge"
+    },
+    {
+      "name": "ImpossibleCubeInsert_Bent_Frame_Return_4_6_3",
+      "source": "ImpossibleCubeInsert_Bent_Frame_Return_4_6_3",
+      "parent": "ImpossiblecubeInsert___removable_shape_cartridge"
+    },
+    {
+      "name": "ImpossibleCubeInsert_Bent_Frame_Return_4_6_4",
+      "source": "ImpossibleCubeInsert_Bent_Frame_Return_4_6_4",
+      "parent": "ImpossiblecubeInsert___removable_shape_cartridge"
+    },
+    {
+      "name": "ImpossibleCubeInsert_Bent_Frame_Return_5_7_0",
+      "source": "ImpossibleCubeInsert_Bent_Frame_Return_5_7_0",
+      "parent": "ImpossiblecubeInsert___removable_shape_cartridge"
+    },
+    {
+      "name": "ImpossibleCubeInsert_Bent_Frame_Return_5_7_1",
+      "source": "ImpossibleCubeInsert_Bent_Frame_Return_5_7_1",
+      "parent": "ImpossiblecubeInsert___removable_shape_cartridge"
+    },
+    {
+      "name": "ImpossibleCubeInsert_Bent_Frame_Return_5_7_2",
+      "source": "ImpossibleCubeInsert_Bent_Frame_Return_5_7_2",
+      "parent": "ImpossiblecubeInsert___removable_shape_cartridge"
+    },
+    {
+      "name": "ImpossibleCubeInsert_Bent_Frame_Return_5_7_3",
+      "source": "ImpossibleCubeInsert_Bent_Frame_Return_5_7_3",
+      "parent": "ImpossiblecubeInsert___removable_shape_cartridge"
+    },
+    {
+      "name": "ImpossibleCubeInsert_Bent_Frame_Return_5_7_4",
+      "source": "ImpossibleCubeInsert_Bent_Frame_Return_5_7_4",
+      "parent": "ImpossiblecubeInsert___removable_shape_cartridge"
+    },
+    {
+      "name": "ImpossibleCubeInsert_Bent_Frame_Return_6_7_0",
+      "source": "ImpossibleCubeInsert_Bent_Frame_Return_6_7_0",
+      "parent": "ImpossiblecubeInsert___removable_shape_cartridge"
+    },
+    {
+      "name": "ImpossibleCubeInsert_Bent_Frame_Return_6_7_1",
+      "source": "ImpossibleCubeInsert_Bent_Frame_Return_6_7_1",
+      "parent": "ImpossiblecubeInsert___removable_shape_cartridge"
+    },
+    {
+      "name": "ImpossibleCubeInsert_Bent_Frame_Return_6_7_2",
+      "source": "ImpossibleCubeInsert_Bent_Frame_Return_6_7_2",
+      "parent": "ImpossiblecubeInsert___removable_shape_cartridge"
+    },
+    {
+      "name": "ImpossibleCubeInsert_Bent_Frame_Return_6_7_3",
+      "source": "ImpossibleCubeInsert_Bent_Frame_Return_6_7_3",
+      "parent": "ImpossiblecubeInsert___removable_shape_cartridge"
+    },
+    {
+      "name": "ImpossibleCubeInsert_Bent_Frame_Return_6_7_4",
+      "source": "ImpossibleCubeInsert_Bent_Frame_Return_6_7_4",
+      "parent": "ImpossiblecubeInsert___removable_shape_cartridge"
+    },
+    {
+      "name": "ImpossibleCubeInsert_Core",
+      "source": "ImpossibleCubeInsert_Core",
+      "parent": "ImpossiblecubeInsert___removable_shape_cartridge"
+    },
+    {
+      "name": "ImpossibleCubeInsert_Singularity",
+      "source": "ImpossibleCubeInsert_Singularity",
+      "parent": "ImpossibleCubeInsert_Core"
+    },
+    {
+      "name": "ImpossibleCube_Suspended_Fragment_04",
+      "source": "ImpossibleCube_Suspended_Fragment_04",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "ImpossibleCube_Fractured_Corner_04",
+      "source": "ImpossibleCube_Fractured_Corner_04",
+      "parent": "ImpossibleCube_Suspended_Fragment_04"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_04_Beam_0_0",
+      "source": "ImpossibleCube_Fragment_04_Beam_0_0",
+      "parent": "ImpossibleCube_Suspended_Fragment_04"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_04_Beam_0_1",
+      "source": "ImpossibleCube_Fragment_04_Beam_0_1",
+      "parent": "ImpossibleCube_Suspended_Fragment_04"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_04_Beam_0_2",
+      "source": "ImpossibleCube_Fragment_04_Beam_0_2",
+      "parent": "ImpossibleCube_Suspended_Fragment_04"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_04_Beam_0_3",
+      "source": "ImpossibleCube_Fragment_04_Beam_0_3",
+      "parent": "ImpossibleCube_Suspended_Fragment_04"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_04_Beam_0_4",
+      "source": "ImpossibleCube_Fragment_04_Beam_0_4",
+      "parent": "ImpossibleCube_Suspended_Fragment_04"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_04_Beam_1_0",
+      "source": "ImpossibleCube_Fragment_04_Beam_1_0",
+      "parent": "ImpossibleCube_Suspended_Fragment_04"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_04_Beam_1_1",
+      "source": "ImpossibleCube_Fragment_04_Beam_1_1",
+      "parent": "ImpossibleCube_Suspended_Fragment_04"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_04_Beam_1_2",
+      "source": "ImpossibleCube_Fragment_04_Beam_1_2",
+      "parent": "ImpossibleCube_Suspended_Fragment_04"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_04_Beam_1_3",
+      "source": "ImpossibleCube_Fragment_04_Beam_1_3",
+      "parent": "ImpossibleCube_Suspended_Fragment_04"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_04_Beam_1_4",
+      "source": "ImpossibleCube_Fragment_04_Beam_1_4",
+      "parent": "ImpossibleCube_Suspended_Fragment_04"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_04_Beam_2_0",
+      "source": "ImpossibleCube_Fragment_04_Beam_2_0",
+      "parent": "ImpossibleCube_Suspended_Fragment_04"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_04_Beam_2_1",
+      "source": "ImpossibleCube_Fragment_04_Beam_2_1",
+      "parent": "ImpossibleCube_Suspended_Fragment_04"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_04_Beam_2_2",
+      "source": "ImpossibleCube_Fragment_04_Beam_2_2",
+      "parent": "ImpossibleCube_Suspended_Fragment_04"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_04_Beam_2_3",
+      "source": "ImpossibleCube_Fragment_04_Beam_2_3",
+      "parent": "ImpossibleCube_Suspended_Fragment_04"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_04_Beam_2_4",
+      "source": "ImpossibleCube_Fragment_04_Beam_2_4",
+      "parent": "ImpossibleCube_Suspended_Fragment_04"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_04_Charge",
+      "source": "ImpossibleCube_Fragment_04_Charge",
+      "parent": "ImpossibleCube_Suspended_Fragment_04"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_04_Face_Pad_0",
+      "source": "ImpossibleCube_Fragment_04_Face_Pad_0",
+      "parent": "ImpossibleCube_Suspended_Fragment_04"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_04_Face_Pad_1",
+      "source": "ImpossibleCube_Fragment_04_Face_Pad_1",
+      "parent": "ImpossibleCube_Suspended_Fragment_04"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_04_Face_Pad_2",
+      "source": "ImpossibleCube_Fragment_04_Face_Pad_2",
+      "parent": "ImpossibleCube_Suspended_Fragment_04"
+    },
+    {
+      "name": "ModulatorSocket01",
+      "source": "ModulatorSocket01",
+      "parent": "ImpossibleCube_Suspended_Fragment_04"
+    },
+    {
+      "name": "Bay_01___captive_stud__1",
+      "source": "Bay 01 | captive stud -1",
+      "parent": "ModulatorSocket01"
+    },
+    {
+      "name": "Bay_01___captive_stud_1",
+      "source": "Bay 01 | captive stud 1",
+      "parent": "ModulatorSocket01"
+    },
+    {
+      "name": "Bay_01___fitted_mounting_tile",
+      "source": "Bay 01 | fitted mounting tile",
+      "parent": "ModulatorSocket01"
+    },
+    {
+      "name": "EmptyContact1.010",
+      "source": "Modulator 01 | empty contact -1",
+      "parent": "ModulatorSocket01"
+    },
+    {
+      "name": "EmptyContact1.011",
+      "source": "Modulator 01 | empty contact 1",
+      "parent": "ModulatorSocket01"
+    },
+    {
+      "name": "LockedCover.005",
+      "source": "Modulator 01 | locked cover",
+      "parent": "ModulatorSocket01"
+    },
+    {
+      "name": "LockedWitness.005",
+      "source": "Modulator 01 | locked witness",
+      "parent": "ModulatorSocket01"
+    },
+    {
+      "name": "RecessedSocketLip.005",
+      "source": "Modulator 01 | recessed socket lip",
+      "parent": "ModulatorSocket01"
+    },
+    {
+      "name": "Cartridge.005",
+      "source": "Modulator 01 | Sharpened Form",
+      "parent": "ModulatorSocket01"
+    },
+    {
+      "name": "IdentityBar0.005",
+      "source": "Modulator 01 | identity bar 0",
+      "parent": "Cartridge.005"
+    },
+    {
+      "name": "InsetFace.005",
+      "source": "Modulator 01 | inset face",
+      "parent": "Cartridge.005"
+    },
+    {
+      "name": "RaisedKey.005",
+      "source": "Modulator 01 | raised key",
+      "parent": "Cartridge.005"
+    },
+    {
+      "name": "TypeColor.005",
+      "source": "Modulator 01 | type color",
+      "parent": "Cartridge.005"
+    },
+    {
+      "name": "SocketInterior.005",
+      "source": "Modulator 01 | socket interior",
+      "parent": "ModulatorSocket01"
+    },
+    {
+      "name": "ImpossibleCube_Suspended_Fragment_05",
+      "source": "ImpossibleCube_Suspended_Fragment_05",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "ImpossibleCube_Fractured_Corner_05",
+      "source": "ImpossibleCube_Fractured_Corner_05",
+      "parent": "ImpossibleCube_Suspended_Fragment_05"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_05_Beam_0_0",
+      "source": "ImpossibleCube_Fragment_05_Beam_0_0",
+      "parent": "ImpossibleCube_Suspended_Fragment_05"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_05_Beam_0_1",
+      "source": "ImpossibleCube_Fragment_05_Beam_0_1",
+      "parent": "ImpossibleCube_Suspended_Fragment_05"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_05_Beam_0_2",
+      "source": "ImpossibleCube_Fragment_05_Beam_0_2",
+      "parent": "ImpossibleCube_Suspended_Fragment_05"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_05_Beam_0_3",
+      "source": "ImpossibleCube_Fragment_05_Beam_0_3",
+      "parent": "ImpossibleCube_Suspended_Fragment_05"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_05_Beam_0_4",
+      "source": "ImpossibleCube_Fragment_05_Beam_0_4",
+      "parent": "ImpossibleCube_Suspended_Fragment_05"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_05_Beam_1_0",
+      "source": "ImpossibleCube_Fragment_05_Beam_1_0",
+      "parent": "ImpossibleCube_Suspended_Fragment_05"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_05_Beam_1_1",
+      "source": "ImpossibleCube_Fragment_05_Beam_1_1",
+      "parent": "ImpossibleCube_Suspended_Fragment_05"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_05_Beam_1_2",
+      "source": "ImpossibleCube_Fragment_05_Beam_1_2",
+      "parent": "ImpossibleCube_Suspended_Fragment_05"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_05_Beam_1_3",
+      "source": "ImpossibleCube_Fragment_05_Beam_1_3",
+      "parent": "ImpossibleCube_Suspended_Fragment_05"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_05_Beam_1_4",
+      "source": "ImpossibleCube_Fragment_05_Beam_1_4",
+      "parent": "ImpossibleCube_Suspended_Fragment_05"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_05_Beam_2_0",
+      "source": "ImpossibleCube_Fragment_05_Beam_2_0",
+      "parent": "ImpossibleCube_Suspended_Fragment_05"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_05_Beam_2_1",
+      "source": "ImpossibleCube_Fragment_05_Beam_2_1",
+      "parent": "ImpossibleCube_Suspended_Fragment_05"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_05_Beam_2_2",
+      "source": "ImpossibleCube_Fragment_05_Beam_2_2",
+      "parent": "ImpossibleCube_Suspended_Fragment_05"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_05_Beam_2_3",
+      "source": "ImpossibleCube_Fragment_05_Beam_2_3",
+      "parent": "ImpossibleCube_Suspended_Fragment_05"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_05_Beam_2_4",
+      "source": "ImpossibleCube_Fragment_05_Beam_2_4",
+      "parent": "ImpossibleCube_Suspended_Fragment_05"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_05_Charge",
+      "source": "ImpossibleCube_Fragment_05_Charge",
+      "parent": "ImpossibleCube_Suspended_Fragment_05"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_05_Face_Pad_0",
+      "source": "ImpossibleCube_Fragment_05_Face_Pad_0",
+      "parent": "ImpossibleCube_Suspended_Fragment_05"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_05_Face_Pad_1",
+      "source": "ImpossibleCube_Fragment_05_Face_Pad_1",
+      "parent": "ImpossibleCube_Suspended_Fragment_05"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_05_Face_Pad_2",
+      "source": "ImpossibleCube_Fragment_05_Face_Pad_2",
+      "parent": "ImpossibleCube_Suspended_Fragment_05"
+    },
+    {
+      "name": "ModulatorSocket02",
+      "source": "ModulatorSocket02",
+      "parent": "ImpossibleCube_Suspended_Fragment_05"
+    },
+    {
+      "name": "Bay_02___captive_stud__1",
+      "source": "Bay 02 | captive stud -1",
+      "parent": "ModulatorSocket02"
+    },
+    {
+      "name": "Bay_02___captive_stud_1",
+      "source": "Bay 02 | captive stud 1",
+      "parent": "ModulatorSocket02"
+    },
+    {
+      "name": "Bay_02___fitted_mounting_tile",
+      "source": "Bay 02 | fitted mounting tile",
+      "parent": "ModulatorSocket02"
+    },
+    {
+      "name": "EmptyContact1.012",
+      "source": "Modulator 02 | empty contact -1",
+      "parent": "ModulatorSocket02"
+    },
+    {
+      "name": "EmptyContact1.013",
+      "source": "Modulator 02 | empty contact 1",
+      "parent": "ModulatorSocket02"
+    },
+    {
+      "name": "LockedCover.006",
+      "source": "Modulator 02 | locked cover",
+      "parent": "ModulatorSocket02"
+    },
+    {
+      "name": "LockedWitness.006",
+      "source": "Modulator 02 | locked witness",
+      "parent": "ModulatorSocket02"
+    },
+    {
+      "name": "Cartridge.006",
+      "source": "Modulator 02 | Quickened Core",
+      "parent": "ModulatorSocket02"
+    },
+    {
+      "name": "IdentityBar0.006",
+      "source": "Modulator 02 | identity bar 0",
+      "parent": "Cartridge.006"
+    },
+    {
+      "name": "IdentityBar1.004",
+      "source": "Modulator 02 | identity bar 1",
+      "parent": "Cartridge.006"
+    },
+    {
+      "name": "InsetFace.006",
+      "source": "Modulator 02 | inset face",
+      "parent": "Cartridge.006"
+    },
+    {
+      "name": "RaisedKey.006",
+      "source": "Modulator 02 | raised key",
+      "parent": "Cartridge.006"
+    },
+    {
+      "name": "TypeColor.006",
+      "source": "Modulator 02 | type color",
+      "parent": "Cartridge.006"
+    },
+    {
+      "name": "RecessedSocketLip.006",
+      "source": "Modulator 02 | recessed socket lip",
+      "parent": "ModulatorSocket02"
+    },
+    {
+      "name": "SocketInterior.006",
+      "source": "Modulator 02 | socket interior",
+      "parent": "ModulatorSocket02"
+    },
+    {
+      "name": "ImpossibleCube_Suspended_Fragment_06",
+      "source": "ImpossibleCube_Suspended_Fragment_06",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "ImpossibleCube_Fractured_Corner_06",
+      "source": "ImpossibleCube_Fractured_Corner_06",
+      "parent": "ImpossibleCube_Suspended_Fragment_06"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_06_Beam_0_0",
+      "source": "ImpossibleCube_Fragment_06_Beam_0_0",
+      "parent": "ImpossibleCube_Suspended_Fragment_06"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_06_Beam_0_1",
+      "source": "ImpossibleCube_Fragment_06_Beam_0_1",
+      "parent": "ImpossibleCube_Suspended_Fragment_06"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_06_Beam_0_2",
+      "source": "ImpossibleCube_Fragment_06_Beam_0_2",
+      "parent": "ImpossibleCube_Suspended_Fragment_06"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_06_Beam_0_3",
+      "source": "ImpossibleCube_Fragment_06_Beam_0_3",
+      "parent": "ImpossibleCube_Suspended_Fragment_06"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_06_Beam_0_4",
+      "source": "ImpossibleCube_Fragment_06_Beam_0_4",
+      "parent": "ImpossibleCube_Suspended_Fragment_06"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_06_Beam_1_0",
+      "source": "ImpossibleCube_Fragment_06_Beam_1_0",
+      "parent": "ImpossibleCube_Suspended_Fragment_06"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_06_Beam_1_1",
+      "source": "ImpossibleCube_Fragment_06_Beam_1_1",
+      "parent": "ImpossibleCube_Suspended_Fragment_06"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_06_Beam_1_2",
+      "source": "ImpossibleCube_Fragment_06_Beam_1_2",
+      "parent": "ImpossibleCube_Suspended_Fragment_06"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_06_Beam_1_3",
+      "source": "ImpossibleCube_Fragment_06_Beam_1_3",
+      "parent": "ImpossibleCube_Suspended_Fragment_06"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_06_Beam_1_4",
+      "source": "ImpossibleCube_Fragment_06_Beam_1_4",
+      "parent": "ImpossibleCube_Suspended_Fragment_06"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_06_Beam_2_0",
+      "source": "ImpossibleCube_Fragment_06_Beam_2_0",
+      "parent": "ImpossibleCube_Suspended_Fragment_06"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_06_Beam_2_1",
+      "source": "ImpossibleCube_Fragment_06_Beam_2_1",
+      "parent": "ImpossibleCube_Suspended_Fragment_06"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_06_Beam_2_2",
+      "source": "ImpossibleCube_Fragment_06_Beam_2_2",
+      "parent": "ImpossibleCube_Suspended_Fragment_06"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_06_Beam_2_3",
+      "source": "ImpossibleCube_Fragment_06_Beam_2_3",
+      "parent": "ImpossibleCube_Suspended_Fragment_06"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_06_Beam_2_4",
+      "source": "ImpossibleCube_Fragment_06_Beam_2_4",
+      "parent": "ImpossibleCube_Suspended_Fragment_06"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_06_Charge",
+      "source": "ImpossibleCube_Fragment_06_Charge",
+      "parent": "ImpossibleCube_Suspended_Fragment_06"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_06_Face_Pad_0",
+      "source": "ImpossibleCube_Fragment_06_Face_Pad_0",
+      "parent": "ImpossibleCube_Suspended_Fragment_06"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_06_Face_Pad_1",
+      "source": "ImpossibleCube_Fragment_06_Face_Pad_1",
+      "parent": "ImpossibleCube_Suspended_Fragment_06"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_06_Face_Pad_2",
+      "source": "ImpossibleCube_Fragment_06_Face_Pad_2",
+      "parent": "ImpossibleCube_Suspended_Fragment_06"
+    },
+    {
+      "name": "ModulatorSocket03",
+      "source": "ModulatorSocket03",
+      "parent": "ImpossibleCube_Suspended_Fragment_06"
+    },
+    {
+      "name": "Bay_03___captive_stud__1",
+      "source": "Bay 03 | captive stud -1",
+      "parent": "ModulatorSocket03"
+    },
+    {
+      "name": "Bay_03___captive_stud_1",
+      "source": "Bay 03 | captive stud 1",
+      "parent": "ModulatorSocket03"
+    },
+    {
+      "name": "Bay_03___fitted_mounting_tile",
+      "source": "Bay 03 | fitted mounting tile",
+      "parent": "ModulatorSocket03"
+    },
+    {
+      "name": "EmptyContact1.014",
+      "source": "Modulator 03 | empty contact -1",
+      "parent": "ModulatorSocket03"
+    },
+    {
+      "name": "EmptyContact1.015",
+      "source": "Modulator 03 | empty contact 1",
+      "parent": "ModulatorSocket03"
+    },
+    {
+      "name": "LockedCover.007",
+      "source": "Modulator 03 | locked cover",
+      "parent": "ModulatorSocket03"
+    },
+    {
+      "name": "LockedWitness.007",
+      "source": "Modulator 03 | locked witness",
+      "parent": "ModulatorSocket03"
+    },
+    {
+      "name": "Cartridge.007",
+      "source": "Modulator 03 | Long Reach",
+      "parent": "ModulatorSocket03"
+    },
+    {
+      "name": "IdentityBar0.007",
+      "source": "Modulator 03 | identity bar 0",
+      "parent": "Cartridge.007"
+    },
+    {
+      "name": "IdentityBar1.005",
+      "source": "Modulator 03 | identity bar 1",
+      "parent": "Cartridge.007"
+    },
+    {
+      "name": "IdentityBar2.002",
+      "source": "Modulator 03 | identity bar 2",
+      "parent": "Cartridge.007"
+    },
+    {
+      "name": "InsetFace.007",
+      "source": "Modulator 03 | inset face",
+      "parent": "Cartridge.007"
+    },
+    {
+      "name": "RaisedKey.007",
+      "source": "Modulator 03 | raised key",
+      "parent": "Cartridge.007"
+    },
+    {
+      "name": "TypeColor.007",
+      "source": "Modulator 03 | type color",
+      "parent": "Cartridge.007"
+    },
+    {
+      "name": "RecessedSocketLip.007",
+      "source": "Modulator 03 | recessed socket lip",
+      "parent": "ModulatorSocket03"
+    },
+    {
+      "name": "SocketInterior.007",
+      "source": "Modulator 03 | socket interior",
+      "parent": "ModulatorSocket03"
+    },
+    {
+      "name": "ImpossibleCube_Suspended_Fragment_07",
+      "source": "ImpossibleCube_Suspended_Fragment_07",
+      "parent": "GunRoot"
+    },
+    {
+      "name": "ImpossibleCube_Fractured_Corner_07",
+      "source": "ImpossibleCube_Fractured_Corner_07",
+      "parent": "ImpossibleCube_Suspended_Fragment_07"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_07_Beam_0_0",
+      "source": "ImpossibleCube_Fragment_07_Beam_0_0",
+      "parent": "ImpossibleCube_Suspended_Fragment_07"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_07_Beam_0_1",
+      "source": "ImpossibleCube_Fragment_07_Beam_0_1",
+      "parent": "ImpossibleCube_Suspended_Fragment_07"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_07_Beam_0_2",
+      "source": "ImpossibleCube_Fragment_07_Beam_0_2",
+      "parent": "ImpossibleCube_Suspended_Fragment_07"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_07_Beam_0_3",
+      "source": "ImpossibleCube_Fragment_07_Beam_0_3",
+      "parent": "ImpossibleCube_Suspended_Fragment_07"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_07_Beam_0_4",
+      "source": "ImpossibleCube_Fragment_07_Beam_0_4",
+      "parent": "ImpossibleCube_Suspended_Fragment_07"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_07_Beam_1_0",
+      "source": "ImpossibleCube_Fragment_07_Beam_1_0",
+      "parent": "ImpossibleCube_Suspended_Fragment_07"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_07_Beam_1_1",
+      "source": "ImpossibleCube_Fragment_07_Beam_1_1",
+      "parent": "ImpossibleCube_Suspended_Fragment_07"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_07_Beam_1_2",
+      "source": "ImpossibleCube_Fragment_07_Beam_1_2",
+      "parent": "ImpossibleCube_Suspended_Fragment_07"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_07_Beam_1_3",
+      "source": "ImpossibleCube_Fragment_07_Beam_1_3",
+      "parent": "ImpossibleCube_Suspended_Fragment_07"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_07_Beam_1_4",
+      "source": "ImpossibleCube_Fragment_07_Beam_1_4",
+      "parent": "ImpossibleCube_Suspended_Fragment_07"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_07_Beam_2_0",
+      "source": "ImpossibleCube_Fragment_07_Beam_2_0",
+      "parent": "ImpossibleCube_Suspended_Fragment_07"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_07_Beam_2_1",
+      "source": "ImpossibleCube_Fragment_07_Beam_2_1",
+      "parent": "ImpossibleCube_Suspended_Fragment_07"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_07_Beam_2_2",
+      "source": "ImpossibleCube_Fragment_07_Beam_2_2",
+      "parent": "ImpossibleCube_Suspended_Fragment_07"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_07_Beam_2_3",
+      "source": "ImpossibleCube_Fragment_07_Beam_2_3",
+      "parent": "ImpossibleCube_Suspended_Fragment_07"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_07_Beam_2_4",
+      "source": "ImpossibleCube_Fragment_07_Beam_2_4",
+      "parent": "ImpossibleCube_Suspended_Fragment_07"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_07_Charge",
+      "source": "ImpossibleCube_Fragment_07_Charge",
+      "parent": "ImpossibleCube_Suspended_Fragment_07"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_07_Face_Pad_0",
+      "source": "ImpossibleCube_Fragment_07_Face_Pad_0",
+      "parent": "ImpossibleCube_Suspended_Fragment_07"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_07_Face_Pad_1",
+      "source": "ImpossibleCube_Fragment_07_Face_Pad_1",
+      "parent": "ImpossibleCube_Suspended_Fragment_07"
+    },
+    {
+      "name": "ImpossibleCube_Fragment_07_Face_Pad_2",
+      "source": "ImpossibleCube_Fragment_07_Face_Pad_2",
+      "parent": "ImpossibleCube_Suspended_Fragment_07"
+    },
+    {
+      "name": "ModulatorSocket04",
+      "source": "ModulatorSocket04",
+      "parent": "ImpossibleCube_Suspended_Fragment_07"
+    },
+    {
+      "name": "Bay_04___captive_stud__1",
+      "source": "Bay 04 | captive stud -1",
+      "parent": "ModulatorSocket04"
+    },
+    {
+      "name": "Bay_04___captive_stud_1",
+      "source": "Bay 04 | captive stud 1",
+      "parent": "ModulatorSocket04"
+    },
+    {
+      "name": "Bay_04___fitted_mounting_tile",
+      "source": "Bay 04 | fitted mounting tile",
+      "parent": "ModulatorSocket04"
+    },
+    {
+      "name": "EmptyContact1.016",
+      "source": "Modulator 04 | empty contact -1",
+      "parent": "ModulatorSocket04"
+    },
+    {
+      "name": "EmptyContact1.017",
+      "source": "Modulator 04 | empty contact 1",
+      "parent": "ModulatorSocket04"
+    },
+    {
+      "name": "Cartridge.008",
+      "source": "Modulator 04 | Expanded Shape",
+      "parent": "ModulatorSocket04"
+    },
+    {
+      "name": "IdentityBar0.008",
+      "source": "Modulator 04 | identity bar 0",
+      "parent": "Cartridge.008"
+    },
+    {
+      "name": "InsetFace.008",
+      "source": "Modulator 04 | inset face",
+      "parent": "Cartridge.008"
+    },
+    {
+      "name": "RaisedKey.008",
+      "source": "Modulator 04 | raised key",
+      "parent": "Cartridge.008"
+    },
+    {
+      "name": "TypeColor.008",
+      "source": "Modulator 04 | type color",
+      "parent": "Cartridge.008"
+    },
+    {
+      "name": "LockedCover.008",
+      "source": "Modulator 04 | locked cover",
+      "parent": "ModulatorSocket04"
+    },
+    {
+      "name": "LockedWitness.008",
+      "source": "Modulator 04 | locked witness",
+      "parent": "ModulatorSocket04"
+    },
+    {
+      "name": "RecessedSocketLip.008",
+      "source": "Modulator 04 | recessed socket lip",
+      "parent": "ModulatorSocket04"
+    },
+    {
+      "name": "SocketInterior.008",
+      "source": "Modulator 04 | socket interior",
+      "parent": "ModulatorSocket04"
+    },
+    {
+      "name": "ModulatorSocket10",
+      "source": "ModulatorSocket10",
+      "parent": "ImpossibleCube_Suspended_Fragment_07"
+    },
+    {
+      "name": "Bay_10___captive_stud__1",
+      "source": "Bay 10 | captive stud -1",
+      "parent": "ModulatorSocket10"
+    },
+    {
+      "name": "Bay_10___captive_stud_1",
+      "source": "Bay 10 | captive stud 1",
+      "parent": "ModulatorSocket10"
+    },
+    {
+      "name": "Bay_10___fitted_mounting_tile",
+      "source": "Bay 10 | fitted mounting tile",
+      "parent": "ModulatorSocket10"
+    },
+    {
+      "name": "Cartridge.009",
+      "source": "Modulator 10 | Accelerated Flight",
+      "parent": "ModulatorSocket10"
+    },
+    {
+      "name": "IdentityBar0.009",
+      "source": "Modulator 10 | identity bar 0",
+      "parent": "Cartridge.009"
+    },
+    {
+      "name": "InsetFace.009",
+      "source": "Modulator 10 | inset face",
+      "parent": "Cartridge.009"
+    },
+    {
+      "name": "RaisedKey.009",
+      "source": "Modulator 10 | raised key",
+      "parent": "Cartridge.009"
+    },
+    {
+      "name": "TypeColor.009",
+      "source": "Modulator 10 | type color",
+      "parent": "Cartridge.009"
+    },
+    {
+      "name": "EmptyContact1.018",
+      "source": "Modulator 10 | empty contact -1",
+      "parent": "ModulatorSocket10"
+    },
+    {
+      "name": "EmptyContact1.019",
+      "source": "Modulator 10 | empty contact 1",
+      "parent": "ModulatorSocket10"
+    },
+    {
+      "name": "LockedCover.009",
+      "source": "Modulator 10 | locked cover",
+      "parent": "ModulatorSocket10"
+    },
+    {
+      "name": "LockedWitness.009",
+      "source": "Modulator 10 | locked witness",
+      "parent": "ModulatorSocket10"
+    },
+    {
+      "name": "RecessedSocketLip.009",
+      "source": "Modulator 10 | recessed socket lip",
+      "parent": "ModulatorSocket10"
+    },
+    {
+      "name": "SocketInterior.009",
+      "source": "Modulator 10 | socket interior",
+      "parent": "ModulatorSocket10"
+    },
+    {
+      "name": "MuzzleAnchor",
+      "source": "MuzzleAnchor",
+      "parent": "GunRoot"
+    }
+  ]
+}

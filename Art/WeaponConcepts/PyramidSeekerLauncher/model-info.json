@@ -1,0 +1,41 @@
+{
+  "rarity_level_equipment_cases": 90,
+  "modulator_sockets": 10,
+  "visible_triangles_at_default": 13790,
+  "dimensions_metres": [
+    0.12839999794960022,
+    0.2732449322938919,
+    0.32336631417274475
+  ],
+  "model_objects": 260,
+  "model": "PyramidSeekerLauncher",
+  "title": "Pyramid - Seeker Launcher",
+  "equipped_shape": "pyramid",
+  "source": "SquareHandgun.blend",
+  "source_sha256": "cfdb814fe2d8c6ee7f2884651ef4584892481ded02536fd5da0e6884dc96dd94",
+  "blender_version": "5.2.2 LTS",
+  "description": "Tall four-face seeker pyramid with sloped armored insets, outward folding base hinges, a fixed apex targeting lens, and four captive miniature seekers.",
+  "moving_parts": [
+    "Pyramid_Right_Panel_Hinge",
+    "Pyramid_Front_Panel_Hinge",
+    "Pyramid_Left_Panel_Hinge",
+    "Pyramid_Rear_Panel_Hinge"
+  ],
+  "source_file": "PyramidSeekerLauncher.blend",
+  "review_export": "PyramidSeekerLauncher.glb",
+  "shape_insert": "solid pyramid",
+  "coordinates": "metres; Blender +Y forward/+Z up; GLB -Z forward/+Y up",
+  "rarity_control": "PyramidInsert | removable shape cartridge.rarity_tier",
+  "default_preview": "Rare / level 5 / three installed modulators",
+  "animation_frames": [
+    1,
+    40
+  ],
+  "animation_fps": 30,
+  "integration": "Runtime export in Resources/Weapons; generated separately by ExportMultiWeaponRuntime.py",
+  "glb_nodes": 193,
+  "glb_meshes": 171,
+  "glb_bytes": 838156,
+  "glb_checked": true,
+  "blend_reopen_checked": true
+}

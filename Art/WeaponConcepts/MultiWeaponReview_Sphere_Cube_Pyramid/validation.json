@@ -1,0 +1,26 @@
+[
+  {
+    "asset": "SpherePulseCannon",
+    "blend_reopened": true,
+    "saved_animation_evaluated": true,
+    "glb_imported": true,
+    "imported_meshes": 172,
+    "imported_sockets": 10
+  },
+  {
+    "asset": "CubeGuardProjector",
+    "blend_reopened": true,
+    "saved_animation_evaluated": true,
+    "glb_imported": true,
+    "imported_meshes": 186,
+    "imported_sockets": 10
+  },
+  {
+    "asset": "PyramidSeekerLauncher",
+    "blend_reopened": true,
+    "saved_animation_evaluated": true,
+    "glb_imported": true,
+    "imported_meshes": 171,
+    "imported_sockets": 10
+  }
+]

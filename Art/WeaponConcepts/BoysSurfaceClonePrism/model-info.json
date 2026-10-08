@@ -1,0 +1,48 @@
+{
+  "rarity_level_equipment_cases": 90,
+  "modulator_sockets": 10,
+  "visible_triangles_at_default": 64292,
+  "dimensions_metres": [
+    0.26829999685287476,
+    0.3028819411993027,
+    0.2057185098528862
+  ],
+  "model_objects": 249,
+  "full_body_redesign": true,
+  "model": "BoysSurfaceClonePrism",
+  "title": "Boy's Surface - Clone Prism",
+  "equipped_shape": "boys",
+  "shape_stars": 4,
+  "star_design": "Sculptural topology, interlocking conduits, multiple containment layers and fine precision details",
+  "source": "SquareHandgun.blend",
+  "source_sha256": "cfdb814fe2d8c6ee7f2884651ef4584892481ded02536fd5da0e6884dc96dd94",
+  "blender_version": "5.2.2 LTS",
+  "description": "Freely floating sculpture of three interwoven metallic immersion surfaces. Articulated layered mirrors unfold and three smaller canonical ghost copies peel away from the parent form. Precision three-way optics and bonded controls follow the sculpture; no handgun, ground pedestal or wrist frame.",
+  "design_name": "Boy Surface Floating Clone Sculpture",
+  "moving_parts": [
+    "Boys_ArticulatedInterwovenMirror_0",
+    "Boys_PeelingShadowClone_0",
+    "Boys_ArticulatedInterwovenMirror_1",
+    "Boys_PeelingShadowClone_1",
+    "Boys_ArticulatedInterwovenMirror_2",
+    "Boys_PeelingShadowClone_2"
+  ],
+  "source_file": "BoysSurfaceClonePrism.blend",
+  "review_export": "BoysSurfaceClonePrism.glb",
+  "shape_insert": "dimensional boys",
+  "coordinates": "metres; Blender +Y forward/+Z up; GLB -Z forward/+Y up",
+  "rarity_control": "BoysInsert | removable shape cartridge.rarity_tier",
+  "default_preview": "Rare / level 5 / three installed modulators",
+  "animation_frames": [
+    1,
+    40
+  ],
+  "animation_fps": 30,
+  "integration": "Editable art and static review export; runtime export is a separate step using ExportMultiWeaponRuntime.py",
+  "glb_nodes": 182,
+  "glb_meshes": 159,
+  "glb_bytes": 1700008,
+  "glb_checked": true,
+  "blend_reopen_checked": true,
+  "saved_animation_evaluated": true
+}
