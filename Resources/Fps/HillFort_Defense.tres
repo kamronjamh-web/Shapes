@@ -7,28 +7,34 @@
 script = ExtResource("2")
 Direction = 0
 Enabled = true
-Width = 52.0
-Length = 90.0
+Width = 80.0
+Length = 560.0
 
 [sub_resource type="Resource" id="East"]
 script = ExtResource("2")
 Direction = 1
-Enabled = false
+Enabled = true
+Width = 80.0
+Length = 560.0
 
 [sub_resource type="Resource" id="South"]
 script = ExtResource("2")
 Direction = 2
-Enabled = false
+Enabled = true
+Width = 80.0
+Length = 560.0
 
 [sub_resource type="Resource" id="West"]
 script = ExtResource("2")
 Direction = 3
-Enabled = false
+Enabled = true
+Width = 80.0
+Length = 560.0
 
 [resource]
 script = ExtResource("1")
-MapName = "North Gate"
-CourtyardHalfSize = 24.0
+MapName = "Hill Fort"
+CourtyardHalfSize = 100.0
 Lanes = Array[ExtResource("2")]([SubResource("North"), SubResource("East"), SubResource("South"), SubResource("West")])
 CorePosition = Vector3(0, 8, 3)
 ShopPosition = Vector3(-7, 8, 5)
@@ -36,8 +42,8 @@ CoreMaxHealth = 600.0
 PlayerAggroRadius = 6.0
 PreparationSeconds = 20.0
 CoinsPerEnemy = 5
-WeaponDropChance = 0.06
-ModulatorDropChance = 0.1
+WeaponDropChance = 0.005
+ModulatorDropChance = 0.01
 CombatShopKillInterval = 8
 CombatShopDuration = 25.0
 RepairPrice = 25

@@ -15,8 +15,8 @@ public partial class FpsDefenseSettings : Resource
 	private float _playerAggroRadius = 6f;
 	private float _preparationSeconds = 20f;
 	private int _coinsPerEnemy = 5;
-	private float _weaponDropChance = 0.06f;
-	private float _modulatorDropChance = 0.10f;
+	private float _weaponDropChance = 0.005f;
+	private float _modulatorDropChance = 0.01f;
 	private float _pickupRadius = 2.5f;
 	private int _maxLoosePickups = 128;
 	private int _combatShopKillInterval = 8;
@@ -39,8 +39,8 @@ public partial class FpsDefenseSettings : Resource
 
 	[ExportGroup("Loot")]
 	[Export(PropertyHint.Range, "0,100,1")] public int CoinsPerEnemy { get => _coinsPerEnemy; set => Change(ref _coinsPerEnemy, value); }
-	[Export(PropertyHint.Range, "0,1,0.01")] public float WeaponDropChance { get => _weaponDropChance; set => Change(ref _weaponDropChance, value); }
-	[Export(PropertyHint.Range, "0,1,0.01")] public float ModulatorDropChance { get => _modulatorDropChance; set => Change(ref _modulatorDropChance, value); }
+	[Export(PropertyHint.Range, "0,1,0.001")] public float WeaponDropChance { get => _weaponDropChance; set => Change(ref _weaponDropChance, value); }
+	[Export(PropertyHint.Range, "0,1,0.001")] public float ModulatorDropChance { get => _modulatorDropChance; set => Change(ref _modulatorDropChance, value); }
 	[Export(PropertyHint.Range, "1,8,0.1")] public float PickupRadius { get => _pickupRadius; set => Change(ref _pickupRadius, value); }
 	[Export(PropertyHint.Range, "8,256,1")] public int MaxLoosePickups { get => _maxLoosePickups; set => Change(ref _maxLoosePickups, value); }
 

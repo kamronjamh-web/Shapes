@@ -22,6 +22,7 @@ public partial class CaptureHillHorde : Node
 		if (!OS.GetUserDataDir().Replace('\\', '/').Contains("/.tmp/hill-horde-validation/"))
 			throw new InvalidOperationException("Run captures with the isolated hill validation save directory.");
 		FpsVerticalSlice map = GD.Load<PackedScene>("res://Scenes/Fps/NorthGate.tscn").Instantiate<FpsVerticalSlice>();
+		LegacyHillFixture.Configure(map);
 		AddChild(map);
 		await Frames(4);
 		map._UnhandledInput(new InputEventKey { Keycode = Key.N, Pressed = true });

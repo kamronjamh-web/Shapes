@@ -64,6 +64,10 @@ public partial class FpsEnemyProjectile : Node3D
 			{
 				core.ApplyDamage(Damage);
 			}
+			else if (collider is FpsDefenseGate gate)
+			{
+				gate.ApplyEnemyDamage(Damage);
+			}
 
 			QueueFree();
 			return;

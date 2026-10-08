@@ -8,6 +8,7 @@ public partial class FpsDefenseCore : StaticBody3D
 	[Export] public float MaxHealth { get; set; } = 600f;
 	public float CurrentHealth { get; private set; }
 	public bool IsAlive => CurrentHealth > 0f;
+	public bool DebugInvulnerable { get; set; }
 	public event Action? Destroyed;
 	private MeshInstance3D _crystal = null!;
 	private StandardMaterial3D _material = null!;
@@ -41,7 +42,7 @@ public partial class FpsDefenseCore : StaticBody3D
 
 	public void ApplyDamage(float damage)
 	{
-		if (!IsAlive || damage <= 0f) return;
+		if (DebugInvulnerable || !IsAlive || damage <= 0f) return;
 		CurrentHealth = Mathf.Max(0f, CurrentHealth - damage);
 		if (!IsAlive) Destroyed?.Invoke();
 	}

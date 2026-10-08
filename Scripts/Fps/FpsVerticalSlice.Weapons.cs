@@ -104,6 +104,7 @@ public partial class FpsVerticalSlice
 
 	private sealed class OrbitalEffect
 	{
+		public bool HasTravelSample;
 		public float Angle;
 		public float Age;
 		public float Duration;
@@ -194,6 +195,7 @@ public partial class FpsVerticalSlice
 
 	public override void _PhysicsProcess(double delta)
 	{
+		CorpsePool?.Tick((float)delta, !_pauseRequested);
 		if (!IsCombatRunning())
 		{
 			return;
@@ -411,7 +413,7 @@ public partial class FpsVerticalSlice
 
 	private bool HandleWeaponInput(InputEvent @event)
 	{
-		if (_arsenal.Count <= 1 || _victory || _defeat)
+		if (_arsenal.Count <= 1 || _pauseRequested || _weaponInspectionOpen || _victory || _defeat)
 		{
 			return false;
 		}
@@ -786,7 +788,7 @@ public partial class FpsVerticalSlice
 		for (int hit = 0; hit < Mathf.Min(hitCount, hits.Count); hit++)
 		{
 			IFpsCombatEnemy enemy = hits[hit];
-			DealDamageToEnemy(enemy, damage, enemy.HeadPosition, weapon, false, true);
+			DealDirectionalDamageToEnemy(enemy, damage, enemy.HeadPosition, weapon, false, true, direction);
 		}
 	}
 
@@ -943,14 +945,14 @@ public partial class FpsVerticalSlice
 		int chainsRemaining = Mathf.Clamp(2 + (weapon.Shape?.Hits ?? 2) + WeaponModulatorSharedRuntime.GetWeaponItemProjectileCount(weapon) + WeaponModulatorSharedRuntime.GetWeaponItemChainCountBonus(weapon), 2, 32);
 		while (target != null && chainsRemaining-- > 0)
 		{
-			DealDamageToEnemy(target, damage, target.HeadPosition, weapon, false, true);
+			DealDirectionalDamageToEnemy(target, damage, target.HeadPosition, weapon, false, true, target.HeadPosition - chainOrigin);
 			visited.Add(target);
 			SpawnPulse(target.HeadPosition, 0.9f, 0.12f, GetWeaponAccentColor(weapon.Shape!.AttackType));
 			chainOrigin = target.HeadPosition;
 			damage *= 0.78f;
 			target = FindNearestEnemy(chainOrigin, 11f * GetFpsRangeScale(weapon) * GetFpsAreaScale(weapon), visited, true);
 		}
-		OnFpsChainCompleted(original, weapon, initialDamage);
+		OnFpsChainCompletedFromOrigin(original, weapon, initialDamage, original != null && chainOrigin.DistanceSquaredTo(original.HeadPosition) > 0.000001f ? chainOrigin : origin);
 	}
 
 	private void FireDrill(EquipmentItem weapon, Vector3 origin, Vector3 direction, float damageScale)
@@ -1082,7 +1084,7 @@ public partial class FpsVerticalSlice
 			for (int hitIndex = 0; hitIndex < hits.Count; hitIndex++)
 			{
 				IFpsCombatEnemy enemy = hits[hitIndex];
-				DealDamageToEnemy(enemy, projectile.Damage, enemy.HeadPosition, projectile.SourceItem, false, projectile.TriggerModulatorOnHitEffects);
+				DealDirectionalDamageToEnemy(enemy, projectile.Damage, enemy.HeadPosition, projectile.SourceItem, false, projectile.TriggerModulatorOnHitEffects, end - start);
 				projectile.HitEnemies.Add(enemy);
 				projectile.RemainingHits--;
 				if (projectile.RemainingHits <= 0)
@@ -1195,9 +1197,12 @@ public partial class FpsVerticalSlice
 				continue;
 			}
 
+			Vector3 previousOrbitalPosition = orbital.HasTravelSample ? orbital.Mesh.GlobalPosition
+				: _player.GlobalPosition + new Vector3(Mathf.Cos(orbital.Angle), 0.65f, Mathf.Sin(orbital.Angle)) * orbital.OrbitRadius;
 			orbital.Angle += orbital.AngularSpeed * dt;
 			Vector3 offset = new(Mathf.Cos(orbital.Angle), 0.65f, Mathf.Sin(orbital.Angle));
 			orbital.Mesh.GlobalPosition = _player.GlobalPosition + (offset * orbital.OrbitRadius);
+			orbital.HasTravelSample = true;
 			orbital.Mesh.RotateY(dt * 5f);
 			TickFpsOrbitalSpecial(orbital, dt);
 
@@ -1220,7 +1225,9 @@ public partial class FpsVerticalSlice
 				}
 
 				orbital.LastHitAt[enemy] = orbital.Age;
-				DealDamageToEnemy(enemy, orbital.Damage, enemy.HeadPosition, orbital.SourceItem, false, orbital.TriggerModulatorOnHitEffects);
+				Vector3 orbitalTravel = orbital.Mesh.GlobalPosition - previousOrbitalPosition;
+				DealDirectionalDamageToEnemy(enemy, orbital.Damage, enemy.HeadPosition, orbital.SourceItem, false, orbital.TriggerModulatorOnHitEffects,
+					orbitalTravel.LengthSquared() > 0.000001f ? orbitalTravel : enemy.CollisionCenter - orbital.Mesh.GlobalPosition);
 			}
 		}
 	}
@@ -1294,7 +1301,7 @@ public partial class FpsVerticalSlice
 
 			clone.FireCooldown = CloneFireCadence / GetFpsTickRate(clone.SourceItem);
 			if (TryFireFpsCloneMimic(clone, clonePosition, target)) continue;
-			DamageEnemiesInRadius(target.HeadPosition, 0.25f * GetFpsAreaScale(clone.SourceItem), clone.Damage, clone.SourceItem, clone.TriggerModulatorOnHitEffects);
+			DamageEnemiesInRadiusFromOrigin(target.HeadPosition, 0.25f * GetFpsAreaScale(clone.SourceItem), clone.Damage, clone.SourceItem, clone.TriggerModulatorOnHitEffects, clonePosition);
 			SpawnPulse(target.HeadPosition, 0.6f, 0.12f, clone.Material.Emission);
 		}
 	}
@@ -1552,6 +1559,9 @@ public partial class FpsVerticalSlice
 	}
 
 	private int DamageEnemiesInRadius(Vector3 center, float radius, float damage, EquipmentItem? sourceItem = null, bool triggerModulatorOnHitEffects = true)
+		=> DamageEnemiesInRadiusFromOrigin(center, radius, damage, sourceItem, triggerModulatorOnHitEffects, center);
+
+	private int DamageEnemiesInRadiusFromOrigin(Vector3 center, float radius, float damage, EquipmentItem? sourceItem, bool triggerModulatorOnHitEffects, Vector3 sourceOrigin)
 	{
 		int hits = 0;
 		foreach (IFpsCombatEnemy enemy in QueryCombatRadius(center, radius))
@@ -1566,7 +1576,7 @@ public partial class FpsVerticalSlice
 				continue;
 			}
 
-			DealDamageToEnemy(enemy, damage, enemy.HeadPosition, sourceItem, false, triggerModulatorOnHitEffects);
+			DealDirectionalDamageToEnemy(enemy, damage, enemy.HeadPosition, sourceItem, false, triggerModulatorOnHitEffects, enemy.CollisionCenter - sourceOrigin);
 			hits++;
 		}
 
@@ -1596,7 +1606,7 @@ public partial class FpsVerticalSlice
 				continue;
 			}
 
-			DealDamageToEnemy(enemy, damage, enemy.HeadPosition, sourceItem, false, triggerModulatorOnHitEffects);
+			DealDirectionalDamageToEnemy(enemy, damage, enemy.HeadPosition, sourceItem, false, triggerModulatorOnHitEffects, enemy.CollisionCenter - origin);
 			hits++;
 		}
 
@@ -1618,7 +1628,7 @@ public partial class FpsVerticalSlice
 				continue;
 			}
 
-			DealDamageToEnemy(enemy, damage, enemy.HeadPosition, sourceItem, false, triggerModulatorOnHitEffects);
+			DealDirectionalDamageToEnemy(enemy, damage, enemy.HeadPosition, sourceItem, false, triggerModulatorOnHitEffects, end - start);
 			hits++;
 		}
 
@@ -1710,6 +1720,17 @@ public partial class FpsVerticalSlice
 		EquipmentItem? sourceItem,
 		bool critical,
 		bool triggerModulatorOnHitEffects)
+		=> DealDirectionalDamageToEnemy(enemy, damage, hitPosition, sourceItem, critical,
+			triggerModulatorOnHitEffects, enemy.CollisionCenter - _player.GlobalPosition);
+
+	private void DealDirectionalDamageToEnemy(
+		IFpsCombatEnemy enemy,
+		float damage,
+		Vector3 hitPosition,
+		EquipmentItem? sourceItem,
+		bool critical,
+		bool triggerModulatorOnHitEffects,
+		Vector3 travelDirection)
 	{
 		if (enemy == null || !enemy.IsAlive || damage <= 0f || !float.IsFinite(damage))
 		{
@@ -1733,7 +1754,7 @@ public partial class FpsVerticalSlice
 		}
 
 		float actualDamage = Mathf.Min(adjustedDamage, enemy.CurrentHealth);
-		enemy.ApplyDamage(adjustedDamage);
+		enemy.ApplyDamageFrom(adjustedDamage, travelDirection);
 		OnFpsModulatorEnemyDamage(sourceItem, actualDamage);
 		OnFpsModulatorSpecialHit(enemy, sourceItem, actualDamage, hitPosition, critical, triggerModulatorOnHitEffects);
 		if (triggerModulatorOnHitEffects)
@@ -1891,7 +1912,7 @@ public partial class FpsVerticalSlice
 			}
 
 			visited.Add(nextEnemy);
-			DealDamageToEnemy(nextEnemy, currentDamage, nextEnemy.HeadPosition, sourceItem, critical, false);
+			DealDirectionalDamageToEnemy(nextEnemy, currentDamage, nextEnemy.HeadPosition, sourceItem, critical, false, nextEnemy.HeadPosition - current);
 			SpawnPulse(nextEnemy.HeadPosition, 0.75f, 0.12f, color);
 			current = nextEnemy.HeadPosition;
 			currentDamage *= 0.85f;

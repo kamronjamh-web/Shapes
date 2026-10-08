@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Tools/Validation/CaptureHordePiling.cs" id="1"]
+
+[node name="CaptureHordePiling" type="Node"]
+script = ExtResource("1")

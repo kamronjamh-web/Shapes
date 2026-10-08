@@ -4,6 +4,6 @@
 
 [resource]
 script = ExtResource("1")
-HalfWidth = 100.0
-HalfDepth = 100.0
+HalfWidth = 804.672
+HalfDepth = 804.672
 PlayerSpawnPosition = Vector3(0, 8.1, -5)

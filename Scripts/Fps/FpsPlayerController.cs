@@ -9,7 +9,7 @@ namespace SuperGatchaRebuild.Fps;
 
 public partial class FpsPlayerController : CharacterBody3D
 {
-	private static readonly Vector3 ViewModelBasePosition = new(0.34f, -0.28f, -0.72f);
+	private static readonly Vector3 ViewModelBasePosition = new(0.30f, -0.24f, -0.55f);
 
 	[Export] public float MouseSensitivity = 0.0018f;
 	[Export] public float MoveSpeed = 9.6f;
@@ -38,6 +38,7 @@ public partial class FpsPlayerController : CharacterBody3D
 	public float CurrentHealth { get; private set; }
 	public bool IsAlive => CurrentHealth > 0.001f;
 	public bool IsAiming => _isAiming;
+	public bool DebugInvulnerable { get; set; }
 	public Vector3 HeadPosition => _camera?.GlobalPosition ?? (GlobalPosition + new Vector3(0f, 1.55f, 0f));
 
 	private Node3D _pitchPivot = null!;
@@ -188,6 +189,7 @@ public partial class FpsPlayerController : CharacterBody3D
 
 	public void ApplyDamage(float damage)
 	{
+		if (DebugInvulnerable) return;
 		if (damage <= 0f || !float.IsFinite(damage) || !IsAlive)
 		{
 			return;
@@ -279,40 +281,14 @@ public partial class FpsPlayerController : CharacterBody3D
 		_weaponBody.Visible = false;
 		_weaponCore.Visible = false;
 
-		float visualScale = GetWeaponVisualScale(weapon);
 		_weaponVisualFrame.Visible = true;
-		_weaponVisualFrame.Position = GetWeaponVisualPosition(weapon.Shape.AttackType);
-		_weaponVisualFrame.RotationDegrees = GetWeaponVisualRotation(weapon.Shape.AttackType);
-		_weaponVisualFrame.Scale = new Vector3(visualScale, visualScale, visualScale);
-
-		Color tint = ResolveWeaponTint(weapon);
-		_weaponItemVisual = ShapeVisualFactory.CreateVisual(weapon.Shape, tint);
-		_weaponItemVisual.Name = "HubWeaponModel";
-		ConfigureViewModelRendering(_weaponItemVisual);
+		_weaponVisualFrame.Position = Vector3.Zero;
+		_weaponVisualFrame.RotationDegrees = new Vector3(0f, -8f, 0f);
+		_weaponVisualFrame.Scale = Vector3.One * 1.6f;
+		_weaponItemVisual = FpsWeaponVisualFactory.Create(weapon);
 		_weaponVisualFrame.AddChild(_weaponItemVisual);
-
-		_weaponSocketVisuals = new Node3D { Name = "HubWeaponSockets" };
-		_weaponVisualFrame.AddChild(_weaponSocketVisuals);
-		WeaponModulatorVisualFactory.PopulateSocketVisuals(
-			_weaponSocketVisuals,
-			weapon,
-			layoutScale: 1f,
-			options: new SocketVisualOptions
-			{
-				EnableOrbitStyle = true,
-			});
-		ConfigureViewModelRendering(_weaponSocketVisuals);
-
-		if (ModifierVisualTheme.HasSpecialVisuals(weapon))
-		{
-			_weaponModifierVisual = new ModifierVisualController
-			{
-				Name = "HubWeaponModifierVisual",
-				Intensity = 1.08f,
-			};
-			_weaponVisualFrame.AddChild(_weaponModifierVisual);
-			_weaponModifierVisual.Configure(weapon, _weaponItemVisual, weapon.Shape, 1f, glowLight: null, intensity: 1.08f);
-		}
+		// Some canonical shape variants create meshes during child _Ready.
+		ConfigureViewModelRendering(_weaponItemVisual);
 	}
 
 	private void BuildRig()
@@ -507,6 +483,7 @@ public partial class FpsPlayerController : CharacterBody3D
 		{
 			if (IsInstanceValid(_weaponItemVisual))
 			{
+				_weaponItemVisual.GetParent()?.RemoveChild(_weaponItemVisual);
 				_weaponItemVisual.QueueFree();
 			}
 

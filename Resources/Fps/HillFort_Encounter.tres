@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="FpsEncounterSettings" load_steps=6 format=3]
+[gd_resource type="Resource" script_class="FpsEncounterSettings" load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://Scripts/Fps/FpsEncounterSettings.cs" id="1"]
 [ext_resource type="Script" path="res://Scripts/Fps/FpsEncounterWaveSettings.cs" id="2"]
@@ -8,16 +8,46 @@
 script = ExtResource("3")
 SpawnName = "NorthHorde"
 Role = 0
-Position = Vector3(0, 0, -76)
-Count = 100
+Position = Vector3(0, 0, -236)
+Count = 25
 FormationColumns = 18
 FormationSpacing = 2.8
 Lane = 0
 
+[sub_resource type="Resource" id="EastHorde"]
+script = ExtResource("3")
+SpawnName = "EastHorde"
+Role = 0
+Position = Vector3(236, 0, 0)
+Count = 25
+FormationColumns = 18
+FormationSpacing = 2.8
+Lane = 1
+
+[sub_resource type="Resource" id="SouthHorde"]
+script = ExtResource("3")
+SpawnName = "SouthHorde"
+Role = 0
+Position = Vector3(0, 0, 236)
+Count = 25
+FormationColumns = 18
+FormationSpacing = 2.8
+Lane = 2
+
+[sub_resource type="Resource" id="WestHorde"]
+script = ExtResource("3")
+SpawnName = "WestHorde"
+Role = 0
+Position = Vector3(-236, 0, 0)
+Count = 25
+FormationColumns = 18
+FormationSpacing = 2.8
+Lane = 3
+
 [sub_resource type="Resource" id="Wave1"]
 script = ExtResource("2")
-WaveName = "North Gate / hill assault"
-EnemySpawns = Array[ExtResource("3")]([SubResource("NorthHorde")])
+WaveName = "Four gates / hill assault"
+EnemySpawns = Array[ExtResource("3")]([SubResource("NorthHorde"), SubResource("EastHorde"), SubResource("SouthHorde"), SubResource("WestHorde")])
 
 [resource]
 script = ExtResource("1")

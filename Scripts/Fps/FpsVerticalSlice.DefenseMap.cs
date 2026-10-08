@@ -119,7 +119,7 @@ public partial class FpsVerticalSlice
 	private float HillSummitHalf => Mathf.Clamp(HillMapSettings?.SummitHalfSize ?? 16f, 8f, HillPlayableHalf - 12f);
 	private float HillFootHalf => Mathf.Clamp(HillMapSettings?.HillFootHalfSize ?? 65f, HillSummitHalf + 8f, HillPlayableHalf - 4f);
 	private float HillHeight => Mathf.Max(1f, HillMapSettings?.SummitHeight ?? 8f);
-	private float HillRoomHalf => Mathf.Clamp(HillMapSettings?.RoomHalfSize ?? 12f, 6f, HillSummitHalf - 2f);
+	private float HillRoomHalf => UsesFortifications ? FortInteriorHalf + FortWallThickness * 0.5f : Mathf.Clamp(HillMapSettings?.RoomHalfSize ?? 12f, 6f, HillSummitHalf - 2f);
 	private float HillDoorWidth => Mathf.Clamp(HillMapSettings?.DoorWidth ?? 8f, 4f, HillRoomHalf * 2f - 3f);
 
 	/// <summary>Terrain height at world X/Z; matches the flat top and planar hill faces.</summary>
@@ -128,6 +128,67 @@ public partial class FpsVerticalSlice
 		if (!IsHillMap) return 0f;
 		float distance = Mathf.Max(Mathf.Abs(position.X), Mathf.Abs(position.Z));
 		return HillHeight * Mathf.Clamp((HillFootHalf - distance) / (HillFootHalf - HillSummitHalf), 0f, 1f);
+	}
+
+	/// <summary>Maximum crowd foot Y beneath summit geometry; terrain remains the minimum Y.</summary>
+	public float SampleHillCrowdMaxFootHeight(Vector3 position, float radius, float height)
+	{
+		if (!IsHillMap) return float.PositiveInfinity;
+		radius = Mathf.Max(0f, radius);
+		height = Mathf.Max(0f, height);
+		if (UsesFortifications) return SampleFortMaxFoot(position, radius, height);
+		float room = HillRoomHalf;
+		float roofHalf = room + 0.5f + radius;
+		if (Mathf.Abs(position.X) > roofHalf || Mathf.Abs(position.Z) > roofHalf) return float.PositiveInfinity;
+		float summitHeight = HillHeight;
+		float wallHeight = Mathf.Max(4f, HillMapSettings!.RoomWallHeight);
+		float wallTop = summitHeight + wallHeight;
+		float ceiling = float.PositiveInfinity;
+		// The roof is 0.5 m thick and extends 0.5 m beyond the room centre lines.
+		// Feet already above the slab may stand on it instead of being pulled underneath.
+		if (HillMapSettings.RoofEnabled && position.Y < wallTop + 0.5f - 0.001f)
+			ceiling = wallTop;
+		float doorHeight = Mathf.Clamp(HillMapSettings.DoorHeight, 3f, wallHeight - 0.5f);
+		float doorHalf = HillDoorWidth * 0.5f + radius;
+		for (int side = 0; side < 4; side++)
+		{
+			if (!HillDoorEnabled(side)) continue;
+			Vector3 outward = HillOutward(side);
+			Vector3 across = new(-outward.Z, 0f, outward.X);
+			// Lintels use the same one-metre wall depth as BuildHillMap.
+			if (position.Y < wallTop - 0.001f
+				&& Mathf.Abs(position.Dot(outward) - room) <= 0.5f + radius && Mathf.Abs(position.Dot(across)) <= doorHalf)
+				ceiling = Mathf.Min(ceiling, summitHeight + doorHeight);
+		}
+		return ceiling - height;
+	}
+
+	/// <summary>Standable geometry reached from above, without lifting bodies through it from below.</summary>
+	public float SampleHillCrowdSupportHeight(Vector3 previous, Vector3 desired, float radius, float height)
+	{
+		if (UsesFortifications) return SampleFortSupport(previous, desired, Mathf.Max(0f, radius));
+		float support = SampleHillSurfaceHeight(desired);
+		if (!IsHillMap) return support;
+		radius = Mathf.Max(0f, radius);
+		float room = HillRoomHalf;
+		float roofHalf = room + 0.5f + radius;
+		if (Mathf.Abs(desired.X) > roofHalf || Mathf.Abs(desired.Z) > roofHalf) return support;
+		float wallTop = HillHeight + Mathf.Max(4f, HillMapSettings!.RoomWallHeight);
+		float roofTop = wallTop + 0.5f;
+		if (HillMapSettings.RoofEnabled && previous.Y >= roofTop - 0.001f)
+			support = Mathf.Max(support, roofTop);
+		if (previous.Y < wallTop - 0.001f) return support;
+		for (int side = 0; side < 4; side++)
+		{
+			Vector3 outward = HillOutward(side);
+			Vector3 across = new(-outward.Z, 0f, outward.X);
+			// Panels and lintel together make a continuous top, even above an enabled door.
+			float halfWidth = room + (HillDoorEnabled(side) ? 0f : 0.5f);
+			if (Mathf.Abs(desired.Dot(outward) - room) <= 0.5f + radius
+				&& Mathf.Abs(desired.Dot(across)) <= halfWidth + radius)
+				support = Mathf.Max(support, wallTop);
+		}
+		return support;
 	}
 
 	/// <summary>Playable X/Z rectangle in world metres.</summary>
@@ -175,6 +236,11 @@ public partial class FpsVerticalSlice
 		body.AddChild(new CollisionShape3D { Shape = mesh.CreateTrimeshShape() });
 		body.AddChild(new MeshInstance3D { Mesh = mesh, MaterialOverride = new StandardMaterial3D { AlbedoColor = settings.HillColor, Roughness = 1f } });
 		_arenaRoot.AddChild(body);
+		if (UsesFortifications)
+		{
+			BuildFortifications();
+			return;
+		}
 
 		float room = HillRoomHalf;
 		float wallHeight = Mathf.Max(4f, settings.RoomWallHeight);
@@ -218,6 +284,7 @@ public partial class FpsVerticalSlice
 	public Vector3 ConstrainHillCrowdMovement(Vector3 from, Vector3 desired, float radius)
 	{
 		if (!IsHillMap) return desired;
+		if (UsesFortifications) return ConstrainFortBody(from, desired, Mathf.Max(0f, radius), 1f);
 		radius = Mathf.Max(0f, radius);
 		float limit = HillPlayableHalf - radius;
 		desired.X = Mathf.Clamp(desired.X, -limit, limit);
@@ -236,6 +303,53 @@ public partial class FpsVerticalSlice
 				SlideHillWall(from, ref desired, center, size, radius);
 				if (!door) break;
 			}
+		}
+		return desired;
+	}
+
+	/// <summary>Constrain bodies beside walls and lintels, while permitting traversal above their tops.</summary>
+	public Vector3 ConstrainHillCrowdBodyMovement(Vector3 from, Vector3 desired, float radius, float height)
+	{
+		if (!IsHillMap) return desired;
+		if (UsesFortifications) return ConstrainFortBody(from, desired, Mathf.Max(0f, radius), Mathf.Max(0f, height));
+		radius = Mathf.Max(0f, radius);
+		height = Mathf.Max(0f, height);
+		float limit = HillPlayableHalf - radius;
+		desired.X = Mathf.Clamp(desired.X, -limit, limit);
+		desired.Z = Mathf.Clamp(desired.Z, -limit, limit);
+		float room = HillRoomHalf;
+		float footprintHalf = room + 0.5f + radius;
+		// A swept bounding box avoids skipping fast crossings with both endpoints outside.
+		if (Mathf.Max(from.X, desired.X) < -footprintHalf || Mathf.Min(from.X, desired.X) > footprintHalf
+			|| Mathf.Max(from.Z, desired.Z) < -footprintHalf || Mathf.Min(from.Z, desired.Z) > footprintHalf)
+		{
+			desired.Y = Mathf.Max(desired.Y, SampleHillSurfaceHeight(desired));
+			return desired;
+		}
+		// Catch a descent onto an existing top before classifying the body's lateral interval.
+		// Support is eligible only from above, so this cannot lift an interior body through a roof.
+		desired.Y = Mathf.Max(desired.Y, SampleHillCrowdSupportHeight(from, desired, radius, height));
+		float summitHeight = HillHeight;
+		float wallHeight = Mathf.Max(4f, HillMapSettings!.RoomWallHeight);
+		float wallTop = summitHeight + wallHeight;
+		float lowestFoot = Mathf.Min(from.Y, desired.Y);
+		if (lowestFoot < wallTop - 0.001f)
+			desired = ConstrainHillCrowdMovement(from, desired, radius);
+		// The roof side is solid too: land on its top, never move laterally through its slab.
+		if (HillMapSettings.RoofEnabled && lowestFoot < wallTop + 0.5f - 0.001f
+			&& Mathf.Max(from.Y, desired.Y) + height > wallTop)
+			SlideHillWall(from, ref desired, Vector3.Zero, new Vector3(room * 2f + 1f, 0f, room * 2f + 1f), radius);
+		float doorCeiling = summitHeight + Mathf.Clamp(HillMapSettings.DoorHeight, 3f, wallHeight - 0.5f);
+		// Check both ends: a simultaneous rise must not pass through the lintel either.
+		if (lowestFoot >= wallTop - 0.001f || Mathf.Max(from.Y, desired.Y) + height <= doorCeiling) return desired;
+		for (int side = 0; side < 4; side++)
+		{
+			if (!HillDoorEnabled(side)) continue;
+			Vector3 center = HillOutward(side) * room;
+			Vector3 size = side % 2 == 0
+				? new Vector3(HillDoorWidth, 0f, 1f)
+				: new Vector3(1f, 0f, HillDoorWidth);
+			SlideHillWall(from, ref desired, center, size, radius);
 		}
 		return desired;
 	}
@@ -305,7 +419,7 @@ public partial class FpsVerticalSlice
 	public bool IsDefenseCoreCollider(GodotObject? collider) => collider == _defenseCore && _defenseCore != null;
 	public void ApplyDefenseCoreDamage(float damage)
 	{
-		if (IsCombatRunning()) _defenseCore?.ApplyDamage(damage);
+		if (IsCombatRunning() && !DebugCoreInvulnerable) _defenseCore?.ApplyDamage(damage);
 	}
 
 	private void OnDefenseCoreDestroyed()

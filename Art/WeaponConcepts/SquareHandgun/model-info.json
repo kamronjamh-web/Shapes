@@ -1,0 +1,130 @@
+{
+  "model": "SQ / 01",
+  "triangles_with_bevels": 13428,
+  "model_objects": 189,
+  "equipped_shape": "square",
+  "source": "SquareHandgun.blend",
+  "review_export": "SquareHandgun.glb",
+  "socket": "GunRoot/ShapeSocket",
+  "integration": "review only",
+  "rarity_preview": "rare",
+  "rarity_control": "SquareInsert.rarity_tier",
+  "rarity_palette": [
+    {
+      "index": 0,
+      "key": "common",
+      "display_name": "Common",
+      "srgb": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "index": 1,
+      "key": "uncommon",
+      "display_name": "Uncommon",
+      "srgb": [
+        0.298,
+        0.6863,
+        0.3137
+      ]
+    },
+    {
+      "index": 2,
+      "key": "rare",
+      "display_name": "Rare",
+      "srgb": [
+        0.1294,
+        0.5882,
+        0.9529
+      ]
+    },
+    {
+      "index": 3,
+      "key": "legendary",
+      "display_name": "Legendary",
+      "srgb": [
+        0.6118,
+        0.1529,
+        0.6902
+      ]
+    },
+    {
+      "index": 4,
+      "key": "mythic",
+      "display_name": "Mythic",
+      "srgb": [
+        0.9451,
+        0.2392,
+        0.2118
+      ]
+    },
+    {
+      "index": 5,
+      "key": "divine",
+      "display_name": "Divine",
+      "srgb": [
+        0.9922,
+        0.8471,
+        0.2078
+      ]
+    }
+  ],
+  "accent_material": "08 | Shape rarity accent - driven by SquareInsert",
+  "modulator_capacity": 10,
+  "preview_equipped": 3,
+  "modulator_examples": [
+    {
+      "socket": "ModulatorSocket01",
+      "example_key": "sharpened_form",
+      "example_name": "Sharpened Form"
+    },
+    {
+      "socket": "ModulatorSocket02",
+      "example_key": "quickened_core",
+      "example_name": "Quickened Core"
+    },
+    {
+      "socket": "ModulatorSocket03",
+      "example_key": "long_reach",
+      "example_name": "Long Reach"
+    },
+    {
+      "socket": "ModulatorSocket04",
+      "example_key": "expanded_shape",
+      "example_name": "Expanded Shape"
+    },
+    {
+      "socket": "ModulatorSocket05",
+      "example_key": "accelerated_flight",
+      "example_name": "Accelerated Flight"
+    },
+    {
+      "socket": "ModulatorSocket06",
+      "example_key": "sharpened_form",
+      "example_name": "Sharpened Form"
+    },
+    {
+      "socket": "ModulatorSocket07",
+      "example_key": "quickened_core",
+      "example_name": "Quickened Core"
+    },
+    {
+      "socket": "ModulatorSocket08",
+      "example_key": "long_reach",
+      "example_name": "Long Reach"
+    },
+    {
+      "socket": "ModulatorSocket09",
+      "example_key": "expanded_shape",
+      "example_name": "Expanded Shape"
+    },
+    {
+      "socket": "ModulatorSocket10",
+      "example_key": "accelerated_flight",
+      "example_name": "Accelerated Flight"
+    }
+  ],
+  "checks": "Six rarity colors, level 1 and level 5 capacity, empty equipment visibility verified in Blender"
+}

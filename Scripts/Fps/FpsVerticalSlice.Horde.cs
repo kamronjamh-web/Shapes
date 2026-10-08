@@ -8,6 +8,7 @@ public partial class FpsVerticalSlice
 	[ExportGroup("Crowd Simulation")]
 	[Export] public FpsHordeSettings? HordeSettings { get; set; }
 	public FpsHordeManager? HordeManager { get; private set; }
+	public FpsEnemyCorpsePool? CorpsePool { get; private set; }
 	public int ActiveEnemyCount => _combatEnemies.Count;
 	private readonly List<IFpsCombatEnemy> _combatEnemies = new();
 	private readonly Dictionary<FpsHordeHandle, FpsHordeCombatEnemy> _hordeTargets = new();
@@ -17,20 +18,30 @@ public partial class FpsVerticalSlice
 	private void InitializeHorde()
 	{
 		if (!UsesHorde) return;
+		RefreshHillWorldExtent();
 		HordeManager = new FpsHordeManager { Name = "Horde", Settings = HordeSettings! };
 		HordeManager.SurfaceHeight = position => IsHillMap ? SampleHillSurfaceHeight(position) : 0f;
+		HordeManager.SurfaceSupportHeight = SampleHillCrowdSupportHeight;
+		HordeManager.MaxFootHeight = SampleHillCrowdMaxFootHeight;
+		HordeManager.ConstrainBodyMovement = ConstrainHordeBodyWithGates;
 		HordeManager.ConstrainMovement = (from, desired, radius) => IsHillMap ? ConstrainHillCrowdMovement(from, desired, radius) : desired;
 		HordeManager.ResolveMovementTarget = ResolveHordeMovementTarget;
 		HordeManager.CorePosition = () => _defenseCore?.GlobalPosition ?? Vector3.Zero;
+		HordeManager.ResolveObjectiveTarget = ResolveHordeObjective;
 		HordeManager.PlayerPosition = () => _player.HeadPosition;
 		HordeManager.IsPlayerAlive = () => _player.IsAlive;
 		HordeManager.CanAttack = (from, to) =>
 		{
 			PhysicsRayQueryParameters3D ray = PhysicsRayQueryParameters3D.Create(from, to);
 			ray.Exclude = new Godot.Collections.Array<Rid> { _player.GetRid(), _defenseCore!.GetRid() };
-			return GetWorld3D().DirectSpaceState.IntersectRay(ray).Count == 0;
+			var hit = GetWorld3D().DirectSpaceState.IntersectRay(ray);
+			return hit.Count == 0 || hit["collider"].AsGodotObject() is FpsDefenseGate gate && gate == GateAtTarget(to);
 		};
 		HordeManager.EnemyDied += OnHordeEnemyDied;
+		CorpsePool = new FpsEnemyCorpsePool { Name = "EnemyCorpses", Settings = HordeSettings!, PlayerBody = _player };
+		AddChild(CorpsePool);
+		if (_defenseCore != null) CorpsePool.IgnoreBody(_defenseCore);
+		HordeManager.EnemyDefeated += CorpsePool.SpawnCorpse;
 		HordeManager.Attack += OnHordeAttack;
 		AddChild(HordeManager);
 	}
@@ -38,6 +49,9 @@ public partial class FpsVerticalSlice
 	private Vector3 ResolveHordeMovementTarget(Vector3 from, Vector3 target)
 	{
 		if (!IsHillMap) return target;
+		if (UsesFortifications) return ResolveFortMovementTarget(from, target);
+		// Once the crowd has climbed above the room walls, the doorway detour is unnecessary.
+		if (from.Y >= HillHeight + Mathf.Max(4f, HillMapSettings!.RoomWallHeight) - 0.001f) return target;
 		float roomHalf = HillRoomHalf;
 		bool targetInside = Mathf.Abs(target.X) < roomHalf && Mathf.Abs(target.Z) < roomHalf;
 		bool fromInside = Mathf.Abs(from.X) < roomHalf && Mathf.Abs(from.Z) < roomHalf;
@@ -60,6 +74,7 @@ public partial class FpsVerticalSlice
 			return;
 		}
 		if (attack.TargetsPlayer) _player.ApplyDamage(attack.Damage);
+		else if (GateAtTarget(attack.TargetPosition) is FpsDefenseGate gate) gate.ApplyEnemyDamage(attack.Damage);
 		else ApplyDefenseCoreDamage(attack.Damage);
 	}
 
