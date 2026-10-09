@@ -200,34 +200,7 @@ public partial class HubEquipmentSlotView : Node3D
 
     private static string BuildModulatorCardSummary(WeaponModulatorData modulator)
     {
-        if (modulator.IsWingModulator)
-        {
-            return $"Wing support fires at {Mathf.RoundToInt(modulator.WingCadenceMultiplier * 100f)}% cadence.";
-        }
-
-        if (modulator.Substats.Count > 0)
-        {
-            int visibleCount = Math.Min(2, modulator.Substats.Count);
-            string summary = string.Empty;
-            for (int substatIndex = 0; substatIndex < visibleCount; substatIndex++)
-            {
-                if (substatIndex > 0)
-                {
-                    summary += " | ";
-                }
-
-                summary += modulator.Substats[substatIndex].ToDisplayString();
-            }
-
-            if (modulator.Substats.Count > visibleCount)
-            {
-                summary += $" | +{modulator.Substats.Count - visibleCount} more";
-            }
-
-            return summary;
-        }
-
-        return BuildShortSummary(modulator.Description, "Modulator equipped.");
+        return $"{ModulatorQualityText.Header(modulator)} | {ModulatorQualityText.Describe(modulator).Replace("\n", " | ")}";
     }
 
     private static string BuildShortSummary(string? text, string fallback)

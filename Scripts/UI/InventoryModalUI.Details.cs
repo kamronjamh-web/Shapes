@@ -93,7 +93,9 @@ public partial class InventoryModalUI
         for (int i = 0; i < item.Modulators.Count; i++)
         {
             WeaponModulatorData modulator = item.Modulators[i];
-            builder.AppendLine($"  [color={ToHtmlColor(modulator.UiColor)}]{EscapeBbcode(modulator.DisplayName)}[/color] - {EscapeBbcode(modulator.Description)}");
+            builder.AppendLine($"  [color={ToHtmlColor(ModulatorLoot.GetTierColor(modulator.PowerTier))}]{EscapeBbcode(modulator.DisplayName)}[/color]");
+            builder.AppendLine($"  {EscapeBbcode(ModulatorQualityText.Header(modulator))}");
+            builder.AppendLine($"  {EscapeBbcode(ModulatorQualityText.Describe(modulator)).Replace("\n", "\n  ")}");
         }
     }
 
@@ -530,10 +532,10 @@ public partial class InventoryModalUI
             bonuses.Add($"Bounces +{stats.BounceTimesCount:0.#}");
         }
 
-        int volitileStage = GetVolitilePreviewStage(item);
+        float volitileStage = GetVolitilePreviewStage(item);
         if (volitileStage > 0)
         {
-            bonuses.Add($"Volitile R{volitileStage}");
+            bonuses.Add($"Volitile R{volitileStage:0.#}");
         }
 
         return bonuses.Count > 0 ? string.Join("  |  ", bonuses) : string.Empty;
@@ -562,10 +564,10 @@ public partial class InventoryModalUI
             offenseBonuses.Add($"CRIT DMG +{stats.CritDamagePercent:0.##}%");
         }
 
-        int volitileStage = GetVolitilePreviewStage(item);
+        float volitileStage = GetVolitilePreviewStage(item);
         if (volitileStage > 0)
         {
-            offenseBonuses.Add($"Volitile R{volitileStage} @ 50% splash");
+            offenseBonuses.Add($"Volitile R{volitileStage:0.#} @ 50% splash");
         }
 
         if (offenseBonuses.Count > 0)
@@ -610,10 +612,10 @@ public partial class InventoryModalUI
         return StatGenerator.GetTotalSubstatValue(item, type);
     }
 
-    private static int GetVolitilePreviewStage(EquipmentItem item)
+    private static float GetVolitilePreviewStage(EquipmentItem item)
     {
-        int highestStage = 0;
-        int copyCount = 0;
+        float highestStrength = 0;
+        float totalStrength = 0;
         for (int modulatorIndex = 0; modulatorIndex < item.Modulators.Count; modulatorIndex++)
         {
             WeaponModulatorData? modulator = item.Modulators[modulatorIndex];
@@ -622,28 +624,16 @@ public partial class InventoryModalUI
                 continue;
             }
 
-            copyCount++;
-            highestStage = Mathf.Max(highestStage, GetVolitilePreviewTierStage(modulator.Tier));
+            totalStrength += modulator.QualityStrength;
+            highestStrength = Mathf.Max(highestStrength, modulator.QualityStrength);
         }
 
-        if (copyCount == 0)
+        if (totalStrength <= 0)
         {
             return 0;
         }
 
-        return Mathf.Clamp(highestStage + copyCount - 1, 1, 4);
-    }
-
-    private static int GetVolitilePreviewTierStage(WeaponModulatorTier tier)
-    {
-        return tier switch
-        {
-            WeaponModulatorTier.Flawed => 1,
-            WeaponModulatorTier.Baseline => 2,
-            WeaponModulatorTier.Enhanced => 3,
-            WeaponModulatorTier.Flawless => 4,
-            _ => 2,
-        };
+        return Mathf.Clamp(highestStrength + totalStrength, 1f, 4f);
     }
 
     private static string FormatWeaponDamageText(WeaponStatPreview stats)

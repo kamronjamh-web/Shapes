@@ -61,6 +61,8 @@ public partial class FpsVerticalSlice
 		public int RemainingHits;
 		public float TurnRate;
 		public int RemainingBounces;
+		public float VisualAge;
+		public Vector3 VisualOffset;
 		public bool TriggerModulatorOnHitEffects = true;
 		public EquipmentItem? SourceItem;
 		public MeshInstance3D Mesh = null!;
@@ -71,6 +73,7 @@ public partial class FpsVerticalSlice
 	private sealed class MineEffect
 	{
 		public Vector3 Position;
+		public float VisualAge;
 		public float ArmTime;
 		public float Life;
 		public float Damage;
@@ -95,6 +98,9 @@ public partial class FpsVerticalSlice
 		public float DamagePerTick;
 		public float PullStrength;
 		public Vector3 Direction;
+		public Vector3 VisualOrigin;
+		public WeaponAttackType? PolishType;
+		public Color PolishRarity;
 		public float Range;
 		public bool TriggerModulatorOnHitEffects;
 		public EquipmentItem? SourceItem;
@@ -122,6 +128,8 @@ public partial class FpsVerticalSlice
 	{
 		public Vector3 Start;
 		public Vector3 Target;
+		public Vector3 PreviousVisualPosition;
+		public bool HasVisualSample;
 		public float Age;
 		public float FlightTime;
 		public float Damage;
@@ -139,10 +147,12 @@ public partial class FpsVerticalSlice
 		public Vector3 Origin;
 		public Vector3 Direction = Vector3.Forward;
 		public float DamageScale = 1f;
+		public bool ReplaySingleTemporalOutput;
 	}
 
 	private sealed class CloneEffect
 	{
+		public Vector3 VisualDirection = Vector3.Forward;
 		public float Angle;
 		public float Age;
 		public float Duration;
@@ -195,6 +205,7 @@ public partial class FpsVerticalSlice
 
 	public override void _PhysicsProcess(double delta)
 	{
+		UpdateWeaponPolishState();
 		CorpsePool?.Tick((float)delta, !_pauseRequested);
 		if (!IsCombatRunning())
 		{
@@ -202,6 +213,7 @@ public partial class FpsVerticalSlice
 		}
 
 		float dt = (float)delta;
+		_weaponPolish?.BeginFrame(dt, _player.HeadPosition);
 		HordeManager?.TickSimulation(dt);
 		TickFpsModulatorPassives(dt);
 		TickPlayerProjectiles(dt);
@@ -216,6 +228,7 @@ public partial class FpsVerticalSlice
 		TickFpsModulatorSpecials(dt);
 		TickFpsWings(dt);
 		FlushHordeDeaths();
+		_weaponPolish?.EndFrame();
 	}
 
 	private void BuildWeaponArsenal()
@@ -366,6 +379,7 @@ public partial class FpsVerticalSlice
 					MagnitudeB = effect.MagnitudeB,
 					MagnitudeC = effect.MagnitudeC,
 					Count = effect.Count,
+					CountValue = effect.CountValue,
 					CountB = effect.CountB,
 					Key = effect.Key,
 				});
@@ -413,7 +427,7 @@ public partial class FpsVerticalSlice
 
 	private bool HandleWeaponInput(InputEvent @event)
 	{
-		if (_arsenal.Count <= 1 || _pauseRequested || _weaponInspectionOpen || _victory || _defeat)
+		if (_arsenal.Count <= 1 || _pauseRequested || _weaponInspectionOpen || (_victory && !(IsDefenseMap && _shopOpen)) || _defeat)
 		{
 			return false;
 		}
@@ -562,7 +576,7 @@ public partial class FpsVerticalSlice
 		return Mathf.Max(0.05f, GetWeaponRuntimeCooldown(weapon) / cadence);
 	}
 
-	private static float GetWeaponRuntimeCooldown(EquipmentItem? weapon)
+	internal static float GetWeaponRuntimeCooldown(EquipmentItem? weapon)
 	{
 		if (weapon?.Shape == null)
 		{
@@ -688,6 +702,7 @@ public partial class FpsVerticalSlice
 		}
 
 		FireWeaponAttack(weapon, origin, direction, 1f, false);
+		_weaponPolishAudio?.PlayShot(weapon.Shape.AttackType, origin);
 	}
 
 	private void FireWeaponAttack(EquipmentItem weapon, Vector3 origin, Vector3 direction, float damageScale, bool isEcho)
@@ -779,12 +794,23 @@ public partial class FpsVerticalSlice
 	}
 
 	private void FireSingleShot(EquipmentItem weapon, Vector3 origin, Vector3 direction, float damageScale = 1f)
+		=> FireSingleShotWithEcho(weapon, origin, direction, damageScale, false);
+
+	private void FireSingleShotWithEcho(EquipmentItem weapon, Vector3 origin, Vector3 direction, float damageScale, bool isEcho)
 	{
 		float damage = GetScaledWeaponDamage(weapon, damageScale);
-		int hitCount = 1 + WeaponModulatorSharedRuntime.GetWeaponItemPierceCount(weapon);
+		int hitCount = 1 + ResolveFpsCount(weapon, FpsCountPurpose.EchoPierce, WeaponModulatorSharedRuntime.GetWeaponItemPierceCountValue(weapon));
 		Vector3 end = origin + direction.Normalized() * GetWeaponRange(WeaponAttackType.Single) * GetFpsRangeScale(weapon);
 		if (TryRaycastWorldBlock(origin, end, out Vector3 block)) end = block;
 		List<IFpsCombatEnemy> hits = CollectEnemiesAlongSegment(origin, end, 0.04f * GetFpsAreaScale(weapon), null);
+		if (weapon.Shape?.AttackType == WeaponAttackType.TemporalEcho)
+		{
+			Vector3 visualEnd = end;
+			if (hits.Count > 0 && TryEnemySegmentHit(hits[Mathf.Min(hitCount, hits.Count) - 1], origin, end,
+				0.04f * GetFpsAreaScale(weapon), out float distance)) visualEnd = origin + direction.Normalized() * distance;
+			_weaponPolish?.Echo(ResolvePolishMuzzle(origin), visualEnd, PolishRarity(weapon), isEcho);
+			if (isEcho) _weaponPolishAudio?.PlayActivation(WeaponAttackType.TemporalEcho, origin);
+		}
 		for (int hit = 0; hit < Mathf.Min(hitCount, hits.Count); hit++)
 		{
 			IFpsCombatEnemy enemy = hits[hit];
@@ -796,7 +822,7 @@ public partial class FpsVerticalSlice
 	{
 		float projectileSpeedMultiplier = WeaponModulatorSharedRuntime.GetWeaponItemProjectileSpeedMultiplier(weapon);
 		float durationMultiplier = WeaponModulatorSharedRuntime.GetWeaponItemDurationMultiplier(weapon);
-		int extraPierce = WeaponModulatorSharedRuntime.GetWeaponItemPierceCount(weapon);
+		int extraPierce = ResolveFpsCount(weapon, FpsCountPurpose.SawPierce, WeaponModulatorSharedRuntime.GetWeaponItemPierceCountValue(weapon));
 		SpawnPlayerProjectile(
 			PlayerProjectileKind.Sawblade,
 			origin + (direction * 1.2f),
@@ -817,7 +843,9 @@ public partial class FpsVerticalSlice
 		Vector3 end = ResolveAimPoint(origin, direction, 78f * GetFpsRangeScale(weapon));
 		DamageEnemiesAlongSegment(origin, end, 1.10f * GetFpsAreaScale(weapon), GetScaledWeaponDamage(weapon, damageScale) * 1.25f, weapon, true);
 		SpawnSustainedFpsAttack(ZoneEffectKind.Beam, weapon, origin, direction, origin.DistanceTo(end), GetScaledWeaponDamage(weapon, damageScale) * 0.3f);
-		SpawnPulse(end, 0.6f, 0.16f, GetWeaponAccentColor(weapon.Shape!.AttackType));
+		if (WeaponPolishEnabled)
+			_weaponPolish?.Impact(WeaponAttackType.Laser, end, -direction, PolishRarity(weapon), .8f);
+		else SpawnPulse(end, 0.6f, 0.16f, GetWeaponAccentColor(weapon.Shape!.AttackType));
 	}
 
 	private void DeployHexMines(EquipmentItem weapon, Vector3 origin, Vector3 direction, float damageScale)
@@ -838,7 +866,7 @@ public partial class FpsVerticalSlice
 	{
 		float radius = 8.5f * GetFpsAreaScale(weapon) * GetFpsRangeScale(weapon);
 		DamageEnemiesInRadius(_player.GlobalPosition, radius, GetScaledWeaponDamage(weapon, damageScale) * 1.35f, weapon, true);
-		SpawnPulse(_player.GlobalPosition + Vector3.Up, radius, 0.32f, GetWeaponAccentColor(weapon.Shape!.AttackType));
+		SpawnPolishedPulse(WeaponAttackType.Nova, _player.GlobalPosition, radius, 0.32f, GetWeaponAccentColor(weapon.Shape!.AttackType), weapon);
 	}
 
 	private void DeployOrbitals(EquipmentItem weapon, float damageScale)
@@ -886,7 +914,7 @@ public partial class FpsVerticalSlice
 				GetScaledWeaponDamage(weapon, damageScale) * 1.05f,
 				0.38f,
 				5f * durationMultiplier * GetFpsRangeScale(weapon),
-				1 + WeaponModulatorSharedRuntime.GetWeaponItemPierceCount(weapon),
+				1 + ResolveFpsCount(weapon, FpsCountPurpose.SeekerPierce, WeaponModulatorSharedRuntime.GetWeaponItemPierceCountValue(weapon)),
 				4.5f * homingStrengthMultiplier,
 				color,
 				weapon,
@@ -899,7 +927,7 @@ public partial class FpsVerticalSlice
 		float range = 13f * GetFpsRangeScale(weapon) * WeaponModulatorSharedRuntime.GetWeaponItemProjectileSpeedMultiplier(weapon);
 		DamageEnemiesInCone(origin, direction, range, Mathf.Clamp(0.42f * GetFpsAreaScale(weapon), 0.04f, 1.5f), GetScaledWeaponDamage(weapon, damageScale) * 1.05f, weapon, true);
 		SpawnSustainedFpsAttack(ZoneEffectKind.Flame, weapon, origin, direction, range, GetScaledWeaponDamage(weapon, damageScale) * 0.3f);
-		SpawnPulse(origin + (direction * 4.5f), 4.0f, 0.20f, GetWeaponAccentColor(weapon.Shape!.AttackType));
+		SpawnPolishedPulse(WeaponAttackType.FlameCone, origin + (direction * 4.5f), 4.0f, 0.20f, GetWeaponAccentColor(weapon.Shape!.AttackType), weapon);
 	}
 
 	private void DeployRift(EquipmentItem weapon, Vector3 origin, Vector3 direction, float damageScale)
@@ -942,12 +970,15 @@ public partial class FpsVerticalSlice
 		IFpsCombatEnemy? original = target;
 		float initialDamage = damage;
 		Vector3 chainOrigin = origin;
-		int chainsRemaining = Mathf.Clamp(2 + (weapon.Shape?.Hits ?? 2) + WeaponModulatorSharedRuntime.GetWeaponItemProjectileCount(weapon) + WeaponModulatorSharedRuntime.GetWeaponItemChainCountBonus(weapon), 2, 32);
+		int chainsRemaining = Mathf.Clamp(2 + (weapon.Shape?.Hits ?? 2) + ResolveFpsCount(weapon, FpsCountPurpose.PrimaryChains,
+			WeaponModulatorSharedRuntime.GetWeaponItemProjectileCountValue(weapon)
+			+ WeaponModulatorSharedRuntime.GetWeaponItemPassiveCountValue(weapon, ModulatorEffectType.ChainCountAdd)), 2, 32);
 		while (target != null && chainsRemaining-- > 0)
 		{
+			_weaponPolish?.Arc(ResolvePolishMuzzle(chainOrigin), target.HeadPosition, PolishRarity(weapon));
 			DealDirectionalDamageToEnemy(target, damage, target.HeadPosition, weapon, false, true, target.HeadPosition - chainOrigin);
 			visited.Add(target);
-			SpawnPulse(target.HeadPosition, 0.9f, 0.12f, GetWeaponAccentColor(weapon.Shape!.AttackType));
+			SpawnPolishedPulse(WeaponAttackType.ChainLightning, target.HeadPosition, 0.9f, 0.12f, GetWeaponAccentColor(weapon.Shape!.AttackType), weapon);
 			chainOrigin = target.HeadPosition;
 			damage *= 0.78f;
 			target = FindNearestEnemy(chainOrigin, 11f * GetFpsRangeScale(weapon) * GetFpsAreaScale(weapon), visited, true);
@@ -958,7 +989,7 @@ public partial class FpsVerticalSlice
 	private void FireDrill(EquipmentItem weapon, Vector3 origin, Vector3 direction, float damageScale)
 	{
 		float projectileSpeedMultiplier = WeaponModulatorSharedRuntime.GetWeaponItemProjectileSpeedMultiplier(weapon);
-		int extraPierce = WeaponModulatorSharedRuntime.GetWeaponItemPierceCount(weapon);
+		int extraPierce = ResolveFpsCount(weapon, FpsCountPurpose.DrillPierce, WeaponModulatorSharedRuntime.GetWeaponItemPierceCountValue(weapon));
 		SpawnPlayerProjectile(
 			PlayerProjectileKind.Drill,
 			origin + (direction * 1.0f),
@@ -983,7 +1014,7 @@ public partial class FpsVerticalSlice
 
 	private void FireTemporalEcho(EquipmentItem weapon, Vector3 origin, Vector3 direction, float damageScale, bool isEcho)
 	{
-		FireSingleShot(weapon, origin, direction, 0.75f * damageScale);
+		FireSingleShotWithEcho(weapon, origin, direction, 0.75f * damageScale, isEcho);
 		if (isEcho)
 		{
 			return;
@@ -992,6 +1023,8 @@ public partial class FpsVerticalSlice
 		_playerEchoes.Add(new EchoEffect
 		{
 			Delay = 0.55f,
+			// Each base record already represents one output with its authored spread.
+			ReplaySingleTemporalOutput = true,
 			Weapon = weapon,
 			Origin = origin,
 			Direction = direction,
@@ -1004,7 +1037,8 @@ public partial class FpsVerticalSlice
 		float missingHealthRatio = 1f - (_player.CurrentHealth / Mathf.Max(0.01f, _player.MaxHealth));
 		float damage = GetScaledWeaponDamage(weapon, damageScale) * (0.60f + missingHealthRatio * 1.10f);
 		DamageEnemiesInRadius(_player.GlobalPosition, 4.6f * GetFpsAreaScale(weapon) * GetFpsRangeScale(weapon), damage, weapon, true);
-		SpawnPulse(_player.GlobalPosition + Vector3.Up, 5.2f, 0.25f, GetWeaponAccentColor(weapon.Shape!.AttackType));
+		SpawnPolishedPulse(WeaponAttackType.WrathAura, _player.GlobalPosition, 4.6f * GetFpsAreaScale(weapon) * GetFpsRangeScale(weapon),
+			0.25f, GetWeaponAccentColor(weapon.Shape!.AttackType), weapon);
 	}
 
 	private void SpawnShadowClones(EquipmentItem weapon, float damageScale)
@@ -1057,9 +1091,11 @@ public partial class FpsVerticalSlice
 			}
 
 			Vector3 start = projectile.Position;
+			Vector3 previousVisual = projectile.Mesh.GlobalPosition;
 			Vector3 end = start + (projectile.Direction * projectile.Speed * dt);
 			if (TryRaycastWorldBlockWithNormal(start, end, out Vector3 hitPoint, out Vector3 hitNormal))
 			{
+				ShowPolishedWorldHit(projectile, start, hitPoint, hitNormal);
 				if (projectile.RemainingBounces > 0 && hitNormal.LengthSquared() > 0.5f)
 				{
 					projectile.RemainingBounces--;
@@ -1076,10 +1112,18 @@ public partial class FpsVerticalSlice
 
 			projectile.Position = end;
 			projectile.Mesh.GlobalPosition = projectile.Position;
-			projectile.Mesh.RotateY(dt * 8f);
+			UpdatePolishedProjectile(projectile, dt);
 			TickFpsProjectileSpecial(projectile, start, dt);
 
 			List<IFpsCombatEnemy> hits = CollectEnemiesAlongSegment(start, end, projectile.Radius, projectile.HitEnemies);
+			{
+				Vector3 visualEnd = projectile.Mesh.GlobalPosition;
+				if (projectile.RemainingHits > 0 && hits.Count >= projectile.RemainingHits &&
+					TryEnemySegmentHit(hits[projectile.RemainingHits - 1], start, end, projectile.Radius, out float stopDistance))
+					visualEnd = start + (end - start).Normalized() * stopDistance;
+				_weaponPolish?.ProjectileTrail(ProjectilePolishType(projectile.Kind),
+					previousVisual, visualEnd, PolishRarity(projectile.SourceItem), projectile.Radius);
+			}
 			bool consumed = false;
 			for (int hitIndex = 0; hitIndex < hits.Count; hitIndex++)
 			{
@@ -1108,6 +1152,7 @@ public partial class FpsVerticalSlice
 		for (int mineIndex = _playerMines.Count - 1; mineIndex >= 0; mineIndex--)
 		{
 			MineEffect mine = _playerMines[mineIndex];
+			mine.VisualAge += dt;
 			mine.Life -= dt;
 			mine.ArmTime -= dt;
 			if (mine.Life <= 0f)
@@ -1118,6 +1163,8 @@ public partial class FpsVerticalSlice
 
 			bool armed = mine.ArmTime <= 0f;
 			mine.Material.EmissionEnergyMultiplier = armed ? 2.1f : 0.9f;
+			mine.Mesh.Visible = !(_weaponPolish?.DrawMine(mine.Position, mine.TriggerRadius,
+				Mathf.Clamp(1f - mine.ArmTime / MineArmTime, 0f, 1f), mine.VisualAge, PolishRarity(mine.SourceItem)) ?? false);
 			if (!armed || GetFpsTransformConfig(mine.SourceItem, "command_cluster") != null)
 			{
 				continue;
@@ -1128,9 +1175,10 @@ public partial class FpsVerticalSlice
 				continue;
 			}
 
+			_weaponPolishAudio?.PlayActivation(WeaponAttackType.Mine, mine.Position);
 			DamageEnemiesInRadius(mine.Position, mine.ExplosionRadius, mine.Damage, mine.SourceItem, mine.TriggerModulatorOnHitEffects);
 			OnFpsMineDetonated(mine);
-			SpawnPulse(mine.Position, mine.ExplosionRadius, 0.20f, mine.Material.Emission);
+			SpawnPolishedPulse(WeaponAttackType.Mine, mine.Position, mine.ExplosionRadius, 0.20f, mine.Material.Emission, mine.SourceItem);
 			RemoveMine(mineIndex);
 		}
 	}
@@ -1154,6 +1202,7 @@ public partial class FpsVerticalSlice
 			zone.Mesh.Scale = new Vector3(scale, Mathf.Max(0.08f, scale * 0.12f), scale);
 			if (zone.Kind == ZoneEffectKind.Void) PullEnemiesToward(zone.Position, zone.Radius, zone.PullStrength, dt);
 			TickFpsZoneSpecial(zone, dt);
+			zone.Mesh.Visible = !DrawPolishedZone(zone);
 
 			if (zone.Tick <= 0f && zone.TickInterval > 0f)
 			{
@@ -1162,6 +1211,11 @@ public partial class FpsVerticalSlice
 				{
 					case ZoneEffectKind.Rift:
 						DamageEnemiesInRadius(zone.Position, zone.Radius, zone.DamagePerTick, zone.SourceItem, zone.TriggerModulatorOnHitEffects);
+						if (zone.SourceItem?.Shape?.AttackType == WeaponAttackType.Rift)
+						{
+							_weaponPolish?.RiftPulse(zone.Position, zone.Radius, PolishRarity(zone.SourceItem));
+							_weaponPolishAudio?.PlayRiftPulse(zone.Position);
+						}
 						break;
 					case ZoneEffectKind.Void:
 						DamageEnemiesInRadius(zone.Position, zone.Radius, zone.DamagePerTick, zone.SourceItem, zone.TriggerModulatorOnHitEffects);
@@ -1205,6 +1259,8 @@ public partial class FpsVerticalSlice
 			orbital.HasTravelSample = true;
 			orbital.Mesh.RotateY(dt * 5f);
 			TickFpsOrbitalSpecial(orbital, dt);
+			orbital.Mesh.Visible = !(_weaponPolish?.DrawOrbital(orbital.Mesh.GlobalPosition, orbital.Age,
+				PolishRarity(orbital.SourceItem), GetFpsAreaScale(orbital.SourceItem)) ?? false);
 
 			float hitRadius = OrbitalHitRadius * GetFpsAreaScale(orbital.SourceItem);
 			foreach (IFpsCombatEnemy enemy in QueryCombatRadius(orbital.Mesh.GlobalPosition, hitRadius))
@@ -1240,9 +1296,10 @@ public partial class FpsVerticalSlice
 			mortar.Age += dt;
 			if (mortar.Age >= mortar.FlightTime)
 			{
+				_weaponPolishAudio?.PlayActivation(WeaponAttackType.Mortar, mortar.Target);
 				DamageEnemiesInRadius(mortar.Target, mortar.Radius, mortar.Damage, mortar.SourceItem, mortar.TriggerModulatorOnHitEffects);
 				OnFpsMortarImpact(mortar);
-				SpawnPulse(mortar.Target, mortar.Radius, 0.22f, mortar.Material.Emission);
+				SpawnPolishedPulse(WeaponAttackType.Mortar, mortar.Target, mortar.Radius, 0.22f, mortar.Material.Emission, mortar.SourceItem);
 				RemoveMortar(mortarIndex);
 				continue;
 			}
@@ -1251,6 +1308,12 @@ public partial class FpsVerticalSlice
 			Vector3 position = mortar.Start.Lerp(mortar.Target, t);
 			position.Y += Mathf.Sin(t * Mathf.Pi) * MortarArcHeight;
 			mortar.Mesh.GlobalPosition = position;
+			Vector3 previous = mortar.HasVisualSample ? mortar.PreviousVisualPosition : mortar.Start;
+			Vector3 travel = position - previous;
+			mortar.Mesh.Visible = !(_weaponPolish?.DrawMortar(position, travel, mortar.Age, PolishRarity(mortar.SourceItem)) ?? false);
+			_weaponPolish?.ProjectileTrail(WeaponAttackType.Mortar, previous, position, PolishRarity(mortar.SourceItem), .28f);
+			mortar.PreviousVisualPosition = position;
+			mortar.HasVisualSample = true;
 		}
 	}
 
@@ -1265,7 +1328,10 @@ public partial class FpsVerticalSlice
 				continue;
 			}
 
-			FireWeaponAttack(echo.Weapon, echo.Origin, echo.Direction, echo.DamageScale, true);
+			if (echo.ReplaySingleTemporalOutput)
+				FireTemporalEcho(echo.Weapon, echo.Origin, echo.Direction, echo.DamageScale, true);
+			else
+				FireWeaponAttack(echo.Weapon, echo.Origin, echo.Direction, echo.DamageScale, true);
 			_playerEchoes.RemoveAt(echoIndex);
 		}
 	}
@@ -1287,6 +1353,8 @@ public partial class FpsVerticalSlice
 			Vector3 orbitOffset = new(Mathf.Cos(clone.Angle), 0.9f, Mathf.Sin(clone.Angle));
 			Vector3 clonePosition = _player.GlobalPosition + (orbitOffset * clone.OrbitRadius);
 			clone.Mesh.GlobalPosition = clonePosition;
+			clone.Mesh.Visible = !(_weaponPolish?.DrawClone(clonePosition, clone.VisualDirection, clone.Age, clone.Duration,
+				PolishRarity(clone.SourceItem), GetFpsAreaScale(clone.SourceItem)) ?? false);
 
 			if (clone.FireCooldown > 0f)
 			{
@@ -1300,9 +1368,12 @@ public partial class FpsVerticalSlice
 			}
 
 			clone.FireCooldown = CloneFireCadence / GetFpsTickRate(clone.SourceItem);
+			clone.VisualDirection = (target.HeadPosition - clonePosition).Normalized();
 			if (TryFireFpsCloneMimic(clone, clonePosition, target)) continue;
+			_weaponPolish?.CloneShot(clonePosition, target.HeadPosition, PolishRarity(clone.SourceItem));
+			_weaponPolishAudio?.PlayActivation(WeaponAttackType.ShadowClone, clonePosition);
 			DamageEnemiesInRadiusFromOrigin(target.HeadPosition, 0.25f * GetFpsAreaScale(clone.SourceItem), clone.Damage, clone.SourceItem, clone.TriggerModulatorOnHitEffects, clonePosition);
-			SpawnPulse(target.HeadPosition, 0.6f, 0.12f, clone.Material.Emission);
+			SpawnPolishedPulse(WeaponAttackType.ShadowClone, target.HeadPosition, 0.6f, 0.12f, clone.Material.Emission, clone.SourceItem);
 		}
 	}
 
@@ -1315,6 +1386,9 @@ public partial class FpsVerticalSlice
 			return;
 		}
 
+		float missingHealthRatio = 1f - (_player.CurrentHealth / Mathf.Max(0.01f, _player.MaxHealth));
+		float radius = (6.2f + missingHealthRatio * 2.0f) * GetFpsAreaScale(weapon) * GetFpsRangeScale(weapon);
+		_weaponPolish?.DrawWrath(_player.GlobalPosition, radius, _weaponPolish.SimulationTime, missingHealthRatio, PolishRarity(weapon));
 		_wrathAuraTick -= dt;
 		if (_wrathAuraTick > 0f)
 		{
@@ -1322,11 +1396,9 @@ public partial class FpsVerticalSlice
 		}
 
 		_wrathAuraTick = WrathAuraTickInterval / GetFpsTickRate(weapon);
-		float missingHealthRatio = 1f - (_player.CurrentHealth / Mathf.Max(0.01f, _player.MaxHealth));
 		float damage = GetWeaponBaseDamage(weapon) * (0.35f + missingHealthRatio * 0.90f);
-		float radius = (6.2f + missingHealthRatio * 2.0f) * GetFpsAreaScale(weapon) * GetFpsRangeScale(weapon);
 		DamageEnemiesInRadius(_player.GlobalPosition, radius, damage, weapon, true);
-		SpawnPulse(_player.GlobalPosition + Vector3.Up, radius, 0.16f, GetWeaponAccentColor(weapon.Shape.AttackType));
+		SpawnPolishedPulse(WeaponAttackType.WrathAura, _player.GlobalPosition, radius, 0.16f, GetWeaponAccentColor(weapon.Shape.AttackType), weapon);
 	}
 
 	private void SpawnPlayerProjectile(
@@ -1351,38 +1423,50 @@ public partial class FpsVerticalSlice
 		StandardMaterial3D material = CreateEffectMaterial(color, 1.60f);
 		Mesh mesh = kind switch
 		{
-			PlayerProjectileKind.Sawblade => new CylinderMesh { TopRadius = 0.34f, BottomRadius = 0.34f, Height = 0.10f, RadialSegments = 18 },
-			PlayerProjectileKind.Homing => new CylinderMesh { TopRadius = 0.01f, BottomRadius = 0.16f, Height = 0.48f, RadialSegments = 6 },
-			PlayerProjectileKind.Drill => new CylinderMesh { TopRadius = 0.08f, BottomRadius = 0.16f, Height = 0.62f, RadialSegments = 14 },
+			PlayerProjectileKind.Bullet => new BoxMesh { Size = new Vector3(.08f, .08f, .22f) },
+			PlayerProjectileKind.Sawblade => FpsWeaponPolishEffects.SawbladeMesh,
+			PlayerProjectileKind.Homing => FpsWeaponPolishEffects.HomingMesh,
+			PlayerProjectileKind.Drill => FpsWeaponPolishEffects.DrillMesh,
 			_ => new SphereMesh { Radius = 0.18f, Height = 0.36f },
 		};
 		MeshInstance3D meshInstance = CreateEffectMesh(mesh, material);
+		Vector3 visualOffset = ProjectileVisualOffset(kind, origin, direction);
+		{
+			Color tint = FpsWeaponPolishEffects.Tint(ProjectilePolishType(kind), PolishRarity(sourceItem));
+			material.AlbedoColor = tint;
+			material.Emission = tint;
+			material.EmissionEnergyMultiplier = kind == PlayerProjectileKind.Bullet ? .8f : .08f;
+			if (kind == PlayerProjectileKind.Sawblade)
+			{
+				material.AlbedoColor = tint.Lerp(new Color(.30f, .36f, .42f), .65f);
+				material.Metallic = .65f;
+				material.Roughness = .4f;
+			}
+			material.VertexColorUseAsAlbedo = true;
+		}
 		float areaScale = GetFpsAreaScale(sourceItem);
 		meshInstance.Scale *= areaScale;
 
 		_weaponEffectRoot.AddChild(meshInstance);
 		if (_weaponEffectRoot.IsInsideTree())
 		{
-			meshInstance.GlobalPosition = origin;
-			if (kind != PlayerProjectileKind.Sawblade)
-			{
-				meshInstance.LookAt(origin + direction, Vector3.Up);
-			}
+			meshInstance.GlobalPosition = origin + visualOffset;
+			meshInstance.Basis = FpsWeaponPolishEffects.Facing(direction).Scaled(Vector3.One * areaScale);
+			if (kind == PlayerProjectileKind.Sawblade)
+				meshInstance.Basis = (FpsWeaponPolishEffects.Facing(direction) * new Basis(Vector3.Right, Mathf.Pi * .43f)).Scaled(Vector3.One * areaScale * .4f);
+			else if (kind is PlayerProjectileKind.Homing or PlayerProjectileKind.Drill)
+				meshInstance.Basis = FpsWeaponPolishEffects.Facing(direction).Scaled(Vector3.One * areaScale * .08f);
 		}
 		else
 		{
 			meshInstance.Position = origin;
 		}
 
-		if (kind == PlayerProjectileKind.Sawblade)
-		{
-			meshInstance.RotateX(Mathf.Pi * 0.5f);
-		}
-
 		_playerProjectiles.Add(new PlayerProjectileEffect
 		{
 			Kind = kind,
 			Position = origin,
+			VisualOffset = visualOffset,
 			Direction = direction.Normalized(),
 			Speed = speed,
 			Life = life,
@@ -1390,7 +1474,8 @@ public partial class FpsVerticalSlice
 			Radius = radius * areaScale,
 			RemainingHits = Mathf.Max(1, hits),
 			TurnRate = turnRate,
-			RemainingBounces = sourceItem == null ? 0 : Mathf.Clamp(Mathf.RoundToInt(StatGenerator.GetTotalSubstatValue(sourceItem, SubstatType.BounceTimes)), 0, 12),
+			RemainingBounces = sourceItem == null ? 0 : ResolveFpsCount(sourceItem, FpsCountPurpose.Bounces,
+				StatGenerator.GetTotalSubstatValue(sourceItem, SubstatType.BounceTimes), 12),
 			TriggerModulatorOnHitEffects = triggerModulatorOnHitEffects && _fpsSpecialDamageDepth == 0,
 			SourceItem = sourceItem,
 			Mesh = meshInstance,
@@ -1467,6 +1552,7 @@ public partial class FpsVerticalSlice
 			Kind = kind,
 			Position = position,
 			FollowPlayer = followPlayer,
+			VisualOrigin = position,
 			Duration = duration,
 			Tick = kind == ZoneEffectKind.Pulse ? float.MaxValue : 0f,
 			TickInterval = (kind switch
@@ -1753,8 +1839,10 @@ public partial class FpsVerticalSlice
 			return;
 		}
 
-		float actualDamage = Mathf.Min(adjustedDamage, enemy.CurrentHealth);
+		float healthBefore = enemy.CurrentHealth;
+		float actualDamage = Mathf.Min(adjustedDamage, healthBefore);
 		enemy.ApplyDamageFrom(adjustedDamage, travelDirection);
+		ShowPolishedEnemyHit(sourceItem, hitPosition, travelDirection, adjustedDamage, healthBefore, critical);
 		OnFpsModulatorEnemyDamage(sourceItem, actualDamage);
 		OnFpsModulatorSpecialHit(enemy, sourceItem, actualDamage, hitPosition, critical, triggerModulatorOnHitEffects);
 		if (triggerModulatorOnHitEffects)
@@ -1912,8 +2000,9 @@ public partial class FpsVerticalSlice
 			}
 
 			visited.Add(nextEnemy);
+			_weaponPolish?.Arc(current, nextEnemy.HeadPosition, PolishRarity(sourceItem));
 			DealDirectionalDamageToEnemy(nextEnemy, currentDamage, nextEnemy.HeadPosition, sourceItem, critical, false, nextEnemy.HeadPosition - current);
-			SpawnPulse(nextEnemy.HeadPosition, 0.75f, 0.12f, color);
+			SpawnPolishedPulse(WeaponAttackType.ChainLightning, nextEnemy.HeadPosition, 0.75f, 0.12f, color, sourceItem);
 			current = nextEnemy.HeadPosition;
 			currentDamage *= 0.85f;
 			remainingChains--;
@@ -2036,6 +2125,8 @@ public partial class FpsVerticalSlice
 
 	private void ResetWeaponEffectRuntimeState()
 	{
+		_weaponPolish?.Clear();
+		_weaponPolishAudio?.Clear();
 		for (int projectileIndex = 0; projectileIndex < _playerProjectiles.Count; projectileIndex++)
 		{
 			_playerProjectiles[projectileIndex].Mesh.QueueFree();

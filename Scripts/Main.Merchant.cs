@@ -376,22 +376,7 @@ public partial class Main
 		}
 
 		List<WeaponModulatorData> modulators = ModulatorCatalog.CreateWeightedRollPool();
-		WeaponModulatorData fallback = PickWeighted(modulators, static modulator => modulator.Weight);
-		if (!fallback.UsesTierPresentation)
-		{
-			return fallback;
-		}
-
-		float enhancedBias = Mathf.Clamp((wave - ChallengePillarWaveInterval) * 0.04f, 0f, 0.20f);
-		float roll = _rng.Randf();
-		WeaponModulatorTier tier = roll < 0.18f
-			? WeaponModulatorTier.Flawed
-			: roll < 0.72f - enhancedBias
-				? WeaponModulatorTier.Baseline
-				: roll < 0.95f
-					? WeaponModulatorTier.Enhanced
-					: WeaponModulatorTier.Flawless;
-		return ModulatorCatalog.CreateByKey(fallback.Key, tier);
+		return ModulatorLoot.Roll(modulators, _rng) ?? ModulatorCatalog.CreateByKey("power_coil");
 	}
 
 	private EquipmentItem CreateMerchantOfferShape(int wave, HashSet<string> seenOfferKeys)
@@ -599,9 +584,9 @@ public partial class Main
 				: detail;
 		}
 
-		return string.IsNullOrWhiteSpace(offer.Modulator?.Description)
+		return offer.Modulator == null
 			? "A clean reroute for this run's loadout."
-			: offer.Modulator.Description;
+			: $"{ModulatorQualityText.Header(offer.Modulator)}\n{ModulatorQualityText.Describe(offer.Modulator)}";
 	}
 
 	private static string BuildMerchantPurchaseFeedback(MerchantOffer offer)
@@ -837,9 +822,7 @@ public partial class Main
 		string category = GetMerchantOfferCategoryLabel(offer);
 		string detail = offer.Kind == MerchantOfferKind.Shape
 			? BuildMerchantShapeFallbackSummary(offer.ShapeItem)
-			: string.IsNullOrWhiteSpace(offer.Modulator?.Description)
-				? BuildMerchantFallbackSummary(offer.Modulator)
-				: offer.Modulator.Description.Replace('\n', ' ').Trim();
+			: BuildMerchantFallbackSummary(offer.Modulator);
 
 		if (detail.Length > 78)
 		{
@@ -856,15 +839,7 @@ public partial class Main
 			return "Run-only tuning for this loadout.";
 		}
 
-		if (modulator.Substats.Count == 0)
-		{
-			return string.IsNullOrWhiteSpace(modulator.Description)
-				? $"{modulator.PowerTier} {WeaponModulatorData.GetCategoryDisplayName(modulator.Category)} modulator."
-				: modulator.Description;
-		}
-
-		SubstatRoll roll = modulator.Substats[0];
-		return $"{roll.Type} +{roll.Value:0.##}";
+		return $"{ModulatorQualityText.Header(modulator)} | {ModulatorQualityText.Describe(modulator).Replace("\n", " | ")}";
 	}
 
 	private static string BuildMerchantShapeFallbackSummary(EquipmentItem? item)

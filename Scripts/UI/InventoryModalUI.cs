@@ -1231,7 +1231,8 @@ public partial class InventoryModalUI : ModalBase
                 {
                     WeaponModulatorData modulator = targetItem.Modulators[i];
                     int itemIndex = _installedModulatorList.AddItem(BuildModulatorListLabel(modulator));
-                    _installedModulatorList.SetItemCustomFgColor(itemIndex, modulator.UiColor);
+                    _installedModulatorList.SetItemCustomFgColor(itemIndex, ModulatorLoot.GetTierColor(modulator.PowerTier));
+                    _installedModulatorList.SetItemTooltip(itemIndex, ModulatorQualityText.Header(modulator) + "\n" + ModulatorQualityText.Describe(modulator));
                 }
             }
 
@@ -1251,7 +1252,9 @@ public partial class InventoryModalUI : ModalBase
                 {
                     WeaponModulatorData modulator = _inventoryManager.StoredModulators[i];
                     int itemIndex = _storedModulatorList.AddItem(BuildModulatorListLabel(modulator));
-                    _storedModulatorList.SetItemCustomFgColor(itemIndex, modulator.UiColor);
+                    _storedModulatorList.SetItemCustomFgColor(itemIndex, ModulatorLoot.GetTierColor(modulator.PowerTier));
+                    _storedModulatorList.SetItemTooltip(itemIndex, ModulatorQualityText.Header(modulator) + "\n" +
+                        ModulatorQualityText.Describe(modulator) + "\n\n" + ModulatorQualityText.Compare(modulator, targetItem));
                 }
             }
 
@@ -1299,7 +1302,8 @@ public partial class InventoryModalUI : ModalBase
                     ? $"Install Modulator ({targetItem.AvailableModulatorSlots} free)"
                     : "No Modulator Slots";
             _installModulatorButton.Disabled = targetItem == null || selectedStoredModulator < 0 || targetItem.AvailableModulatorSlots <= 0 || modulatorBlockReason != null;
-            _installModulatorButton.TooltipText = modulatorBlockReason ?? "Install the selected stored modulator on the target weapon.";
+            _installModulatorButton.TooltipText = (modulatorBlockReason ?? "Install the selected stored modulator on the target weapon.") +
+                (selectedModulator == null ? "" : "\n\n" + ModulatorQualityText.Compare(selectedModulator, targetItem));
         }
 
         if (_returnModulatorButton != null)
@@ -1322,17 +1326,7 @@ public partial class InventoryModalUI : ModalBase
 
     private static string BuildModulatorListLabel(WeaponModulatorData modulator)
     {
-        if (modulator.IsWingModulator)
-        {
-            return $"{modulator.DisplayName}  |  Wing";
-        }
-
-        if (modulator.Substats.Count == 0)
-        {
-            return modulator.DisplayName;
-        }
-
-        return $"{modulator.DisplayName}  |  {modulator.Substats[0].ToDisplayString()}";
+        return $"{modulator.DisplayName}  |  Tier {(int)modulator.PowerTier + 1}  |  {modulator.QualityStrength * 100f:0}% power";
     }
 
     private void EnsureFilterOptions()

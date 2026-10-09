@@ -70,7 +70,7 @@
   },
   "nodes": 231,
   "meshes": 213,
-  "bytes": 1305928,
+  "bytes": 1426740,
   "objects": [
     {
       "name": "GunRoot",
@@ -1227,5 +1227,337 @@
       "source": "Trigger | curved silhouette",
       "parent": "GunRoot"
     }
-  ]
+  ],
+  "workbench": {
+    "source": "Art/WeaponWorkbenchAnimations/ConeFlameProjectorWorkbench.blend",
+    "approved_source_sha256": "3821afd39c535e52e278d28c0eca2885ec3ba9df888cdf2d10d13942fd41e5c7",
+    "clips": [
+      {
+        "name": "Disassemble",
+        "duration": 0.7,
+        "targets": [
+          "Accent___grip_heel_inlay_1",
+          "Accent___grip_heel_inlay__1",
+          "Cone_Split_Shield_Pivot_0",
+          "Cone_Split_Shield_Pivot_1",
+          "Cone_Split_Shield_Pivot_2",
+          "Cone___black_inner_diffuser",
+          "Cone___fuel_selector",
+          "Cone___heat_fin_0",
+          "Cone___heat_fin_1",
+          "Cone___heat_fin_2",
+          "Cone___heat_fin_3",
+          "Cone___heat_fin_4",
+          "Cone___heat_fin_5",
+          "Cone___heat_shield_saddle",
+          "Cone___hot_mouth",
+          "Cone___mixing_chamber",
+          "Cone___narrow_rarity_seam_1",
+          "Cone___narrow_rarity_seam__1",
+          "Cone___pilot_contact",
+          "Cone___pilot_feed",
+          "Cone___pilot_shroud",
+          "Cone___rear_seal",
+          "Cone___receiver_bridge",
+          "Cone___saddle_pin_1",
+          "Cone___saddle_pin__1",
+          "Cone___supported_riser",
+          "Controls___frame_pin_1",
+          "Controls___frame_pin__1",
+          "Controls___grip_latch_1",
+          "Controls___grip_latch__1",
+          "Controls___slim_slide_release_1",
+          "Controls___slim_slide_release__1",
+          "Dock___cone_dimensional_witness_1",
+          "Dock___cone_dimensional_witness__1",
+          "Dock___dark_pocket_floor",
+          "Dock___fitted_rim",
+          "Dock___latch_witness",
+          "Dock___positive_latch",
+          "Dock___side_recess_1",
+          "Dock___side_recess__1",
+          "Frame___accessory_recess_1_0",
+          "Frame___accessory_recess_1_1",
+          "Frame___accessory_recess_1_2",
+          "Frame___accessory_recess__1_0",
+          "Frame___accessory_recess__1_1",
+          "Frame___accessory_recess__1_2",
+          "Frame___continuous_receiver_and_swept_grip",
+          "Frame___open_shaped_trigger_guard",
+          "Grip___angled_texture_1_00",
+          "Grip___angled_texture_1_01",
+          "Grip___angled_texture_1_02",
+          "Grip___angled_texture_1_03",
+          "Grip___angled_texture_1_04",
+          "Grip___angled_texture_1_05",
+          "Grip___angled_texture_1_06",
+          "Grip___angled_texture_1_07",
+          "Grip___angled_texture__1_00",
+          "Grip___angled_texture__1_01",
+          "Grip___angled_texture__1_02",
+          "Grip___angled_texture__1_03",
+          "Grip___angled_texture__1_04",
+          "Grip___angled_texture__1_05",
+          "Grip___angled_texture__1_06",
+          "Grip___angled_texture__1_07",
+          "Grip___contoured_panel_1",
+          "Grip___contoured_panel__1",
+          "Grip___fitted_heel_plate",
+          "Grip___lower_panel_fastener_1",
+          "Grip___lower_panel_fastener__1",
+          "Grip___upper_panel_fastener_1",
+          "Grip___upper_panel_fastener__1",
+          "MultiWeapon___assembly_identifier",
+          "MultiWeapon___rear_traction_groove_1_0",
+          "MultiWeapon___rear_traction_groove_1_1",
+          "MultiWeapon___rear_traction_groove_1_2",
+          "MultiWeapon___rear_traction_groove__1_0",
+          "MultiWeapon___rear_traction_groove__1_1",
+          "MultiWeapon___rear_traction_groove__1_2",
+          "MultiWeapon___receiver_seam_1",
+          "MultiWeapon___receiver_seam__1",
+          "MultiWeapon___shared_rear_receiver",
+          "Sight___rear_dot_1",
+          "Sight___rear_dot__1",
+          "Sight___rear_notch_ear_1",
+          "Sight___rear_notch_ear__1",
+          "Trigger___curved_silhouette"
+        ]
+      },
+      {
+        "name": "Assemble",
+        "duration": 0.7,
+        "targets": [
+          "Accent___grip_heel_inlay_1",
+          "Accent___grip_heel_inlay__1",
+          "Cone_Split_Shield_Pivot_0",
+          "Cone_Split_Shield_Pivot_1",
+          "Cone_Split_Shield_Pivot_2",
+          "Cone___black_inner_diffuser",
+          "Cone___fuel_selector",
+          "Cone___heat_fin_0",
+          "Cone___heat_fin_1",
+          "Cone___heat_fin_2",
+          "Cone___heat_fin_3",
+          "Cone___heat_fin_4",
+          "Cone___heat_fin_5",
+          "Cone___heat_shield_saddle",
+          "Cone___hot_mouth",
+          "Cone___mixing_chamber",
+          "Cone___narrow_rarity_seam_1",
+          "Cone___narrow_rarity_seam__1",
+          "Cone___pilot_contact",
+          "Cone___pilot_feed",
+          "Cone___pilot_shroud",
+          "Cone___rear_seal",
+          "Cone___receiver_bridge",
+          "Cone___saddle_pin_1",
+          "Cone___saddle_pin__1",
+          "Cone___supported_riser",
+          "Controls___frame_pin_1",
+          "Controls___frame_pin__1",
+          "Controls___grip_latch_1",
+          "Controls___grip_latch__1",
+          "Controls___slim_slide_release_1",
+          "Controls___slim_slide_release__1",
+          "Dock___cone_dimensional_witness_1",
+          "Dock___cone_dimensional_witness__1",
+          "Dock___dark_pocket_floor",
+          "Dock___fitted_rim",
+          "Dock___latch_witness",
+          "Dock___positive_latch",
+          "Dock___side_recess_1",
+          "Dock___side_recess__1",
+          "Frame___accessory_recess_1_0",
+          "Frame___accessory_recess_1_1",
+          "Frame___accessory_recess_1_2",
+          "Frame___accessory_recess__1_0",
+          "Frame___accessory_recess__1_1",
+          "Frame___accessory_recess__1_2",
+          "Frame___continuous_receiver_and_swept_grip",
+          "Frame___open_shaped_trigger_guard",
+          "Grip___angled_texture_1_00",
+          "Grip___angled_texture_1_01",
+          "Grip___angled_texture_1_02",
+          "Grip___angled_texture_1_03",
+          "Grip___angled_texture_1_04",
+          "Grip___angled_texture_1_05",
+          "Grip___angled_texture_1_06",
+          "Grip___angled_texture_1_07",
+          "Grip___angled_texture__1_00",
+          "Grip___angled_texture__1_01",
+          "Grip___angled_texture__1_02",
+          "Grip___angled_texture__1_03",
+          "Grip___angled_texture__1_04",
+          "Grip___angled_texture__1_05",
+          "Grip___angled_texture__1_06",
+          "Grip___angled_texture__1_07",
+          "Grip___contoured_panel_1",
+          "Grip___contoured_panel__1",
+          "Grip___fitted_heel_plate",
+          "Grip___lower_panel_fastener_1",
+          "Grip___lower_panel_fastener__1",
+          "Grip___upper_panel_fastener_1",
+          "Grip___upper_panel_fastener__1",
+          "MultiWeapon___assembly_identifier",
+          "MultiWeapon___rear_traction_groove_1_0",
+          "MultiWeapon___rear_traction_groove_1_1",
+          "MultiWeapon___rear_traction_groove_1_2",
+          "MultiWeapon___rear_traction_groove__1_0",
+          "MultiWeapon___rear_traction_groove__1_1",
+          "MultiWeapon___rear_traction_groove__1_2",
+          "MultiWeapon___receiver_seam_1",
+          "MultiWeapon___receiver_seam__1",
+          "MultiWeapon___shared_rear_receiver",
+          "Sight___rear_dot_1",
+          "Sight___rear_dot__1",
+          "Sight___rear_notch_ear_1",
+          "Sight___rear_notch_ear__1",
+          "Trigger___curved_silhouette"
+        ]
+      },
+      {
+        "name": "SocketSeat01",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge"
+        ]
+      },
+      {
+        "name": "SocketRemove01",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge"
+        ]
+      },
+      {
+        "name": "SocketSeat02",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.001"
+        ]
+      },
+      {
+        "name": "SocketRemove02",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.001"
+        ]
+      },
+      {
+        "name": "SocketSeat03",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.002"
+        ]
+      },
+      {
+        "name": "SocketRemove03",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.002"
+        ]
+      },
+      {
+        "name": "SocketSeat04",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.003"
+        ]
+      },
+      {
+        "name": "SocketRemove04",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.003"
+        ]
+      },
+      {
+        "name": "SocketSeat05",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.004"
+        ]
+      },
+      {
+        "name": "SocketRemove05",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.004"
+        ]
+      },
+      {
+        "name": "SocketSeat06",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.005"
+        ]
+      },
+      {
+        "name": "SocketRemove06",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.005"
+        ]
+      },
+      {
+        "name": "SocketSeat07",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.006"
+        ]
+      },
+      {
+        "name": "SocketRemove07",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.006"
+        ]
+      },
+      {
+        "name": "SocketSeat08",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.007"
+        ]
+      },
+      {
+        "name": "SocketRemove08",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.007"
+        ]
+      },
+      {
+        "name": "SocketSeat09",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.008"
+        ]
+      },
+      {
+        "name": "SocketRemove09",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.008"
+        ]
+      },
+      {
+        "name": "SocketSeat10",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.009"
+        ]
+      },
+      {
+        "name": "SocketRemove10",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.009"
+        ]
+      }
+    ],
+    "core": "ShapeSocket",
+    "authoring": "component-local fold around the core; no whole-gun scale; local-axis cartridge seating"
+  }
 }

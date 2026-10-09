@@ -38,6 +38,14 @@ public static partial class ModulatorCatalog
         return CloneModulators(_cachedTemplates!);
     }
 
+    public static WeaponModulatorData Clone(WeaponModulatorData source, WeaponModulatorTier? quality = null)
+    {
+        WeaponModulatorData clone = CloneModulator(source);
+        if (quality.HasValue) clone.Tier = quality.Value;
+        clone.RefreshPresentation();
+        return clone;
+    }
+
     public static List<WeaponModulatorData> CreateWeightedRollPool(Predicate<WeaponModulatorData>? filter = null)
     {
         EnsureCache();
@@ -46,7 +54,7 @@ public static partial class ModulatorCatalog
         for (int i = 0; i < _cachedTemplates!.Count; i++)
         {
             WeaponModulatorData template = _cachedTemplates[i];
-            if (template.Weight <= 0f)
+            if (template.IsRetired || template.Weight <= 0f)
             {
                 continue;
             }
@@ -136,6 +144,7 @@ public static partial class ModulatorCatalog
                 }
 
                 WeaponModulatorData clone = CloneModulator(template);
+                if (clone.IsRetired) clone.Weight = 0f;
                 byKey[normalizedKey] = clone;
                 deduped.Add(clone);
             }
@@ -1862,6 +1871,7 @@ public static partial class ModulatorCatalog
             MagnitudeC = effect.MagnitudeC,
             Count = effect.Count,
             CountB = effect.CountB,
+            CountValue = effect.CountValue,
             Key = effect.Key,
         };
     }
@@ -1922,6 +1932,7 @@ public static partial class ModulatorCatalog
                 MagnitudeC = effect.MagnitudeC,
                 Count = effect.Count,
                 CountB = effect.CountB,
+                CountValue = effect.CountValue,
                 Key = effect.Key,
             });
         }

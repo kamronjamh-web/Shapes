@@ -74,7 +74,7 @@
   },
   "nodes": 268,
   "meshes": 250,
-  "bytes": 1412168,
+  "bytes": 1529164,
   "objects": [
     {
       "name": "GunRoot",
@@ -1416,5 +1416,273 @@
       "source": "PentachoronInsert_Node_4",
       "parent": "PentachoronInsert___removable_shape_cartridge"
     }
-  ]
+  ],
+  "workbench": {
+    "source": "Art/WeaponWorkbenchAnimations/PentachoronArcLatticeWorkbench.blend",
+    "approved_source_sha256": "a93992d4d4c1460a0529fa19dabd3857f82e7addef143934dca239942db14db1",
+    "clips": [
+      {
+        "name": "SocketSeat01",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge"
+        ]
+      },
+      {
+        "name": "SocketRemove01",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge"
+        ]
+      },
+      {
+        "name": "SocketSeat02",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.001"
+        ]
+      },
+      {
+        "name": "SocketRemove02",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.001"
+        ]
+      },
+      {
+        "name": "SocketSeat03",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.002"
+        ]
+      },
+      {
+        "name": "SocketRemove03",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.002"
+        ]
+      },
+      {
+        "name": "SocketSeat04",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.003"
+        ]
+      },
+      {
+        "name": "SocketRemove04",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.003"
+        ]
+      },
+      {
+        "name": "SocketSeat05",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.004"
+        ]
+      },
+      {
+        "name": "SocketRemove05",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.004"
+        ]
+      },
+      {
+        "name": "SocketSeat06",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.005"
+        ]
+      },
+      {
+        "name": "SocketRemove06",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.005"
+        ]
+      },
+      {
+        "name": "SocketSeat07",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.006"
+        ]
+      },
+      {
+        "name": "SocketRemove07",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.006"
+        ]
+      },
+      {
+        "name": "SocketSeat08",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.007"
+        ]
+      },
+      {
+        "name": "SocketRemove08",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.007"
+        ]
+      },
+      {
+        "name": "SocketSeat09",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.008"
+        ]
+      },
+      {
+        "name": "SocketRemove09",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.008"
+        ]
+      },
+      {
+        "name": "SocketSeat10",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.009"
+        ]
+      },
+      {
+        "name": "SocketRemove10",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.009"
+        ]
+      },
+      {
+        "name": "Disassemble",
+        "duration": 0.7,
+        "targets": [
+          "Pentachoron_ArticulatedCapacitor_0",
+          "Pentachoron_ArticulatedCapacitor_1",
+          "Pentachoron_ArticulatedCapacitor_2",
+          "Pentachoron_ArticulatedCapacitor_3",
+          "Pentachoron_ArticulatedCapacitor_4",
+          "Pentachoron_ArticulatedWristLink_0",
+          "Pentachoron_ArticulatedWristLink_1",
+          "Pentachoron_ArticulatedWristLink_2",
+          "Pentachoron_ArticulatedWristLink_3",
+          "Pentachoron_ArticulatedWristLink_4",
+          "Pentachoron_ConductionLattice_0_1",
+          "Pentachoron_ConductionLattice_0_2",
+          "Pentachoron_ConductionLattice_0_3",
+          "Pentachoron_ConductionLattice_0_4",
+          "Pentachoron_ConductionLattice_1_2",
+          "Pentachoron_ConductionLattice_1_3",
+          "Pentachoron_ConductionLattice_1_4",
+          "Pentachoron_ConductionLattice_2_3",
+          "Pentachoron_ConductionLattice_2_4",
+          "Pentachoron_ConductionLattice_3_4",
+          "Pentachoron_CuffRaritySeam_1",
+          "Pentachoron_CuffRaritySeam__1",
+          "Pentachoron_CuffRim__0_009",
+          "Pentachoron_CuffRim__0_148",
+          "Pentachoron_DorsalControlPlate",
+          "Pentachoron_DorsalGasket",
+          "Pentachoron_HollowForearmShell",
+          "Pentachoron_InnerCuffGasket__0_009",
+          "Pentachoron_InnerCuffGasket__0_148",
+          "Pentachoron_LatticeCollar_0_1_0_16",
+          "Pentachoron_LatticeCollar_0_1_0_84",
+          "Pentachoron_LatticeCollar_0_2_0_16",
+          "Pentachoron_LatticeCollar_0_2_0_84",
+          "Pentachoron_LatticeCollar_0_3_0_16",
+          "Pentachoron_LatticeCollar_0_3_0_84",
+          "Pentachoron_LatticeCollar_0_4_0_16",
+          "Pentachoron_LatticeCollar_0_4_0_84",
+          "Pentachoron_LatticeCollar_1_2_0_16",
+          "Pentachoron_LatticeCollar_1_2_0_84",
+          "Pentachoron_LatticeCollar_1_3_0_16",
+          "Pentachoron_LatticeCollar_1_3_0_84",
+          "Pentachoron_LatticeCollar_1_4_0_16",
+          "Pentachoron_LatticeCollar_1_4_0_84",
+          "Pentachoron_LatticeCollar_2_3_0_16",
+          "Pentachoron_LatticeCollar_2_3_0_84",
+          "Pentachoron_LatticeCollar_2_4_0_16",
+          "Pentachoron_LatticeCollar_2_4_0_84",
+          "Pentachoron_LatticeCollar_3_4_0_16",
+          "Pentachoron_LatticeCollar_3_4_0_84",
+          "Pentachoron_WristLinkBearing_0",
+          "Pentachoron_WristLinkBearing_1",
+          "Pentachoron_WristLinkBearing_2",
+          "Pentachoron_WristLinkBearing_3",
+          "Pentachoron_WristLinkBearing_4"
+        ]
+      },
+      {
+        "name": "Assemble",
+        "duration": 0.7,
+        "targets": [
+          "Pentachoron_ArticulatedCapacitor_0",
+          "Pentachoron_ArticulatedCapacitor_1",
+          "Pentachoron_ArticulatedCapacitor_2",
+          "Pentachoron_ArticulatedCapacitor_3",
+          "Pentachoron_ArticulatedCapacitor_4",
+          "Pentachoron_ArticulatedWristLink_0",
+          "Pentachoron_ArticulatedWristLink_1",
+          "Pentachoron_ArticulatedWristLink_2",
+          "Pentachoron_ArticulatedWristLink_3",
+          "Pentachoron_ArticulatedWristLink_4",
+          "Pentachoron_ConductionLattice_0_1",
+          "Pentachoron_ConductionLattice_0_2",
+          "Pentachoron_ConductionLattice_0_3",
+          "Pentachoron_ConductionLattice_0_4",
+          "Pentachoron_ConductionLattice_1_2",
+          "Pentachoron_ConductionLattice_1_3",
+          "Pentachoron_ConductionLattice_1_4",
+          "Pentachoron_ConductionLattice_2_3",
+          "Pentachoron_ConductionLattice_2_4",
+          "Pentachoron_ConductionLattice_3_4",
+          "Pentachoron_CuffRaritySeam_1",
+          "Pentachoron_CuffRaritySeam__1",
+          "Pentachoron_CuffRim__0_009",
+          "Pentachoron_CuffRim__0_148",
+          "Pentachoron_DorsalControlPlate",
+          "Pentachoron_DorsalGasket",
+          "Pentachoron_HollowForearmShell",
+          "Pentachoron_InnerCuffGasket__0_009",
+          "Pentachoron_InnerCuffGasket__0_148",
+          "Pentachoron_LatticeCollar_0_1_0_16",
+          "Pentachoron_LatticeCollar_0_1_0_84",
+          "Pentachoron_LatticeCollar_0_2_0_16",
+          "Pentachoron_LatticeCollar_0_2_0_84",
+          "Pentachoron_LatticeCollar_0_3_0_16",
+          "Pentachoron_LatticeCollar_0_3_0_84",
+          "Pentachoron_LatticeCollar_0_4_0_16",
+          "Pentachoron_LatticeCollar_0_4_0_84",
+          "Pentachoron_LatticeCollar_1_2_0_16",
+          "Pentachoron_LatticeCollar_1_2_0_84",
+          "Pentachoron_LatticeCollar_1_3_0_16",
+          "Pentachoron_LatticeCollar_1_3_0_84",
+          "Pentachoron_LatticeCollar_1_4_0_16",
+          "Pentachoron_LatticeCollar_1_4_0_84",
+          "Pentachoron_LatticeCollar_2_3_0_16",
+          "Pentachoron_LatticeCollar_2_3_0_84",
+          "Pentachoron_LatticeCollar_2_4_0_16",
+          "Pentachoron_LatticeCollar_2_4_0_84",
+          "Pentachoron_LatticeCollar_3_4_0_16",
+          "Pentachoron_LatticeCollar_3_4_0_84",
+          "Pentachoron_WristLinkBearing_0",
+          "Pentachoron_WristLinkBearing_1",
+          "Pentachoron_WristLinkBearing_2",
+          "Pentachoron_WristLinkBearing_3",
+          "Pentachoron_WristLinkBearing_4"
+        ]
+      }
+    ],
+    "core": "ShapeSocket",
+    "authoring": "component-local fold around the core; no whole-gun scale; local-axis cartridge seating"
+  }
 }

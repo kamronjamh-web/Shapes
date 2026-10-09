@@ -121,6 +121,8 @@ public partial class FpsVerticalSlice
 
 	private float GetFpsWingCooldown(EquipmentItem item)
 	{
+		// Host cadence already expresses Broken/Baseline/Enhanced/Flawless as .25/.5/.75/1.
+		// Its baseline-relative quality is .5/1/1.5/2; applying strength again would double-scale it.
 		float cadence = 0f;
 		foreach (WeaponModulatorData modulator in item.Modulators)
 			if (modulator?.IsWingModulator == true) cadence = Mathf.Max(cadence, modulator.WingCadenceMultiplier);

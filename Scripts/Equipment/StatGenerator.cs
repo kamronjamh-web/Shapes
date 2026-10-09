@@ -164,7 +164,7 @@ public sealed class StatGenerator
             for (int modulatorIndex = 0; modulatorIndex < item.Modulators.Count; modulatorIndex++)
             {
                 WeaponModulatorData? modulator = item.Modulators[modulatorIndex];
-                if (modulator == null)
+                if (modulator == null || modulator.IsRetired)
                 {
                     continue;
                 }

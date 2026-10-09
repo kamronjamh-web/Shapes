@@ -94,7 +94,7 @@
   },
   "nodes": 284,
   "meshes": 257,
-  "bytes": 4644828,
+  "bytes": 4752864,
   "objects": [
     {
       "name": "GunRoot",
@@ -1516,5 +1516,303 @@
       "source": "MuzzleAnchor",
       "parent": "GunRoot"
     }
-  ]
+  ],
+  "workbench": {
+    "source": "Art/WeaponWorkbenchAnimations/KleinAuraVesselWorkbench.blend",
+    "approved_source_sha256": "03bea684dce03129ab3f154e93578007192e19b32f82bed1714b4e7f276b28f6",
+    "clips": [
+      {
+        "name": "Disassemble",
+        "duration": 0.7,
+        "targets": [
+          "Klein_Expanding_Containment_0_0",
+          "Klein_Expanding_Containment_0_1",
+          "Klein_Expanding_Containment_0_2",
+          "Klein_Expanding_Containment_0_3",
+          "Klein_Expanding_Containment_1_0",
+          "Klein_Expanding_Containment_1_1",
+          "Klein_Expanding_Containment_1_2",
+          "Klein_Expanding_Containment_1_3",
+          "Klein_Expanding_Containment_2_0",
+          "Klein_Expanding_Containment_2_1",
+          "Klein_Expanding_Containment_2_2",
+          "Klein_Expanding_Containment_2_3",
+          "Klein___bonded_shape_dock_shoulder",
+          "Klein___bonded_shell_control_pod_0",
+          "Klein___bonded_shell_control_pod_1",
+          "Klein___captured_band_guide_0_0",
+          "Klein___captured_band_guide_0_1",
+          "Klein___captured_band_guide_0_2",
+          "Klein___captured_band_guide_0_3",
+          "Klein___captured_band_guide_1_0",
+          "Klein___captured_band_guide_1_1",
+          "Klein___captured_band_guide_1_2",
+          "Klein___captured_band_guide_1_3",
+          "Klein___captured_band_guide_2_0",
+          "Klein___captured_band_guide_2_1",
+          "Klein___captured_band_guide_2_2",
+          "Klein___captured_band_guide_2_3",
+          "Klein___circulating_field_marker_0",
+          "Klein___circulating_field_marker_1",
+          "Klein___circulating_field_marker_2",
+          "Klein___integrated_lower_return_cap",
+          "Klein___internal_closed_circulation_return",
+          "Klein___internal_return_field_line",
+          "Klein___lower_aura_field_aperture",
+          "Klein___lower_return_seal",
+          "Klein___narrow_circulating_field_trace",
+          "Klein___neck_dark_seal_0",
+          "Klein___neck_dark_seal_1",
+          "Klein___neck_dark_seal_2",
+          "Klein___neck_dark_seal_3",
+          "Klein___neck_dark_seal_4",
+          "Klein___neck_precision_flange_0_1",
+          "Klein___neck_precision_flange_0__1",
+          "Klein___neck_precision_flange_1_1",
+          "Klein___neck_precision_flange_1__1",
+          "Klein___neck_precision_flange_2_1",
+          "Klein___neck_precision_flange_2__1",
+          "Klein___neck_precision_flange_3_1",
+          "Klein___neck_precision_flange_3__1",
+          "Klein___neck_precision_flange_4_1",
+          "Klein___neck_precision_flange_4__1",
+          "Klein___pod_bonded_tie_0_0_083",
+          "Klein___pod_bonded_tie_0_0_218",
+          "Klein___pod_bonded_tie_1_0_083",
+          "Klein___pod_bonded_tie_1_0_218",
+          "Klein___sculpted_vessel_sector_0",
+          "Klein___sculpted_vessel_sector_1",
+          "Klein___sculpted_vessel_sector_3",
+          "Klein___sculpted_vessel_sector_4",
+          "Klein___self_threading_return_neck",
+          "Klein___separated_inner_field_liner",
+          "Klein___window_precision_rim_0_1",
+          "Klein___window_precision_rim_0__1",
+          "Klein___window_precision_rim_1_1",
+          "Klein___window_precision_rim_1__1",
+          "Klein___window_precision_rim_3_1",
+          "Klein___window_precision_rim_3__1",
+          "Klein___window_precision_rim_4_1",
+          "Klein___window_precision_rim_4__1"
+        ]
+      },
+      {
+        "name": "Assemble",
+        "duration": 0.7,
+        "targets": [
+          "Klein_Expanding_Containment_0_0",
+          "Klein_Expanding_Containment_0_1",
+          "Klein_Expanding_Containment_0_2",
+          "Klein_Expanding_Containment_0_3",
+          "Klein_Expanding_Containment_1_0",
+          "Klein_Expanding_Containment_1_1",
+          "Klein_Expanding_Containment_1_2",
+          "Klein_Expanding_Containment_1_3",
+          "Klein_Expanding_Containment_2_0",
+          "Klein_Expanding_Containment_2_1",
+          "Klein_Expanding_Containment_2_2",
+          "Klein_Expanding_Containment_2_3",
+          "Klein___bonded_shape_dock_shoulder",
+          "Klein___bonded_shell_control_pod_0",
+          "Klein___bonded_shell_control_pod_1",
+          "Klein___captured_band_guide_0_0",
+          "Klein___captured_band_guide_0_1",
+          "Klein___captured_band_guide_0_2",
+          "Klein___captured_band_guide_0_3",
+          "Klein___captured_band_guide_1_0",
+          "Klein___captured_band_guide_1_1",
+          "Klein___captured_band_guide_1_2",
+          "Klein___captured_band_guide_1_3",
+          "Klein___captured_band_guide_2_0",
+          "Klein___captured_band_guide_2_1",
+          "Klein___captured_band_guide_2_2",
+          "Klein___captured_band_guide_2_3",
+          "Klein___circulating_field_marker_0",
+          "Klein___circulating_field_marker_1",
+          "Klein___circulating_field_marker_2",
+          "Klein___integrated_lower_return_cap",
+          "Klein___internal_closed_circulation_return",
+          "Klein___internal_return_field_line",
+          "Klein___lower_aura_field_aperture",
+          "Klein___lower_return_seal",
+          "Klein___narrow_circulating_field_trace",
+          "Klein___neck_dark_seal_0",
+          "Klein___neck_dark_seal_1",
+          "Klein___neck_dark_seal_2",
+          "Klein___neck_dark_seal_3",
+          "Klein___neck_dark_seal_4",
+          "Klein___neck_precision_flange_0_1",
+          "Klein___neck_precision_flange_0__1",
+          "Klein___neck_precision_flange_1_1",
+          "Klein___neck_precision_flange_1__1",
+          "Klein___neck_precision_flange_2_1",
+          "Klein___neck_precision_flange_2__1",
+          "Klein___neck_precision_flange_3_1",
+          "Klein___neck_precision_flange_3__1",
+          "Klein___neck_precision_flange_4_1",
+          "Klein___neck_precision_flange_4__1",
+          "Klein___pod_bonded_tie_0_0_083",
+          "Klein___pod_bonded_tie_0_0_218",
+          "Klein___pod_bonded_tie_1_0_083",
+          "Klein___pod_bonded_tie_1_0_218",
+          "Klein___sculpted_vessel_sector_0",
+          "Klein___sculpted_vessel_sector_1",
+          "Klein___sculpted_vessel_sector_3",
+          "Klein___sculpted_vessel_sector_4",
+          "Klein___self_threading_return_neck",
+          "Klein___separated_inner_field_liner",
+          "Klein___window_precision_rim_0_1",
+          "Klein___window_precision_rim_0__1",
+          "Klein___window_precision_rim_1_1",
+          "Klein___window_precision_rim_1__1",
+          "Klein___window_precision_rim_3_1",
+          "Klein___window_precision_rim_3__1",
+          "Klein___window_precision_rim_4_1",
+          "Klein___window_precision_rim_4__1"
+        ]
+      },
+      {
+        "name": "SocketSeat01",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge"
+        ]
+      },
+      {
+        "name": "SocketRemove01",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge"
+        ]
+      },
+      {
+        "name": "SocketSeat02",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.001"
+        ]
+      },
+      {
+        "name": "SocketRemove02",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.001"
+        ]
+      },
+      {
+        "name": "SocketSeat03",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.002"
+        ]
+      },
+      {
+        "name": "SocketRemove03",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.002"
+        ]
+      },
+      {
+        "name": "SocketSeat04",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.003"
+        ]
+      },
+      {
+        "name": "SocketRemove04",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.003"
+        ]
+      },
+      {
+        "name": "SocketSeat05",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.004"
+        ]
+      },
+      {
+        "name": "SocketRemove05",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.004"
+        ]
+      },
+      {
+        "name": "SocketSeat06",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.005"
+        ]
+      },
+      {
+        "name": "SocketRemove06",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.005"
+        ]
+      },
+      {
+        "name": "SocketSeat07",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.006"
+        ]
+      },
+      {
+        "name": "SocketRemove07",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.006"
+        ]
+      },
+      {
+        "name": "SocketSeat08",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.007"
+        ]
+      },
+      {
+        "name": "SocketRemove08",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.007"
+        ]
+      },
+      {
+        "name": "SocketSeat09",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.008"
+        ]
+      },
+      {
+        "name": "SocketRemove09",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.008"
+        ]
+      },
+      {
+        "name": "SocketSeat10",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.009"
+        ]
+      },
+      {
+        "name": "SocketRemove10",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.009"
+        ]
+      }
+    ],
+    "core": "ShapeSocket",
+    "authoring": "component-local fold around the core; no whole-gun scale; local-axis cartridge seating"
+  }
 }

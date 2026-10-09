@@ -2706,24 +2706,8 @@ public partial class StartHubUI : Control
 
     private static WeaponModulatorData CloneHubPreviewModulator(WeaponModulatorData modulator)
     {
-        WeaponModulatorData clone = new()
-        {
-            Key = modulator.Key,
-            BaseDisplayName = modulator.BaseDisplayName,
-            DisplayName = modulator.DisplayName,
-            BaseDescription = modulator.BaseDescription,
-            Description = modulator.Description,
-            Category = modulator.Category,
-            Tags = new List<string>(modulator.Tags),
-            SupportsTier = modulator.SupportsTier,
-            Weight = modulator.Weight,
-            UiColor = modulator.UiColor,
-            Substats = CloneHubPreviewSubstats(modulator.Substats),
-            Tier = modulator.Tier,
-        };
-
-        clone.RefreshPresentation();
-        return clone;
+        // Clone the baseline payload, including CountValue, before resolving preview quality.
+        return ModulatorCatalog.Clone(modulator);
     }
 
     private static void GetHubItemStatsContent(EquipmentItem? actualItem, EquipmentItem? previewItem, out string title, out string body)
@@ -3118,24 +3102,7 @@ public partial class StartHubUI : Control
 
     private static string BuildHubModulatorShortDescription(WeaponModulatorData modulator)
     {
-        string description = string.IsNullOrWhiteSpace(modulator.BaseDescription)
-            ? modulator.Description
-            : modulator.BaseDescription;
-        description = description.Replace('\r', ' ').Replace('\n', ' ').Trim();
-        if (string.IsNullOrWhiteSpace(description))
-        {
-            return "No short description available.";
-        }
-
-        int sentenceBreak = description.IndexOf('.');
-        if (sentenceBreak > 0 && sentenceBreak <= 120)
-        {
-            return description[..(sentenceBreak + 1)].Trim();
-        }
-
-        return description.Length <= 120
-            ? description
-            : $"{description[..117].TrimEnd()}...";
+        return $"{ModulatorQualityText.Header(modulator)} | {ModulatorQualityText.Describe(modulator).Replace("\n", " | ")}";
     }
 
     private void AddHubStatsBonusTotalsSection(
@@ -4875,7 +4842,7 @@ public partial class StartHubUI : Control
 
     private static string BuildHubModulatorGroupSignature(WeaponModulatorData modulator)
     {
-        string signature = modulator.NormalizedKey + "|" + modulator.Substats.Count;
+        string signature = modulator.NormalizedKey + "|" + (int)modulator.Tier + "|" + (int)modulator.PowerTier + "|" + modulator.Substats.Count;
         for (int substatIndex = 0; substatIndex < modulator.Substats.Count; substatIndex++)
         {
             SubstatRoll substat = modulator.Substats[substatIndex];
@@ -4897,37 +4864,7 @@ public partial class StartHubUI : Control
 
     private static string BuildHubModulatorMenuSummary(WeaponModulatorData modulator)
     {
-        if (modulator.IsWingModulator)
-        {
-            return "Wing support";
-        }
-
-        if (modulator.Substats.Count == 0)
-        {
-            string description = string.IsNullOrWhiteSpace(modulator.BaseDescription)
-                ? modulator.Description
-                : modulator.BaseDescription;
-            return BuildHubMenuSummaryText(description, 56);
-        }
-
-        int visibleCount = Math.Min(2, modulator.Substats.Count);
-        string summary = string.Empty;
-        for (int substatIndex = 0; substatIndex < visibleCount; substatIndex++)
-        {
-            if (substatIndex > 0)
-            {
-                summary += ", ";
-            }
-
-            summary += BuildHubCompactModulatorSubstatSummary(modulator.Substats[substatIndex]);
-        }
-
-        if (modulator.Substats.Count > visibleCount)
-        {
-            summary += $", +{modulator.Substats.Count - visibleCount} more";
-        }
-
-        return summary;
+        return $"{ModulatorQualityText.Header(modulator)} | {BuildHubMenuSummaryText(ModulatorQualityText.Describe(modulator).Replace("\n", " | "), 96)}";
     }
 
     private static string BuildHubCompactModulatorSubstatSummary(SubstatRoll roll)

@@ -158,6 +158,7 @@ public partial class FpsVerticalSlice : Node3D
 	{
 		// These shortcuts must work even while a text field owns GUI keyboard focus.
 		if (HandleGameplayTuningHotkey(@event) ||
+			(@event is InputEventKey { Pressed: true, Echo: false, Keycode: Key.Tab } && HandleWeaponInspectionInput(@event)) ||
 			(_weaponInspectionOpen && @event is InputEventKey { Pressed: true, Echo: false, Keycode: Key.Escape } && HandleWeaponInspectionInput(@event)))
 			GetViewport().SetInputAsHandled();
 	}
@@ -663,14 +664,16 @@ public partial class FpsVerticalSlice : Node3D
 		if (IsDefenseMap)
 		{
 			SweepDefenseLoot();
+			GrantDefenseWaveModulator();
 			RestockDefenseShop();
 		}
+		string rewardNotice = IsDefenseMap && !string.IsNullOrEmpty(_lastWaveModulatorReward) ? $"\nReward: {_lastWaveModulatorReward}" : string.Empty;
 		FpsEncounterSettings settings = GetEncounterSettings();
 		if (!settings.AdvanceOnWaveClear || !HasPendingWaves())
 		{
 			_victory = true;
 			RefreshCombatState();
-			ShowNotice(IsDefenseMap ? $"The core survived. {DefenseSettings!.MapName} defended." : "Room clear. Slice complete.", 6f);
+			ShowNotice(IsDefenseMap ? $"The core survived. {DefenseSettings!.MapName} defended.{rewardNotice}" : "Room clear. Slice complete.", 6f);
 			return;
 		}
 
@@ -689,7 +692,7 @@ public partial class FpsVerticalSlice : Node3D
 		_waitingForNextWave = true;
 		_nextWaveDelayTimer = interWaveDelay;
 		int nextWaveNumber = Mathf.Min(_currentWaveNumber + 1, _totalWaveCount);
-		ShowNotice($"Wave {nextWaveNumber}/{_totalWaveCount} inbound.", Mathf.Min(interWaveDelay, 2.2f));
+		ShowNotice($"Wave {nextWaveNumber}/{_totalWaveCount} inbound.{rewardNotice}", Mathf.Min(interWaveDelay, 4f));
 	}
 
 	private void TickWaveFlow(float dt)
@@ -1232,7 +1235,7 @@ public partial class FpsVerticalSlice : Node3D
 
 		_inventoryButton = CreateOverlayButton("Inventory / Equipment");
 		_inventoryButton.Name = "InventoryButton";
-		_inventoryButton.Pressed += OpenWeaponInspection;
+		_inventoryButton.Pressed += () => { if (_victory && IsDefenseMap) OpenDefenseShop(); else OpenWeaponInspection(); };
 		buttonRow.AddChild(_inventoryButton);
 
 		_restartButton = CreateOverlayButton("Restart");
@@ -1255,6 +1258,7 @@ public partial class FpsVerticalSlice : Node3D
 	private void RefreshCombatState()
 	{
 		bool combatRunning = IsCombatRunning();
+		_weaponPolishAudio?.SetPaused(!combatRunning);
 		_player.SetCombatEnabled(combatRunning && !_shopOpen && !_gameplayTuningVisible && !_weaponInspectionOpen);
 		HordeManager?.SetCombatEnabled(combatRunning);
 		CorpsePool?.Tick(0f, !_pauseRequested);
@@ -1282,11 +1286,16 @@ public partial class FpsVerticalSlice : Node3D
 			return;
 		}
 		_crosshairLabel.Visible = combatRunning && !_shopOpen && !_gameplayTuningVisible && !_weaponInspectionOpen;
-		if (_inventoryButton != null) _inventoryButton.Disabled = _victory || _defeat;
+		if (_inventoryButton != null)
+		{
+			_inventoryButton.Disabled = _defeat || (_victory && !IsDefenseMap);
+			_inventoryButton.Text = _victory && IsDefenseMap ? "Final reward / workshop" : "Inventory / Equipment";
+		}
 
 		if (_victory)
 		{
-			ShowOverlay(IsDefenseMap ? $"{DefenseSettings!.MapName} Defended" : "Slice Complete", IsDefenseMap ? "All waves cleared and the core survived. Restart the defense or return to the hub." : "The first-person slice cleared successfully. Restart to run it again or return to the hub.", false);
+			if (_shopOpen || _weaponInspectionOpen) _overlayBackdrop.Visible = false;
+			else ShowOverlay(IsDefenseMap ? $"{DefenseSettings!.MapName} Defended" : "Slice Complete", IsDefenseMap ? "All waves cleared and the core survived. Review your final reward in the workshop, restart, or return to the hub." : "The first-person slice cleared successfully. Restart to run it again or return to the hub.", false);
 		}
 		else if (_defeat)
 		{
@@ -1419,6 +1428,7 @@ public partial class FpsVerticalSlice : Node3D
 			};
 			AddChild(_weaponEffectRoot);
 		}
+		EnsureWeaponPolishRuntime();
 	}
 
 	private static void ClearChildren(Node parent)

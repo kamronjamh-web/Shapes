@@ -1,0 +1,21 @@
+{
+  "source": "Art\\WeaponConcepts\\SquareHandgun\\SquareHandgun.blend",
+  "source_sha256": "cfdb814fe2d8c6ee7f2884651ef4584892481ded02536fd5da0e6884dc96dd94",
+  "derived_source": "Art\\WeaponWorkbenchAnimations\\WorkbenchCartridge.blend",
+  "bytes": 24868,
+  "bounds_blender": {
+    "min": [
+      -0.008999999612569809,
+      -0.006750000175088644,
+      -0.0017000000225380063
+    ],
+    "max": [
+      0.008999999612569809,
+      0.006750000175088644,
+      0.00279999990016222
+    ]
+  },
+  "orientation": "meters; Godot +X right, +Y face outward, -Z cartridge top; face normal +Y",
+  "identity_material": "ModulatorAccent",
+  "objects": 5
+}

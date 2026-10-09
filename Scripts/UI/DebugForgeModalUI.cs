@@ -656,7 +656,7 @@ public partial class DebugForgeModalUI : ModalBase
         }
 
         _modulatorTierDropdown.Clear();
-        AddOption(_modulatorTierDropdown, "Flawed", (int)WeaponModulatorTier.Flawed);
+        AddOption(_modulatorTierDropdown, "Broken", (int)WeaponModulatorTier.Flawed);
         AddOption(_modulatorTierDropdown, "Baseline", (int)WeaponModulatorTier.Baseline);
         AddOption(_modulatorTierDropdown, "Enhanced", (int)WeaponModulatorTier.Enhanced);
         AddOption(_modulatorTierDropdown, "Flawless", (int)WeaponModulatorTier.Flawless);
@@ -1204,15 +1204,12 @@ public partial class DebugForgeModalUI : ModalBase
 
         WeaponModulatorTier tier = usesTierPresentation ? GetSelectedModulatorTier() : WeaponModulatorTier.Baseline;
         WeaponModulatorData preview = ModulatorCatalog.CreateByKey(modulator.Key, tier);
-        string tierNote = modulator.IsWingModulator
-            ? $" Tier: {preview.Tier}. Cadence {Mathf.RoundToInt(preview.WingCadenceMultiplier * 100f)}%."
-            : usesTierPresentation ? $" Tier: {preview.Tier}." : string.Empty;
         string categoryNote = $" Category: {WeaponModulatorData.GetCategoryDisplayName(preview.Category)}.";
         string tagNote = preview.Tags.Count > 0
             ? $" Tags: {string.Join(", ", preview.Tags)}."
             : string.Empty;
         string tierBehaviorNote = usesTierPresentation ? string.Empty : " Tier selection currently only affects tiered modulators.";
-        _modulatorDescriptionLabel.Text = $"{preview.DisplayName}: {preview.Description}{tierNote}{categoryNote}{tagNote}{tierBehaviorNote}";
+        _modulatorDescriptionLabel.Text = $"{preview.DisplayName}: {ModulatorQualityText.Header(preview)}\n{ModulatorQualityText.Describe(preview)}{categoryNote}{tagNote}{tierBehaviorNote}";
     }
 
     private static bool MatchesModulatorSearch(WeaponModulatorData modulator, string searchTerm)

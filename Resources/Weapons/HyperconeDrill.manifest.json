@@ -70,7 +70,7 @@
   },
   "nodes": 250,
   "meshes": 234,
-  "bytes": 1574420,
+  "bytes": 1641588,
   "objects": [
     {
       "name": "GunRoot",
@@ -1322,5 +1322,251 @@
       "source": "HyperconeInsert_Layer_Collar_2",
       "parent": "HyperconeInsert___removable_shape_cartridge"
     }
-  ]
+  ],
+  "workbench": {
+    "source": "Art/WeaponWorkbenchAnimations/HyperconeDrillWorkbench.blend",
+    "approved_source_sha256": "bc7c98113329e188ac95bc4d667814c8f9098ddfeb55f3d89364592480df10f6",
+    "clips": [
+      {
+        "name": "Disassemble",
+        "duration": 0.7,
+        "targets": [
+          "Hypercone_Brace_Upper_Lug_1",
+          "Hypercone_Brace_Upper_Lug__1",
+          "Hypercone_Bulkhead_Torque_Junction_1",
+          "Hypercone_Bulkhead_Torque_Junction__1",
+          "Hypercone_Counterrotating_Telescopic_Sleeves",
+          "Hypercone_Longitudinal_Torque_Rail_1",
+          "Hypercone_Longitudinal_Torque_Rail__1",
+          "Hypercone_Rear_Brace_Crosspiece",
+          "Hypercone_Rear_Head_Bulkhead",
+          "Hypercone_Rear_Hold",
+          "Hypercone_Rear_Hold_Rib_0",
+          "Hypercone_Rear_Hold_Rib_1",
+          "Hypercone_Rear_Hold_Rib_2",
+          "Hypercone_Rear_Hold_Rib_3",
+          "Hypercone_Rear_Hold_Rib_4",
+          "Hypercone_Rear_Hold_Rib_5",
+          "Hypercone_Rear_Hold_Rib_6",
+          "Hypercone_Rear_Hold_Rib_7",
+          "Hypercone_Rear_Torsion_Spine",
+          "Hypercone_Secondary_Hold",
+          "Hypercone_Secondary_Hold_Return_0_01",
+          "Hypercone_Secondary_Hold_Return__0_102",
+          "Hypercone_Secondary_Rib_0",
+          "Hypercone_Secondary_Rib_1",
+          "Hypercone_Secondary_Rib_2",
+          "Hypercone_Secondary_Rib_3",
+          "Hypercone_Secondary_Rib_4",
+          "Hypercone_Secondary_Rib_5",
+          "Hypercone_Secondary_Rib_6",
+          "Hypercone_Segmented_Counter_Collar",
+          "Hypercone_Side_Service_Inset_1",
+          "Hypercone_Side_Service_Inset__1",
+          "Hypercone_Spine_Bottom_Recess",
+          "Hypercone_Spine_Top_Panel",
+          "Hypercone_Telescoping_Cutting_Point",
+          "Hypercone_Torque_Rail_Bolt_1_0",
+          "Hypercone_Torque_Rail_Bolt_1_1",
+          "Hypercone_Torque_Rail_Bolt_1_2",
+          "Hypercone_Torque_Rail_Bolt_1_3",
+          "Hypercone_Torque_Rail_Bolt__1_0",
+          "Hypercone_Torque_Rail_Bolt__1_1",
+          "Hypercone_Torque_Rail_Bolt__1_2",
+          "Hypercone_Torque_Rail_Bolt__1_3"
+        ]
+      },
+      {
+        "name": "Assemble",
+        "duration": 0.7,
+        "targets": [
+          "Hypercone_Brace_Upper_Lug_1",
+          "Hypercone_Brace_Upper_Lug__1",
+          "Hypercone_Bulkhead_Torque_Junction_1",
+          "Hypercone_Bulkhead_Torque_Junction__1",
+          "Hypercone_Counterrotating_Telescopic_Sleeves",
+          "Hypercone_Longitudinal_Torque_Rail_1",
+          "Hypercone_Longitudinal_Torque_Rail__1",
+          "Hypercone_Rear_Brace_Crosspiece",
+          "Hypercone_Rear_Head_Bulkhead",
+          "Hypercone_Rear_Hold",
+          "Hypercone_Rear_Hold_Rib_0",
+          "Hypercone_Rear_Hold_Rib_1",
+          "Hypercone_Rear_Hold_Rib_2",
+          "Hypercone_Rear_Hold_Rib_3",
+          "Hypercone_Rear_Hold_Rib_4",
+          "Hypercone_Rear_Hold_Rib_5",
+          "Hypercone_Rear_Hold_Rib_6",
+          "Hypercone_Rear_Hold_Rib_7",
+          "Hypercone_Rear_Torsion_Spine",
+          "Hypercone_Secondary_Hold",
+          "Hypercone_Secondary_Hold_Return_0_01",
+          "Hypercone_Secondary_Hold_Return__0_102",
+          "Hypercone_Secondary_Rib_0",
+          "Hypercone_Secondary_Rib_1",
+          "Hypercone_Secondary_Rib_2",
+          "Hypercone_Secondary_Rib_3",
+          "Hypercone_Secondary_Rib_4",
+          "Hypercone_Secondary_Rib_5",
+          "Hypercone_Secondary_Rib_6",
+          "Hypercone_Segmented_Counter_Collar",
+          "Hypercone_Side_Service_Inset_1",
+          "Hypercone_Side_Service_Inset__1",
+          "Hypercone_Spine_Bottom_Recess",
+          "Hypercone_Spine_Top_Panel",
+          "Hypercone_Telescoping_Cutting_Point",
+          "Hypercone_Torque_Rail_Bolt_1_0",
+          "Hypercone_Torque_Rail_Bolt_1_1",
+          "Hypercone_Torque_Rail_Bolt_1_2",
+          "Hypercone_Torque_Rail_Bolt_1_3",
+          "Hypercone_Torque_Rail_Bolt__1_0",
+          "Hypercone_Torque_Rail_Bolt__1_1",
+          "Hypercone_Torque_Rail_Bolt__1_2",
+          "Hypercone_Torque_Rail_Bolt__1_3"
+        ]
+      },
+      {
+        "name": "SocketSeat01",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge"
+        ]
+      },
+      {
+        "name": "SocketRemove01",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge"
+        ]
+      },
+      {
+        "name": "SocketSeat02",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.001"
+        ]
+      },
+      {
+        "name": "SocketRemove02",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.001"
+        ]
+      },
+      {
+        "name": "SocketSeat03",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.002"
+        ]
+      },
+      {
+        "name": "SocketRemove03",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.002"
+        ]
+      },
+      {
+        "name": "SocketSeat04",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.003"
+        ]
+      },
+      {
+        "name": "SocketRemove04",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.003"
+        ]
+      },
+      {
+        "name": "SocketSeat05",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.004"
+        ]
+      },
+      {
+        "name": "SocketRemove05",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.004"
+        ]
+      },
+      {
+        "name": "SocketSeat06",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.005"
+        ]
+      },
+      {
+        "name": "SocketRemove06",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.005"
+        ]
+      },
+      {
+        "name": "SocketSeat07",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.006"
+        ]
+      },
+      {
+        "name": "SocketRemove07",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.006"
+        ]
+      },
+      {
+        "name": "SocketSeat08",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.007"
+        ]
+      },
+      {
+        "name": "SocketRemove08",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.007"
+        ]
+      },
+      {
+        "name": "SocketSeat09",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.008"
+        ]
+      },
+      {
+        "name": "SocketRemove09",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.008"
+        ]
+      },
+      {
+        "name": "SocketSeat10",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.009"
+        ]
+      },
+      {
+        "name": "SocketRemove10",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.009"
+        ]
+      }
+    ],
+    "core": "ShapeSocket",
+    "authoring": "component-local fold around the core; no whole-gun scale; local-axis cartridge seating"
+  }
 }

@@ -88,3 +88,45 @@ RunWeaponInspectionCapture.ps1 for rendered hip/aim/fire/inspector/mechanism vie
 of all sixteen shapes. Add -Shapes 'hypercone,pentachoron' for a selected review.
 
 Built with the installed Microsoft Store Blender 5.2.2 LTS.
+
+PAUSED FPS WORKBENCH ANIMATIONS
+Derived editable sources are Art/WeaponWorkbenchAnimations/*Workbench.blend.
+Approved Art/WeaponConcepts sources remain untouched. Workbench authoring uses
+the portable Blender 4.5.14 LTS at .tmp/tools/blender-4.5.14-windows-x64/blender.exe;
+opening the newer approved sources can print version warnings. Verify output
+manifests and standalone checks rather than treating Blender exit code as proof.
+
+From the repository root in PowerShell:
+& '.tmp/tools/blender-4.5.14-windows-x64/blender.exe' --background --factory-startup --python Tools/Art/ExportWeaponWorkbenchAnimations.py -- --weapons square circle
+Omit --weapons to author all sixteen. Run this AFTER any runtime geometry export.
+It appends only animation channels/buffers to existing runtime GLBs; nodes, meshes,
+materials and original Fire data remain unchanged. Existing .glb.import settings
+are not written. Reruns replace workbench animation tails rather than accumulating
+unused animation data. Completion: .tmp/weapon-workbench-animation/status.json.
+
+All sixteen models expose Disassemble and Assemble (0.70 seconds), plus
+SocketSeat01-10 and SocketRemove01-10 (0.40 seconds). Assembly clips rotate and
+translate individual authored components around the shape dock; GunRoot and
+bay visibility stay caller-owned. Socket clips move cartridges on local +Z.
+The fifteen existing Fire clips are preserved; Square had no original Fire clip.
+Derived sources have named NLA tracks; Fire is active by default. To inspect a
+workbench clip, mute other tracks and unmute the same named track on its animated
+objects. Scrub frames 1-22 for assembly or 1-13 for cartridge motion at 30 fps.
+Exported clip times start at zero. FpsWeaponWorkbenchAnimations advances clips
+manually during pause, holds disassembled/removal endpoints, keeps the core
+stationary and restores exact instance rest transforms after assembly/seating.
+
+Standalone GLB validation without Godot:
+& '.tmp/tools/blender-4.5.14-windows-x64/4.5/python/bin/python.exe' Tools/Art/ValidateWeaponWorkbenchAnimations.py
+Checks all sixteen clips/contracts, finite samples, assembled/seated rest poses,
+root ownership and approved source hashes; writes validation.json beside status.
+This does not establish visual acceptance or runtime playback correctness.
+
+Lightweight authored modulator thumbnail:
+& '.tmp/tools/blender-4.5.14-windows-x64/blender.exe' --background --factory-startup --python Tools/Art/ExportWorkbenchCartridge.py
+Exports Resources/Weapons/WorkbenchCartridge.glb and isolated editable
+Art/WeaponWorkbenchAnimations/WorkbenchCartridge.blend from Square's first bay.
+The five-object cartridge retains its shell, raised glyph and light bars; runtime
+identity color uses material ModulatorAccent. It is 18 mm wide, 13.5 mm tall and
+4.5 mm thick. Godot face normal +Y, top -Z; rotate about X by roughly +pi/2 for
+a front thumbnail camera looking from +Z. Overrides must belong to each instance.

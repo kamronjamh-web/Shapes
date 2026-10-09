@@ -1,0 +1,87 @@
+Modulator quality and rarity - 2026-10-09
+
+Quality controls the strength of a part's benefit:
+  Broken <name>       50%
+  <name>             100% (Baseline, no name prefix)
+  Enhanced <name>     150%
+  Flawless <name>     200%
+Tier 1/2/3 describes effect rarity. Every tier can roll every quality.
+Rarity colors are gray/blue/purple; the name and power percentage show quality.
+The shape's own rarity still determines the gun's accent color.
+
+Ordinary rolls, shops, and completed defense-wave rewards use one loot service.
+Quality odds: 60% Broken, 30% Baseline, 9% Enhanced, 1% Flawless.
+Effect rarity odds: 70% Tier 1, 25% Tier 2, 5% Tier 3.
+Rarity is selected before the effect's within-tier weight and independent quality
+roll. Restricted shop pools renormalize among available rarity tiers. Future skill
+bonuses can pass a modified immutable ModulatorLootProfile without changing saved
+items or catalog templates. No skill-tree bonus is active yet. Existing Luck still
+changes drop frequency and coin yields, not these quality weights.
+
+Each normal completed FPS defense wave grants exactly one loose modulator using
+the same roll, including the final wave. It is separate from enemy drops (the base
+chances remain 0.5% shape and 1% modulator). Duplicate wave-clear callbacks cannot
+grant another reward. Manual horde testing does not grant completion rewards.
+The victory screen's Final reward / workshop button opens the completed run's
+shop, with combat stopped. Run loot/fusion remains local to that FPS run; it does
+not automatically export to the persistent hub inventory.
+
+Fusion is available in the FPS field shop:
+  two identical loose parts of the same quality + coins -> one next quality
+Rarity tier and raw effect payload stay the same. Installed parts can be returned
+to storage, and shop parts can be bought into storage even with a full weapon.
+No fusion beyond Flawless; retired Apex parts cannot be fused or newly installed.
+Default cost = 20 coins x rarity tier (1..3) x current quality step (1..3).
+                 Broken -> Base   Base -> Enhanced   Enhanced -> Flawless
+  Tier 1               20                40                    60
+  Tier 2               40                80                   120
+  Tier 3               60               120                   180
+The grave menu's Motion tab can adjust the base cost for tuning. Missing copies,
+insufficient coins, a closed shop, and stale callbacks leave both inputs and coins
+unchanged. Saved custom parts must also match raw payloads to fuse, preventing a
+custom/old part from being silently replaced with today's catalog definition.
+
+Scaling rules:
+- Strength applies to the modulator contribution, not total weapon damage.
+  A baseline +12% damage bonus becomes +6/+12/+18/+24% across the four qualities.
+- Multiplier bonuses scale around their neutral value of 1. Attack speed scales
+  the rate benefit, then converts back to cooldown. Fixed penalties remain fixed.
+- Defining behavior survives at Broken. Extra output, pierce, bounces, ricochets,
+  and chain counts retain fractional benefits; FPS combat carries the fraction
+  per source/purpose across eligible attacks instead of rounding it away.
+- Transformation/proc damage or its defining potency scales. Trigger thresholds,
+  recovery times, secondary lifetimes, and fixed burst/fragment topology stay
+  fixed, avoiding quality multiplying several dimensions of the same effect.
+- Tight Orbit's intended radius reduction scales; Orbital Compression's tighter
+  radius remains its fixed tradeoff. Wing cadence is 25/50/75/100% of host rate.
+- Volitile's radius is sum(copy strengths) + strongest strength, capped at 4 m;
+  its 50% killing-hit damage ratio remains fixed. A single copy is 1/2/3/4 m.
+- Nonstacking transforms, Critical Cascade and Omni Feedback use the strongest
+  quality installed copy. Installation order cannot replace Flawless with Broken.
+- Existing attack caps and copied/sustained-hit eligibility restrictions remain.
+
+Item descriptions and comparisons use the resolved combat payload. Comparisons
+show per-part values against the strongest installed copy of the same effect;
+they are not a promise of total weapon DPS after caps and other interactions.
+
+Apex Doctrine is retired: no new drops, shop offers, installation, or active
+amplification. Saved copies and key lookup are retained for a later replacement.
+There are 99 active catalog effects plus the preserved Apex definition.
+
+Save compatibility: the old numeric Flawed enum value and 'flawed' parser alias
+remain valid, but visible naming is Broken. Saved baseline effect/substat payloads
+and quality are retained. Effective values are resolved into cached detached data;
+saving, cloning, loading and fusion never write resolved potency back as baseline.
+Known-key saves with a raw payload retain it; old key-only saves use the catalog.
+
+Validation entry points:
+  Tools/Validation/RunModulatorQualityValidation.ps1
+  Tools/Validation/RunFpsModulatorValidation.ps1
+  Tools/Validation/RunWeaponInspectionValidation.ps1
+  Tools/Validation/RunWeaponInspectionCapture.ps1 -Modulators -QualityWorkshop
+All accept -GodotPath and isolate test saves below .tmp. The capture runner also
+accepts -Shapes 'square,pyramid,klein,boys' for a focused rendered review.
+Legacy arena count consumers receive fractional carry and resolved potency;
+dormant legacy patterns that already ignored output/ricochet/bounce are outside
+this FPS pass. Automated contracts do not establish whole-catalog balance or
+sustained 2,000-enemy combat performance.

@@ -345,7 +345,7 @@ public partial class Main
 
 	private bool CanInstallRunModulator(EquipmentItem item, WeaponModulatorData modulator, int replacingModulatorIndex = -1)
 	{
-		if (!modulator.CanApplyToWeapon(WeaponModulatorCompatibility.BuildWeaponTags(item)))
+		if (!WeaponModulatorCompatibility.CanApplyToWeapon(modulator, item, out _))
 		{
 			return false;
 		}

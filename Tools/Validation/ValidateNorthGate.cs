@@ -98,7 +98,8 @@ public partial class ValidateNorthGate : Node
 		EquipmentItem weapon = (EquipmentItem)Invoke("GetCurrentWeapon")!;
 		Check(weapon.Level == 2 && Field<int>("_defenseCoins") == 0, "Purchasing a shape upgrade spends currency and unlocks capacity");
 		var recovered = Field<List<WeaponModulatorData>>("_recoveredModulators");
-		if (!recovered.Any(part => part.Key == "quickened_core")) recovered.Add(ModulatorCatalog.CreateByKey("quickened_core"));
+		if (!recovered.Any(part => part.Key == "quickened_core" && part.Tier == WeaponModulatorTier.Baseline))
+			recovered.Add(ModulatorCatalog.CreateByKey("quickened_core"));
 		Invoke("RebuildDefenseShopMenu");
 		float cooldown = (float)Invoke("GetCurrentWeaponCooldownSeconds")!;
 		Click("Install Quickened Core", recovered: true);

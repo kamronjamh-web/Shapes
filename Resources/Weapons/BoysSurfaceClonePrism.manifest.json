@@ -76,7 +76,7 @@
   },
   "nodes": 249,
   "meshes": 226,
-  "bytes": 2006016,
+  "bytes": 2047416,
   "objects": [
     {
       "name": "GunRoot",
@@ -1323,5 +1323,203 @@
       "source": "Dock | positive latch",
       "parent": "ShapeSocket"
     }
-  ]
+  ],
+  "workbench": {
+    "source": "Art/WeaponWorkbenchAnimations/BoysSurfaceClonePrismWorkbench.blend",
+    "approved_source_sha256": "6f40889cbb852144894264945e02751b69aa7858295b6e63c1744894feb8eda3",
+    "clips": [
+      {
+        "name": "Disassemble",
+        "duration": 0.7,
+        "targets": [
+          "Boys_BondedLateralControlPanel_1",
+          "Boys_BondedLateralControlPanel__1",
+          "Boys_BondedOpticalConductionArm_0",
+          "Boys_BondedOpticalConductionArm_1",
+          "Boys_BondedOpticalConductionArm_2",
+          "Boys_ControlPanelIsolator_1",
+          "Boys_ControlPanelIsolator__1",
+          "Boys_FloatingImmersionCore",
+          "Boys_PeelingShadowClone_0",
+          "Boys_PeelingShadowClone_1",
+          "Boys_PeelingShadowClone_2",
+          "Boys_RearBondedDockPlate",
+          "Boys_RearDockIsolation",
+          "Boys_RecessedThreeWayOpticalCore",
+          "Boys_SculptureCloneOptic_0",
+          "Boys_SculptureCloneOptic_1",
+          "Boys_SculptureCloneOptic_2",
+          "Boys_ThreeWayCloneTrace",
+          "Boys_ThreeWayCoreIsolation"
+        ]
+      },
+      {
+        "name": "Assemble",
+        "duration": 0.7,
+        "targets": [
+          "Boys_BondedLateralControlPanel_1",
+          "Boys_BondedLateralControlPanel__1",
+          "Boys_BondedOpticalConductionArm_0",
+          "Boys_BondedOpticalConductionArm_1",
+          "Boys_BondedOpticalConductionArm_2",
+          "Boys_ControlPanelIsolator_1",
+          "Boys_ControlPanelIsolator__1",
+          "Boys_FloatingImmersionCore",
+          "Boys_PeelingShadowClone_0",
+          "Boys_PeelingShadowClone_1",
+          "Boys_PeelingShadowClone_2",
+          "Boys_RearBondedDockPlate",
+          "Boys_RearDockIsolation",
+          "Boys_RecessedThreeWayOpticalCore",
+          "Boys_SculptureCloneOptic_0",
+          "Boys_SculptureCloneOptic_1",
+          "Boys_SculptureCloneOptic_2",
+          "Boys_ThreeWayCloneTrace",
+          "Boys_ThreeWayCoreIsolation"
+        ]
+      },
+      {
+        "name": "SocketSeat01",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge"
+        ]
+      },
+      {
+        "name": "SocketRemove01",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge"
+        ]
+      },
+      {
+        "name": "SocketSeat02",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.001"
+        ]
+      },
+      {
+        "name": "SocketRemove02",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.001"
+        ]
+      },
+      {
+        "name": "SocketSeat03",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.002"
+        ]
+      },
+      {
+        "name": "SocketRemove03",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.002"
+        ]
+      },
+      {
+        "name": "SocketSeat04",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.003"
+        ]
+      },
+      {
+        "name": "SocketRemove04",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.003"
+        ]
+      },
+      {
+        "name": "SocketSeat05",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.004"
+        ]
+      },
+      {
+        "name": "SocketRemove05",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.004"
+        ]
+      },
+      {
+        "name": "SocketSeat06",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.005"
+        ]
+      },
+      {
+        "name": "SocketRemove06",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.005"
+        ]
+      },
+      {
+        "name": "SocketSeat07",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.006"
+        ]
+      },
+      {
+        "name": "SocketRemove07",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.006"
+        ]
+      },
+      {
+        "name": "SocketSeat08",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.007"
+        ]
+      },
+      {
+        "name": "SocketRemove08",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.007"
+        ]
+      },
+      {
+        "name": "SocketSeat09",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.008"
+        ]
+      },
+      {
+        "name": "SocketRemove09",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.008"
+        ]
+      },
+      {
+        "name": "SocketSeat10",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.009"
+        ]
+      },
+      {
+        "name": "SocketRemove10",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.009"
+        ]
+      }
+    ],
+    "core": "ShapeSocket",
+    "authoring": "component-local fold around the core; no whole-gun scale; local-axis cartridge seating"
+  }
 }

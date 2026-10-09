@@ -1,5 +1,6 @@
 using Godot;
 using System.Collections.Generic;
+using SuperGatchaRebuild.Equipment.Data;
 
 namespace SuperGatchaRebuild;
 
@@ -367,7 +368,7 @@ public partial class Main
                 DamageTargetsInRadius(rift.Position, rift.Radius, rift.Damage * pulseInterval / riftDuration, rift.IsCritical, rift.SourceItem, false);
                 if (rift.AlternatingPushPull)
                 {
-                    float force = 28f;
+                    float force = 28f * (rift.SourceItem == null ? 1f : GetWeaponTransformMagnitudeB(rift.SourceItem, "phase_inversion", 16f) / 16f);
                     if (rift.PushPhase)
                     {
                         PushEnemiesAway(rift.Position, rift.Radius, force, pulseInterval);
@@ -746,7 +747,7 @@ public partial class Main
             float speed = Mathf.Max(1f, bullet.Velocity.Length());
             bullet.Position = hitPosition + returnDirection * (bullet.Radius + 6f);
             bullet.Velocity = returnDirection * speed;
-            bullet.Damage *= 0.90f;
+            bullet.Damage *= StrongestLegacyEffect(bullet.SourceItem, ModulatorEffectType.NewSawReturn)?.Magnitude ?? .9f;
             return true;
         }
 

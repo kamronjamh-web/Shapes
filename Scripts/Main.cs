@@ -1896,34 +1896,7 @@ public partial class Main : Node3D, IArenaDebugRuntime, IEnemySpawnerDebugRuntim
 	private WeaponModulatorData CreateRandomModulatorDrop()
 	{
 		List<WeaponModulatorData> modulators = ModulatorCatalog.CreateWeightedRollPool();
-		WeaponModulatorData modulator = PickWeighted(modulators, static modulator => modulator.Weight);
-		if (!modulator.UsesTierPresentation)
-		{
-			return modulator;
-		}
-
-		return ModulatorCatalog.CreateByKey(modulator.Key, RollRandomTieredModulatorTier());
-	}
-
-	private WeaponModulatorTier RollRandomTieredModulatorTier()
-	{
-		float roll = _rng.Randf();
-		if (roll < 0.25f)
-		{
-			return WeaponModulatorTier.Flawed;
-		}
-
-		if (roll < 0.75f)
-		{
-			return WeaponModulatorTier.Baseline;
-		}
-
-		if (roll < 0.95f)
-		{
-			return WeaponModulatorTier.Enhanced;
-		}
-
-		return WeaponModulatorTier.Flawless;
+		return ModulatorLoot.Roll(modulators, _rng) ?? ModulatorCatalog.CreateByKey("power_coil");
 	}
 
 	private Vector2 GetShapeItemDropPosition()

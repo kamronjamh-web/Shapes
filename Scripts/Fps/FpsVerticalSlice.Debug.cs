@@ -219,14 +219,14 @@ public partial class FpsVerticalSlice : IArenaDebugRuntime
 
 	private bool CanInstallModulatorForFpsWeapon(EquipmentItem weapon, WeaponModulatorData modulator, int replacingIndex = -1)
 	{
-		if (!modulator.CanApplyToWeapon(WeaponModulatorCompatibility.BuildWeaponTags(weapon)))
+		if (!WeaponModulatorCompatibility.CanApplyToWeapon(modulator, weapon, out _))
 		{
 			return false;
 		}
 
 		if (!modulator.IsWingModulator)
 		{
-			return IsDefensePartCompatible(modulator, weapon);
+			return true;
 		}
 		if (_arsenal.IndexOf(weapon) <= 0) return false;
 

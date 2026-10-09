@@ -412,10 +412,10 @@ public partial class Main
             ? Mathf.Max(0, Mathf.RoundToInt(_arenaDebugOverrides.WeaponProjectileCountFlat))
             : 0;
         extraProjectiles += sourceItemOverride == null
-            ? Mathf.Max(0, Mathf.RoundToInt(_equipmentProjectileCountFlat))
-            : GetWeaponItemProjectileCount(sourceItemOverride);
+            ? ResolveLegacyQualityCount(effectSourceItem, "primary output", _equipmentProjectileCountFlat)
+            : ResolveLegacyQualityCount(sourceItemOverride, "source output", SuperGatchaRebuild.Combat.WeaponModulatorSharedRuntime.GetWeaponItemProjectileCountValue(sourceItemOverride));
         int extraPierce = sourceItemOverride == null
-            ? GetEquipmentPierceCountBonus()
+            ? ResolveLegacyQualityCount(effectSourceItem, "primary pierce", _equipmentPierceFlat)
             : GetWeaponItemPierceCount(sourceItemOverride);
         float homingTurnRate = LegacySeekerTurnRate * (sourceItemOverride == null
             ? GetEquipmentHomingStrengthMultiplier()
@@ -458,7 +458,8 @@ public partial class Main
                 SpawnLegacyNova(origin, stats.Damage * 0.8f, (LegacyNovaMaxRadius + 7.2f) * stats.SizeScale, stats.Color, stats.IsCritical, stats.SourceItem);
                 if (stats.SourceItem != null && HasWeaponItemPassiveFlag(stats.SourceItem, ModulatorEffectType.NewSecondPulse))
                 {
-                    ScheduleLegacyEcho(WeaponKind.Sphere, origin, direction, 0.60f, stats.SourceDamage, stats.SourceRarity, stats.SourceItem, 0.30f);
+                    float secondPulsePower = StrongestLegacyEffect(stats.SourceItem, ModulatorEffectType.NewSecondPulse)?.Magnitude ?? .6f;
+                    ScheduleLegacyEcho(WeaponKind.Sphere, origin, direction, secondPulsePower, stats.SourceDamage, stats.SourceRarity, stats.SourceItem, 0.30f);
                 }
                 break;
             case WeaponKind.Cube:
@@ -477,7 +478,7 @@ public partial class Main
                 SpawnLegacyMortar(origin, ResolveLegacyAimPoint(origin, direction, aimPointOverride, 36f, 40f), stats.Damage, LegacyMortarExplosionRadius * stats.SizeScale, stats.Color, stats.IsCritical, stats.SourceItem);
                 if (stats.SourceItem != null && HasWeaponTransformFlag(stats.SourceItem, "scorch_crater"))
                 {
-                    float craterDamage = stats.Damage * 0.30f;
+                    float craterDamage = stats.Damage * GetWeaponTransformMagnitude(stats.SourceItem, "scorch_crater", .3f);
                     SpawnLegacyRift(ResolveLegacyAimPoint(origin, direction, aimPointOverride, 36f, 40f), craterDamage, LegacyMortarExplosionRadius * stats.SizeScale * 0.90f, stats.Color, stats.IsCritical, stats.SourceItem);
                 }
                 break;
@@ -486,7 +487,7 @@ public partial class Main
                 SpawnLegacyChainLightning(origin, stats.Damage * 1.4f, Mathf.Min(10, 5 + stats.ProjectileCount * 2 + chainBonus), stats.Color, stats.IsCritical, preferredTargetOverride: aimPointOverride, sourceItem: stats.SourceItem);
                 if (stats.SourceItem != null && HasWeaponTransformFlag(stats.SourceItem, "closed_circuit"))
                 {
-                    SpawnLegacyChainLightning(origin, stats.Damage * 1.4f * 0.50f, 1, stats.Color, stats.IsCritical, preferredTargetOverride: aimPointOverride, sourceItem: stats.SourceItem);
+                    SpawnLegacyChainLightning(origin, stats.Damage * 1.4f * GetWeaponTransformMagnitude(stats.SourceItem, "closed_circuit", .5f), 1, stats.Color, stats.IsCritical, preferredTargetOverride: aimPointOverride, sourceItem: stats.SourceItem);
                 }
                 break;
             case WeaponKind.Hypercone:
@@ -554,7 +555,8 @@ public partial class Main
         for (int burstIndex = 1; burstIndex < burstCount; burstIndex++)
         {
             float t = burstCount <= 1 ? 1f : burstIndex / (float)(burstCount - 1);
-            float shotScale = Mathf.Lerp(1f, followUpDamageScale, t);
+            float quality = StrongestLegacyEffect(stats.SourceItem, ModulatorEffectType.NewWeaponTransform, "burstline_converter")?.QualityStrength ?? 1f;
+            float shotScale = Mathf.Lerp(quality, followUpDamageScale, t);
             Vector2 burstDirection = direction.Rotated(_rng.RandfRange(-0.03f, 0.03f) * burstIndex).Normalized();
             ScheduleLegacyEcho(WeaponKind.Square, origin, burstDirection, shotScale, stats.SourceDamage, stats.SourceRarity, stats.SourceItem, burstInterval * burstIndex);
         }

@@ -383,22 +383,8 @@ public partial class Main
 		builder.AppendLine($"[b]{header}[/b]");
 		builder.AppendLine(modulator.DisplayName);
 		builder.AppendLine($"Category: {WeaponModulatorData.GetCategoryDisplayName(modulator.Category)}");
-		builder.AppendLine($"Power tier: {modulator.PowerTier}");
-		if (!string.IsNullOrWhiteSpace(modulator.Description))
-		{
-			builder.AppendLine(modulator.Description);
-		}
-
-		if (modulator.Substats.Count > 0)
-		{
-			builder.AppendLine();
-			builder.AppendLine("Substats:");
-			for (int index = 0; index < modulator.Substats.Count; index++)
-			{
-				SubstatRoll roll = modulator.Substats[index];
-				builder.AppendLine($"- {roll.Type}: {roll.Value:0.##}");
-			}
-		}
+		builder.AppendLine(ModulatorQualityText.Header(modulator));
+		builder.AppendLine(ModulatorQualityText.Describe(modulator));
 	}
 
 	private void RefreshRunModButtons()

@@ -191,14 +191,14 @@ public partial class Main
         return WeaponModulatorSharedRuntime.GetWeaponItemOrbitRadiusScalar(item);
     }
 
-    private static int GetWeaponItemChainCountBonus(EquipmentItem item)
+    private int GetWeaponItemChainCountBonus(EquipmentItem item)
     {
-        return WeaponModulatorSharedRuntime.GetWeaponItemChainCountBonus(item);
+        return ResolveLegacyQualityCount(item, "chain", WeaponModulatorSharedRuntime.GetWeaponItemPassiveCountValue(item, ModulatorEffectType.ChainCountAdd));
     }
 
-    private static int GetWeaponItemPierceCount(EquipmentItem item)
+    private int GetWeaponItemPierceCount(EquipmentItem item)
     {
-        return WeaponModulatorSharedRuntime.GetWeaponItemPierceCount(item);
+        return ResolveLegacyQualityCount(item, "source pierce", WeaponModulatorSharedRuntime.GetWeaponItemPierceCountValue(item));
     }
 
     private static float GetWeaponItemPassiveMultiplier(EquipmentItem item, ModulatorEffectType type)
@@ -206,9 +206,9 @@ public partial class Main
         return WeaponModulatorSharedRuntime.GetWeaponItemPassiveMultiplier(item, type);
     }
 
-    private static int GetWeaponItemPassiveCount(EquipmentItem item, ModulatorEffectType type)
+    private int GetWeaponItemPassiveCount(EquipmentItem item, ModulatorEffectType type)
     {
-        return WeaponModulatorSharedRuntime.GetWeaponItemPassiveCount(item, type);
+        return ResolveLegacyQualityCount(item, type.ToString(), WeaponModulatorSharedRuntime.GetWeaponItemPassiveCountValue(item, type));
     }
 
     private static bool HasWeaponItemPassiveFlag(EquipmentItem item, ModulatorEffectType type)
@@ -239,53 +239,20 @@ public partial class Main
 
     private static float GetWeaponTransformMagnitude(EquipmentItem item, string transformKey, float fallback)
     {
-        string normalizedTarget = WeaponModulatorData.NormalizeKey(transformKey);
-        float value = fallback;
-        WeaponModulatorSharedRuntime.ForEachResolvedEffect(item, ModulatorEffectTrigger.Passive, effect =>
-        {
-            if (effect.Type == ModulatorEffectType.NewWeaponTransform
-                && string.Equals(WeaponModulatorData.NormalizeKey(effect.Key), normalizedTarget, StringComparison.Ordinal)
-                && effect.Magnitude > 0f)
-            {
-                value = effect.Magnitude;
-            }
-        });
-
-        return value;
+        float value = StrongestLegacyEffect(item, ModulatorEffectType.NewWeaponTransform, WeaponModulatorData.NormalizeKey(transformKey))?.Magnitude ?? fallback;
+        return value > 0f ? value : fallback;
     }
 
     private static float GetWeaponTransformMagnitudeB(EquipmentItem item, string transformKey, float fallback)
     {
-        string normalizedTarget = WeaponModulatorData.NormalizeKey(transformKey);
-        float value = fallback;
-        WeaponModulatorSharedRuntime.ForEachResolvedEffect(item, ModulatorEffectTrigger.Passive, effect =>
-        {
-            if (effect.Type == ModulatorEffectType.NewWeaponTransform
-                && string.Equals(WeaponModulatorData.NormalizeKey(effect.Key), normalizedTarget, StringComparison.Ordinal)
-                && effect.MagnitudeB > 0f)
-            {
-                value = effect.MagnitudeB;
-            }
-        });
-
-        return value;
+        float value = StrongestLegacyEffect(item, ModulatorEffectType.NewWeaponTransform, WeaponModulatorData.NormalizeKey(transformKey))?.MagnitudeB ?? fallback;
+        return value > 0f ? value : fallback;
     }
 
     private static int GetWeaponTransformCount(EquipmentItem item, string transformKey, int fallback)
     {
-        string normalizedTarget = WeaponModulatorData.NormalizeKey(transformKey);
-        int value = fallback;
-        WeaponModulatorSharedRuntime.ForEachResolvedEffect(item, ModulatorEffectTrigger.Passive, effect =>
-        {
-            if (effect.Type == ModulatorEffectType.NewWeaponTransform
-                && string.Equals(WeaponModulatorData.NormalizeKey(effect.Key), normalizedTarget, StringComparison.Ordinal)
-                && effect.Count > 0)
-            {
-                value = effect.Count;
-            }
-        });
-
-        return value;
+        int value = StrongestLegacyEffect(item, ModulatorEffectType.NewWeaponTransform, WeaponModulatorData.NormalizeKey(transformKey))?.Count ?? fallback;
+        return value > 0 ? value : fallback;
     }
 
     private Vector2 ResolveLegacyAimPoint(Vector2 origin, Vector2 direction, Vector2? aimPointOverride, float targetRange, float fallbackDistance)

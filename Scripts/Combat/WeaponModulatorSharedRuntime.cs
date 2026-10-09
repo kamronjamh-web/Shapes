@@ -22,7 +22,7 @@ public static class WeaponModulatorSharedRuntime
         for (int modulatorIndex = 0; modulatorIndex < sourceItem.Modulators.Count; modulatorIndex++)
         {
             WeaponModulatorData modulator = sourceItem.Modulators[modulatorIndex];
-            if (modulator == null)
+            if (modulator == null || modulator.IsRetired)
             {
                 continue;
             }
@@ -63,6 +63,12 @@ public static class WeaponModulatorSharedRuntime
     {
         return Mathf.Max(0, Mathf.RoundToInt(StatGenerator.GetTotalSubstatValue(item, SubstatType.ProjectileCount)));
     }
+
+    public static float GetWeaponItemProjectileCountValue(EquipmentItem item)
+        => Mathf.Max(0f, StatGenerator.GetTotalSubstatValue(item, SubstatType.ProjectileCount));
+
+    public static float GetWeaponItemPierceCountValue(EquipmentItem item)
+        => GetWeaponItemPassiveCountValue(item, ModulatorEffectType.PierceAdd);
 
     public static float GetWeaponItemProjectileSpeedMultiplier(EquipmentItem item)
     {
@@ -165,23 +171,28 @@ public static class WeaponModulatorSharedRuntime
 
     public static int GetWeaponItemPassiveCount(EquipmentItem item, ModulatorEffectType type)
     {
-        int total = 0;
+        return Mathf.Max(0, Mathf.RoundToInt(GetWeaponItemPassiveCountValue(item, type)));
+    }
+
+    public static float GetWeaponItemPassiveCountValue(EquipmentItem item, ModulatorEffectType type)
+    {
+        float total = 0f;
         float apexMultiplier = GetApexDoctrineMultiplier(item);
         ForEachResolvedEffect(item, ModulatorEffectTrigger.Passive, effect =>
         {
             if (effect.Type == type)
             {
-                int baseCount = effect.Count > 0 ? effect.Count : Mathf.RoundToInt(effect.Magnitude);
+                float baseCount = effect.ResolvedCountValue;
                 if (baseCount > 0 && apexMultiplier > 1f && IsApexAffectableEffect(effect.Type))
                 {
-                    baseCount = Mathf.Max(baseCount, Mathf.RoundToInt(baseCount * apexMultiplier));
+                    baseCount *= apexMultiplier;
                 }
 
                 total += baseCount;
             }
         });
 
-        return Mathf.Max(0, total);
+        return Mathf.Max(0f, RuntimeMath.FiniteOr(total, 0f));
     }
 
     public static bool IsOnFireEchoEffect(WeaponModulatorEffectData effect)
@@ -312,11 +323,14 @@ public static class WeaponModulatorSharedRuntime
         int arcCount = 1;
         float cooldown = 0.35f;
         bool found = false;
+        float bestQuality = 0f;
 
         ForEachResolvedEffect(sourceItem, ModulatorEffectTrigger.Passive, effect =>
         {
             if (effect.Type == ModulatorEffectType.NewOnCritChainProc)
             {
+                if (effect.QualityStrength < bestQuality) return;
+                bestQuality = effect.QualityStrength;
                 found = true;
                 if (effect.Magnitude > 0f)
                 {
@@ -378,38 +392,8 @@ public static class WeaponModulatorSharedRuntime
 
     public static float GetApexDoctrineMultiplier(EquipmentItem sourceItem)
     {
-        float multiplier = 1f;
-        bool hasApexDoctrine = false;
-        int tier3Count = 0;
-
-        if (sourceItem?.Modulators != null)
-        {
-            for (int modulatorIndex = 0; modulatorIndex < sourceItem.Modulators.Count; modulatorIndex++)
-            {
-                WeaponModulatorData? modulator = sourceItem.Modulators[modulatorIndex];
-                if (modulator != null && modulator.PowerTier == ModulatorPowerTier.Tier3)
-                {
-                    tier3Count++;
-                }
-            }
-        }
-
-        ForEachResolvedEffect(sourceItem, ModulatorEffectTrigger.Passive, effect =>
-        {
-            if (effect.Type == ModulatorEffectType.NewCapstoneRule)
-            {
-                hasApexDoctrine = true;
-                multiplier = Mathf.Max(multiplier, effect.Magnitude > 0f ? effect.Magnitude : 1.35f);
-            }
-        });
-
-        // Apex Doctrine only activates when it is the sole Tier3 commitment on the weapon.
-        if (!hasApexDoctrine || tier3Count != 1)
-        {
-            return 1f;
-        }
-
-        return Mathf.Clamp(RuntimeMath.FiniteOr(multiplier, 1f), 0.1f, 12f);
+        // Archived parts stay readable, but retired Apex no longer changes runtime stats.
+        return 1f;
     }
 
     public readonly record struct OmniFeedbackConfig(float DamageScale, float SearchRange, int HitCadence);
@@ -420,6 +404,7 @@ public static class WeaponModulatorSharedRuntime
         float range = 12f;
         int cadence = 8;
         bool found = false;
+        float bestQuality = 0f;
 
         ForEachResolvedEffect(sourceItem, ModulatorEffectTrigger.Passive, effect =>
         {
@@ -427,6 +412,8 @@ public static class WeaponModulatorSharedRuntime
             {
                 return;
             }
+            if (effect.QualityStrength < bestQuality) return;
+            bestQuality = effect.QualityStrength;
 
             found = true;
             if (effect.Magnitude > 0f)

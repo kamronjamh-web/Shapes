@@ -25,6 +25,7 @@ public partial class FpsDefenseSettings : Resource
 	private float _repairAmount = 120f;
 	private int _weaponUpgradePrice = 40;
 	private int _modulatorPrice = 20;
+	private int _modulatorFusionBaseCost = 20;
 	private int _shapePrice = 30;
 
 	[ExportGroup("Map")]
@@ -51,6 +52,7 @@ public partial class FpsDefenseSettings : Resource
 	[Export(PropertyHint.Range, "1,1000,1")] public float RepairAmount { get => _repairAmount; set => Change(ref _repairAmount, value); }
 	[Export(PropertyHint.Range, "1,500,1")] public int WeaponUpgradePrice { get => _weaponUpgradePrice; set => Change(ref _weaponUpgradePrice, value); }
 	[Export(PropertyHint.Range, "1,500,1")] public int ModulatorPrice { get => _modulatorPrice; set => Change(ref _modulatorPrice, value); }
+	[Export(PropertyHint.Range, "1,500,1")] public int ModulatorFusionBaseCost { get => _modulatorFusionBaseCost; set => Change(ref _modulatorFusionBaseCost, value); }
 	[Export(PropertyHint.Range, "1,500,1")] public int ShapePrice { get => _shapePrice; set => Change(ref _shapePrice, value); }
 
 	private void Change<T>(ref T field, T value)

@@ -113,7 +113,7 @@ public partial class Main
     private int _thornedTier;
     private int _parasiteTier;
     private int _volitileTier;
-    private int _volitileEffectiveStacks;
+    private float _volitileEffectiveStacks;
     private bool _prismaticSurgeActive;
     private bool _fullSpectrumActive;
 
@@ -211,6 +211,7 @@ public partial class Main
             for (int modulatorIndex = 0; modulatorIndex < item.Modulators.Count; modulatorIndex++)
             {
                 WeaponModulatorData modulator = item.Modulators[modulatorIndex];
+                if (modulator.IsRetired) continue;
                 IReadOnlyList<WeaponModulatorEffectData> effects = modulator.GetResolvedEffects();
                 for (int effectIndex = 0; effectIndex < effects.Count; effectIndex++)
                 {
@@ -308,7 +309,7 @@ public partial class Main
             case ModulatorEffectType.PierceAdd:
                 if (fromPrimaryItem)
                 {
-                    _equipmentPierceFlat += effect.Count > 0 ? effect.Count : Mathf.RoundToInt(effect.Magnitude);
+                    _equipmentPierceFlat += effect.ResolvedCountValue;
                 }
                 return;
         }
@@ -381,7 +382,7 @@ public partial class Main
         _parasiteTier = GetEquipmentModifierTier(ModifierKey.Parasite);
         int legacyVolitileTier = GetEquipmentModifierTier(ModifierKey.Volitile);
         int legacyVolitileStacks = GetEquipmentModifierStackCount(ModifierKey.Volitile);
-        int modulatorVolitileStage = GetInstalledVolitileModulatorStage();
+        float modulatorVolitileStage = GetInstalledVolitileModulatorStage();
         _volitileTier = legacyVolitileTier;
         _volitileEffectiveStacks = ResolveVolitileExplosionStage(legacyVolitileStacks, modulatorVolitileStage);
     }
@@ -408,9 +409,9 @@ public partial class Main
         return state.PassiveActive ? Mathf.Clamp(state.EffectiveCount, 1, 4) : 0;
     }
 
-    private int ResolveVolitileExplosionStage(int legacyStacks, int modulatorStage)
+    private float ResolveVolitileExplosionStage(int legacyStacks, float modulatorStage)
     {
-        int stage = Math.Max(modulatorStage, GetLegacyVolitileStage(legacyStacks));
+        float stage = Math.Max(modulatorStage, GetLegacyVolitileStage(legacyStacks));
         return Mathf.Clamp(stage, 0, 4);
     }
 
@@ -424,10 +425,10 @@ public partial class Main
         return legacyStacks;
     }
 
-    private int GetInstalledVolitileModulatorStage()
+    private float GetInstalledVolitileModulatorStage()
     {
-        int highestStage = 0;
-        int copyCount = 0;
+        float highestStrength = 0f;
+        float sumStrength = 0f;
         for (int slotIndex = 0; slotIndex < _equippedLoadout.Length; slotIndex++)
         {
             EquipmentItem? item = _equippedLoadout[slotIndex];
@@ -444,17 +445,18 @@ public partial class Main
                     continue;
                 }
 
-                copyCount++;
-                highestStage = Math.Max(highestStage, GetVolitileStageFromTier(modulator.Tier));
+                float strength = modulator.QualityStrength;
+                sumStrength += strength;
+                highestStrength = Math.Max(highestStrength, strength);
             }
         }
 
-        if (copyCount == 0)
+        if (sumStrength == 0)
         {
             return 0;
         }
 
-        return Mathf.Clamp(highestStage + copyCount - 1, 1, 4);
+        return Mathf.Clamp(sumStrength + highestStrength, 1f, 4f);
     }
 
     private static int GetVolitileStageFromTier(WeaponModulatorTier tier)
@@ -490,6 +492,7 @@ public partial class Main
 
     private void ResetEquipmentModifierRuntime()
     {
+        ResetLegacyQualityCounts();
         InitializeRunEquipmentLoadout();
 
         foreach (EquipmentPhantom phantom in _equipmentPhantoms)
@@ -1310,20 +1313,14 @@ public partial class Main
         return GetVolitileExplosionRadiusForStage(GetVolitileEffectiveStackCount());
     }
 
-    private int GetVolitileEffectiveStackCount()
+    private float GetVolitileEffectiveStackCount()
     {
         return Mathf.Clamp(_volitileEffectiveStacks, 0, 4);
     }
 
-    private static float GetVolitileExplosionRadiusForStage(int stage)
+    private static float GetVolitileExplosionRadiusForStage(float stage)
     {
-        return Mathf.Clamp(stage, 1, 4) switch
-        {
-            1 => 1f,
-            2 => 2f,
-            3 => 3f,
-            _ => 4f,
-        };
+        return Mathf.Clamp(stage, 1f, 4f);
     }
 
     private EquipmentEnemyState GetOrCreateEquipmentEnemyState(EnemyActor enemy)

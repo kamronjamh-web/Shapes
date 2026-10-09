@@ -90,7 +90,7 @@
   },
   "nodes": 323,
   "meshes": 307,
-  "bytes": 1635496,
+  "bytes": 1782740,
   "objects": [
     {
       "name": "GunRoot",
@@ -1707,5 +1707,315 @@
       "source": "Tesseract_Suspension_Crossmember_0.545",
       "parent": "GunRoot"
     }
-  ]
+  ],
+  "workbench": {
+    "source": "Art/WeaponWorkbenchAnimations/TesseractRiftEngineWorkbench.blend",
+    "approved_source_sha256": "39d485b0dc043ec3645191648fe4d2530291bfd6dd5bd7f20a3018ecbea25c6b",
+    "clips": [
+      {
+        "name": "Disassemble",
+        "duration": 0.7,
+        "targets": [
+          "Tesseract_Arm_Track_Rise_0_075_1",
+          "Tesseract_Arm_Track_Rise_0_075__1",
+          "Tesseract_Arm_Track_Rise_0_545_1",
+          "Tesseract_Arm_Track_Rise_0_545__1",
+          "Tesseract_Cage_Brace_0_075_1",
+          "Tesseract_Cage_Brace_0_075__1",
+          "Tesseract_Cage_Brace_0_545_1",
+          "Tesseract_Cage_Brace_0_545__1",
+          "Tesseract_Cage_Corner_0",
+          "Tesseract_Cage_Corner_1",
+          "Tesseract_Cage_Corner_2",
+          "Tesseract_Cage_Corner_3",
+          "Tesseract_Cage_Corner_4",
+          "Tesseract_Cage_Corner_5",
+          "Tesseract_Cage_Corner_6",
+          "Tesseract_Cage_Corner_7",
+          "Tesseract_Dock_Bridge_Inset",
+          "Tesseract_Inner_Projection_Link_0",
+          "Tesseract_Inner_Projection_Link_1",
+          "Tesseract_Inner_Projection_Link_2",
+          "Tesseract_Inner_Projection_Link_3",
+          "Tesseract_Inner_Projection_Link_4",
+          "Tesseract_Inner_Projection_Link_5",
+          "Tesseract_Inner_Projection_Link_6",
+          "Tesseract_Inner_Projection_Link_7",
+          "Tesseract_Outer_Projection_Link_0",
+          "Tesseract_Outer_Projection_Link_1",
+          "Tesseract_Outer_Projection_Link_2",
+          "Tesseract_Outer_Projection_Link_3",
+          "Tesseract_Outer_Projection_Link_4",
+          "Tesseract_Outer_Projection_Link_5",
+          "Tesseract_Outer_Projection_Link_6",
+          "Tesseract_Outer_Projection_Link_7",
+          "Tesseract_Projection_Inner_Edge_0_1",
+          "Tesseract_Projection_Inner_Edge_0_2",
+          "Tesseract_Projection_Inner_Edge_0_4",
+          "Tesseract_Projection_Inner_Edge_1_3",
+          "Tesseract_Projection_Inner_Edge_1_5",
+          "Tesseract_Projection_Inner_Edge_2_3",
+          "Tesseract_Projection_Inner_Edge_2_6",
+          "Tesseract_Projection_Inner_Edge_3_7",
+          "Tesseract_Projection_Inner_Edge_4_5",
+          "Tesseract_Projection_Inner_Edge_4_6",
+          "Tesseract_Projection_Inner_Edge_5_7",
+          "Tesseract_Projection_Inner_Edge_6_7",
+          "Tesseract_Projection_Middle_Edge_0_1",
+          "Tesseract_Projection_Middle_Edge_0_2",
+          "Tesseract_Projection_Middle_Edge_0_4",
+          "Tesseract_Projection_Middle_Edge_1_3",
+          "Tesseract_Projection_Middle_Edge_1_5",
+          "Tesseract_Projection_Middle_Edge_2_3",
+          "Tesseract_Projection_Middle_Edge_2_6",
+          "Tesseract_Projection_Middle_Edge_3_7",
+          "Tesseract_Projection_Middle_Edge_4_5",
+          "Tesseract_Projection_Middle_Edge_4_6",
+          "Tesseract_Projection_Middle_Edge_5_7",
+          "Tesseract_Projection_Middle_Edge_6_7",
+          "Tesseract_Rear_Dock_Bridge",
+          "Tesseract_Rift_Pulse",
+          "Tesseract_Sliding_Arm_1",
+          "Tesseract_Sliding_Arm__1",
+          "Tesseract_Suspended_Outer_Edge_0_1",
+          "Tesseract_Suspended_Outer_Edge_0_2",
+          "Tesseract_Suspended_Outer_Edge_0_4",
+          "Tesseract_Suspended_Outer_Edge_1_3",
+          "Tesseract_Suspended_Outer_Edge_1_5",
+          "Tesseract_Suspended_Outer_Edge_2_3",
+          "Tesseract_Suspended_Outer_Edge_2_6",
+          "Tesseract_Suspended_Outer_Edge_3_7",
+          "Tesseract_Suspended_Outer_Edge_4_5",
+          "Tesseract_Suspended_Outer_Edge_4_6",
+          "Tesseract_Suspended_Outer_Edge_5_7",
+          "Tesseract_Suspended_Outer_Edge_6_7",
+          "Tesseract_Suspension_Crossmember_0_075",
+          "Tesseract_Suspension_Crossmember_0_545"
+        ]
+      },
+      {
+        "name": "Assemble",
+        "duration": 0.7,
+        "targets": [
+          "Tesseract_Arm_Track_Rise_0_075_1",
+          "Tesseract_Arm_Track_Rise_0_075__1",
+          "Tesseract_Arm_Track_Rise_0_545_1",
+          "Tesseract_Arm_Track_Rise_0_545__1",
+          "Tesseract_Cage_Brace_0_075_1",
+          "Tesseract_Cage_Brace_0_075__1",
+          "Tesseract_Cage_Brace_0_545_1",
+          "Tesseract_Cage_Brace_0_545__1",
+          "Tesseract_Cage_Corner_0",
+          "Tesseract_Cage_Corner_1",
+          "Tesseract_Cage_Corner_2",
+          "Tesseract_Cage_Corner_3",
+          "Tesseract_Cage_Corner_4",
+          "Tesseract_Cage_Corner_5",
+          "Tesseract_Cage_Corner_6",
+          "Tesseract_Cage_Corner_7",
+          "Tesseract_Dock_Bridge_Inset",
+          "Tesseract_Inner_Projection_Link_0",
+          "Tesseract_Inner_Projection_Link_1",
+          "Tesseract_Inner_Projection_Link_2",
+          "Tesseract_Inner_Projection_Link_3",
+          "Tesseract_Inner_Projection_Link_4",
+          "Tesseract_Inner_Projection_Link_5",
+          "Tesseract_Inner_Projection_Link_6",
+          "Tesseract_Inner_Projection_Link_7",
+          "Tesseract_Outer_Projection_Link_0",
+          "Tesseract_Outer_Projection_Link_1",
+          "Tesseract_Outer_Projection_Link_2",
+          "Tesseract_Outer_Projection_Link_3",
+          "Tesseract_Outer_Projection_Link_4",
+          "Tesseract_Outer_Projection_Link_5",
+          "Tesseract_Outer_Projection_Link_6",
+          "Tesseract_Outer_Projection_Link_7",
+          "Tesseract_Projection_Inner_Edge_0_1",
+          "Tesseract_Projection_Inner_Edge_0_2",
+          "Tesseract_Projection_Inner_Edge_0_4",
+          "Tesseract_Projection_Inner_Edge_1_3",
+          "Tesseract_Projection_Inner_Edge_1_5",
+          "Tesseract_Projection_Inner_Edge_2_3",
+          "Tesseract_Projection_Inner_Edge_2_6",
+          "Tesseract_Projection_Inner_Edge_3_7",
+          "Tesseract_Projection_Inner_Edge_4_5",
+          "Tesseract_Projection_Inner_Edge_4_6",
+          "Tesseract_Projection_Inner_Edge_5_7",
+          "Tesseract_Projection_Inner_Edge_6_7",
+          "Tesseract_Projection_Middle_Edge_0_1",
+          "Tesseract_Projection_Middle_Edge_0_2",
+          "Tesseract_Projection_Middle_Edge_0_4",
+          "Tesseract_Projection_Middle_Edge_1_3",
+          "Tesseract_Projection_Middle_Edge_1_5",
+          "Tesseract_Projection_Middle_Edge_2_3",
+          "Tesseract_Projection_Middle_Edge_2_6",
+          "Tesseract_Projection_Middle_Edge_3_7",
+          "Tesseract_Projection_Middle_Edge_4_5",
+          "Tesseract_Projection_Middle_Edge_4_6",
+          "Tesseract_Projection_Middle_Edge_5_7",
+          "Tesseract_Projection_Middle_Edge_6_7",
+          "Tesseract_Rear_Dock_Bridge",
+          "Tesseract_Rift_Pulse",
+          "Tesseract_Sliding_Arm_1",
+          "Tesseract_Sliding_Arm__1",
+          "Tesseract_Suspended_Outer_Edge_0_1",
+          "Tesseract_Suspended_Outer_Edge_0_2",
+          "Tesseract_Suspended_Outer_Edge_0_4",
+          "Tesseract_Suspended_Outer_Edge_1_3",
+          "Tesseract_Suspended_Outer_Edge_1_5",
+          "Tesseract_Suspended_Outer_Edge_2_3",
+          "Tesseract_Suspended_Outer_Edge_2_6",
+          "Tesseract_Suspended_Outer_Edge_3_7",
+          "Tesseract_Suspended_Outer_Edge_4_5",
+          "Tesseract_Suspended_Outer_Edge_4_6",
+          "Tesseract_Suspended_Outer_Edge_5_7",
+          "Tesseract_Suspended_Outer_Edge_6_7",
+          "Tesseract_Suspension_Crossmember_0_075",
+          "Tesseract_Suspension_Crossmember_0_545"
+        ]
+      },
+      {
+        "name": "SocketSeat01",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.005"
+        ]
+      },
+      {
+        "name": "SocketRemove01",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.005"
+        ]
+      },
+      {
+        "name": "SocketSeat02",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.006"
+        ]
+      },
+      {
+        "name": "SocketRemove02",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.006"
+        ]
+      },
+      {
+        "name": "SocketSeat03",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.007"
+        ]
+      },
+      {
+        "name": "SocketRemove03",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.007"
+        ]
+      },
+      {
+        "name": "SocketSeat04",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.008"
+        ]
+      },
+      {
+        "name": "SocketRemove04",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.008"
+        ]
+      },
+      {
+        "name": "SocketSeat05",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.009"
+        ]
+      },
+      {
+        "name": "SocketRemove05",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.009"
+        ]
+      },
+      {
+        "name": "SocketSeat06",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge"
+        ]
+      },
+      {
+        "name": "SocketRemove06",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge"
+        ]
+      },
+      {
+        "name": "SocketSeat07",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.001"
+        ]
+      },
+      {
+        "name": "SocketRemove07",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.001"
+        ]
+      },
+      {
+        "name": "SocketSeat08",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.002"
+        ]
+      },
+      {
+        "name": "SocketRemove08",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.002"
+        ]
+      },
+      {
+        "name": "SocketSeat09",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.003"
+        ]
+      },
+      {
+        "name": "SocketRemove09",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.003"
+        ]
+      },
+      {
+        "name": "SocketSeat10",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.004"
+        ]
+      },
+      {
+        "name": "SocketRemove10",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.004"
+        ]
+      }
+    ],
+    "core": "ShapeSocket",
+    "authoring": "component-local fold around the core; no whole-gun scale; local-axis cartridge seating"
+  }
 }

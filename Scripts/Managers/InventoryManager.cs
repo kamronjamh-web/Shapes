@@ -705,7 +705,7 @@ public partial class InventoryManager : Node, IEquipmentInventoryService, IInven
 
     private bool CanInstallModulator(EquipmentItem item, WeaponModulatorData modulator, int replacingModulatorIndex = -1)
     {
-        if (!modulator.CanApplyToWeapon(WeaponModulatorCompatibility.BuildWeaponTags(item)))
+        if (!WeaponModulatorCompatibility.CanApplyToWeapon(modulator, item, out _))
         {
             return false;
         }
@@ -1176,7 +1176,10 @@ public partial class InventoryManager : Node, IEquipmentInventoryService, IInven
                 ? (WeaponModulatorTier)rawTier
                 : WeaponModulatorTier.Baseline;
 
-            if (ModulatorCatalog.TryCreateByKey(key, tier, out WeaponModulatorData defaultModulator))
+            bool knownKey = ModulatorCatalog.TryCreateByKey(key, tier, out WeaponModulatorData defaultModulator);
+            // Older key-only saves use the catalog. Payload-bearing saves retain their original baseline.
+            if (knownKey && !cfg.HasSectionKey(section, $"modulator_{i}_substat_count")
+                && !cfg.HasSectionKey(section, $"modulator_{i}_effect_count"))
             {
                 modulators.Add(defaultModulator);
                 continue;
@@ -1253,13 +1256,10 @@ public partial class InventoryManager : Node, IEquipmentInventoryService, IInven
                     MagnitudeC = cfg.GetValue(section, $"modulator_{i}_effect_{effectIndex}_magnitude_c", 0f).AsSingle(),
                     Count = cfg.GetValue(section, $"modulator_{i}_effect_{effectIndex}_count", 0).AsInt32(),
                     CountB = cfg.GetValue(section, $"modulator_{i}_effect_{effectIndex}_count_b", 0).AsInt32(),
+                    CountValue = cfg.HasSectionKey(section, $"modulator_{i}_effect_{effectIndex}_count_value")
+                        ? cfg.GetValue(section, $"modulator_{i}_effect_{effectIndex}_count_value", 0f).AsSingle() : null,
                     Key = cfg.GetValue(section, $"modulator_{i}_effect_{effectIndex}_key", string.Empty).AsString(),
                 });
-            }
-
-            if (modulator.Effects.Count == 0 && modulator.Substats.Count > 0)
-            {
-                modulator.Effects.AddRange(WeaponModulatorEffectData.FromSubstats(modulator.Substats));
             }
 
             modulator.RefreshPresentation();
@@ -1386,6 +1386,9 @@ public partial class InventoryManager : Node, IEquipmentInventoryService, IInven
             cfg.SetValue(section, $"modulator_{index}_effect_{effectIndex}_magnitude_c", effect.MagnitudeC);
             cfg.SetValue(section, $"modulator_{index}_effect_{effectIndex}_count", effect.Count);
             cfg.SetValue(section, $"modulator_{index}_effect_{effectIndex}_count_b", effect.CountB);
+            string countValueKey = $"modulator_{index}_effect_{effectIndex}_count_value";
+            if (effect.CountValue.HasValue) cfg.SetValue(section, countValueKey, effect.CountValue.Value);
+            else if (cfg.HasSectionKey(section, countValueKey)) cfg.EraseSectionKey(section, countValueKey);
             cfg.SetValue(section, $"modulator_{index}_effect_{effectIndex}_key", effect.Key);
         }
     }
@@ -1526,6 +1529,7 @@ public partial class InventoryManager : Node, IEquipmentInventoryService, IInven
                 MagnitudeC = effect.MagnitudeC,
                 Count = effect.Count,
                 CountB = effect.CountB,
+                CountValue = effect.CountValue,
                 Key = effect.Key,
             });
         }

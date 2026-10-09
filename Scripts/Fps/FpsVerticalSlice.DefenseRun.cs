@@ -30,12 +30,14 @@ public partial class FpsVerticalSlice
 	private VBoxContainer? _shopContent;
 	private Label? _shopBalance;
 	private readonly List<(Button Button, Func<bool> Enabled)> _shopButtons = new();
-	private bool IsDefenseShopAvailable => IsDefenseMap && !_victory && !_defeat && (_waitingForNextWave || _combatShopRemaining > 0f);
+	private bool IsDefenseShopAvailable => IsDefenseMap && !_defeat && (_victory || _waitingForNextWave || _combatShopRemaining > 0f);
 
 	private void InitializeDefenseRun()
 	{
 		if (!IsDefenseMap) return;
 		_defenseRng.Randomize();
+		_rewardedDefenseWaves.Clear();
+		_lastWaveModulatorReward = string.Empty;
 		_defenseModulatorPool = ModulatorCatalog.CreateWeightedRollPool();
 		RestockDefenseShop();
 	}
@@ -83,14 +85,14 @@ public partial class FpsVerticalSlice
 		if (_shopOpen && !IsDefenseShopAvailable) CloseDefenseShop();
 		if (_shopOpen)
 		{
-			if (_shopBalance != null) _shopBalance.Text = $"{_defenseCoins} coins | {(_waitingForNextWave ? "Preparation / wave clock held" : $"Combat continues / shop {_combatShopRemaining:0}s")}";
+			if (_shopBalance != null) _shopBalance.Text = $"{_defenseCoins} coins | {(_victory ? "Defense complete / final workshop" : _waitingForNextWave ? "Preparation / wave clock held" : $"Combat continues / shop {_combatShopRemaining:0}s")}";
 			foreach (var entry in _shopButtons) entry.Button.Disabled = !entry.Enabled();
 		}
 		if (_defenseHud != null && _defenseCore != null)
 		{
-			string shop = IsDefenseShopAvailable ? (IsNearDefenseShop() ? "F: open field shop" : UsesFortifications ? "Shop available near the central core" : IsHillMap ? "Shop available inside the summit room" : "Field shop available in the west bay") : "Shop returns after more kills";
+			string shop = _victory ? "Final reward / workshop available on the results screen" : IsDefenseShopAvailable ? (IsNearDefenseShop() ? "F: open field shop" : UsesFortifications ? "Shop available near the central core" : IsHillMap ? "Shop available inside the summit room" : "Field shop available in the west bay") : "Shop returns after more kills";
 			string gates = UsesFortifications ? $"\n{DefenseGateStatus()}" : string.Empty;
-			_defenseHud.Text = $"CORE {Mathf.CeilToInt(_defenseCore.CurrentHealth)}/{Mathf.CeilToInt(_defenseCore.MaxHealth)}   |   COINS {_defenseCoins}\n{shop}{(_waitingForNextWave ? "   |   N: start next wave" : string.Empty)}{gates}";
+			_defenseHud.Text = $"CORE {Mathf.CeilToInt(_defenseCore.CurrentHealth)}/{Mathf.CeilToInt(_defenseCore.MaxHealth)}   |   COINS {_defenseCoins}\n{shop}{(_waitingForNextWave && !_victory ? "   |   N: start next wave" : string.Empty)}{gates}";
 		}
 	}
 
@@ -117,8 +119,8 @@ public partial class FpsVerticalSlice
 		}
 		if (_defenseModulatorPool.Count > 0 && _defenseRng.Randf() < Mathf.Clamp(DefenseSettings.ModulatorDropChance * luck, 0f, 1f))
 		{
-			WeaponModulatorData part = WeightedRandom.Pick(_defenseModulatorPool, item => item.Weight, _defenseRng);
-			AddDefensePickup(position + Vector3.Left * 0.65f, 0, null, CloneSliceModulator(part));
+			WeaponModulatorData? part = ModulatorLoot.Roll(_defenseModulatorPool, _defenseRng);
+			if (part != null) AddDefensePickup(position + Vector3.Left * 0.65f, 0, null, part);
 		}
 		_killsSinceShop++;
 		if (_killsSinceShop >= Mathf.Max(1, DefenseSettings.CombatShopKillInterval))
@@ -132,7 +134,7 @@ public partial class FpsVerticalSlice
 
 	private void AddDefensePickup(Vector3 position, int coins, EquipmentItem? weapon, WeaponModulatorData? modulator)
 	{
-		Color color = weapon != null ? new Color(0.23f, 0.75f, 1f) : modulator != null ? new Color(0.79f, 0.43f, 1f) : new Color(1f, 0.76f, 0.25f);
+		Color color = weapon != null ? new Color(0.23f, 0.75f, 1f) : modulator != null ? ModulatorLoot.GetTierColor(modulator.PowerTier) : new Color(1f, 0.76f, 0.25f);
 		Mesh mesh = weapon != null ? new BoxMesh { Size = new Vector3(0.55f, 0.55f, 0.55f) }
 			: modulator != null ? new CylinderMesh { TopRadius = 0f, BottomRadius = 0.30f, Height = 0.65f, RadialSegments = 4 }
 			: new SphereMesh { Radius = 0.22f, Height = 0.44f, RadialSegments = 8, Rings = 4 };
@@ -178,9 +180,10 @@ public partial class FpsVerticalSlice
 		List<WeaponModulatorData> pool = _defenseModulatorPool.FindAll(mod => weapon != null && CanInstallModulatorForFpsWeapon(weapon, mod));
 		while (_shopStock.Count < 3 && pool.Count > 0)
 		{
-			WeaponModulatorData part = WeightedRandom.Pick(pool, item => item.Weight, _defenseRng);
-			_shopStock.Add(CloneSliceModulator(part));
-			pool.Remove(part);
+			WeaponModulatorData? part = ModulatorLoot.Roll(pool, _defenseRng);
+			if (part == null) break;
+			_shopStock.Add(part);
+			pool.RemoveAll(candidate => candidate.NormalizedKey == part.NormalizedKey);
 		}
 	}
 
@@ -202,7 +205,7 @@ public partial class FpsVerticalSlice
 		StyleBoxFlat style = new() { BgColor = new Color(0.06f, 0.12f, 0.15f), ContentMarginLeft = 24, ContentMarginRight = 24, ContentMarginTop = 20, ContentMarginBottom = 20 };
 		panel.AddThemeStyleboxOverride("panel", style);
 		_shopBackdrop.AddChild(panel);
-		ScrollContainer scroll = new() { CustomMinimumSize = new Vector2(650f, 580f) };
+		ScrollContainer scroll = new() { Name = "DefenseShopScroll", CustomMinimumSize = new Vector2(650f, 580f), HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled };
 		panel.AddChild(scroll);
 		_shopContent = new VBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
 		_shopContent.AddThemeConstantOverride("separation", 10);
@@ -211,7 +214,7 @@ public partial class FpsVerticalSlice
 
 	private void OpenDefenseShop()
 	{
-		if (!IsDefenseShopAvailable || !IsNearDefenseShop()) return;
+		if (!IsDefenseShopAvailable || (!_victory && !IsNearDefenseShop())) return;
 		_shopOpen = true;
 		_shopBackdrop!.Visible = true;
 		RebuildDefenseShopMenu();
@@ -260,12 +263,13 @@ public partial class FpsVerticalSlice
 				() => { if (!_shopShapes.Contains(shapeWeapon) || !TrySpendDefenseCoins(settings.ShapePrice)) return; _shopShapes.Remove(shapeWeapon); _arsenal.Add(shapeWeapon); EquipWeapon(_arsenal.Count - 1, false); RebuildDefenseShopMenu(); });
 		AddShopLabel("SHOP MODULATORS", 18);
 		foreach (WeaponModulatorData part in _shopStock)
-			AddShopButton($"Install {part.DisplayName} / {settings.ModulatorPrice} coins", () => _shopStock.Contains(part) && CanInstallDefenseModulator(part) && _defenseCoins >= settings.ModulatorPrice,
-				() => { if (!_shopStock.Contains(part) || !CanInstallDefenseModulator(part) || !TrySpendDefenseCoins(settings.ModulatorPrice)) return; _shopStock.Remove(part); InstallDefenseModulator(part); });
+			AddDefenseModulatorOffer(part, true);
 		AddShopLabel($"RECOVERED MODULATORS ({_recoveredModulators.Count}) / free installation", 18);
+		if (!string.IsNullOrEmpty(_lastWaveModulatorReward)) AddShopLabel($"Last wave reward: {_lastWaveModulatorReward}", 15);
 		foreach (WeaponModulatorData part in _recoveredModulators)
-			AddShopButton($"Install {part.DisplayName}", () => _recoveredModulators.Contains(part) && CanInstallDefenseModulator(part), () => { if (!_recoveredModulators.Contains(part) || !CanInstallDefenseModulator(part)) return; _recoveredModulators.Remove(part); InstallDefenseModulator(part); });
-		AddShopButton("Return to defense / F or Esc", () => true, CloseDefenseShop);
+			AddDefenseModulatorOffer(part, false);
+		BuildDefenseModulatorWorkshop(weapon);
+		AddShopButton(_victory ? "Back to results / F or Esc" : "Return to defense / F or Esc", () => true, CloseDefenseShop);
 	}
 
 	private bool TrySpendDefenseCoins(int amount)
@@ -286,20 +290,7 @@ public partial class FpsVerticalSlice
 		return IsDefenseShopAvailable && weapon != null && weapon.AvailableModulatorSlots > 0 && CanInstallModulatorForFpsWeapon(weapon, part);
 	}
 	private static bool IsDefensePartCompatible(WeaponModulatorData part, EquipmentItem? weapon)
-	{
-		if (weapon?.Shape == null || !part.CanApplyToWeapon(WeaponModulatorCompatibility.BuildWeaponTags(weapon))) return false;
-		foreach (WeaponModulatorEffectData effect in part.GetResolvedEffects())
-		{
-			WeaponAttackType type = weapon.Shape.AttackType;
-			if (effect.Type == ModulatorEffectType.ProjectileSpeedMultiplier && type is not (WeaponAttackType.Single or WeaponAttackType.Sawblade or WeaponAttackType.Homing or WeaponAttackType.Drill or WeaponAttackType.Mortar)) return false;
-			if (effect.Type == ModulatorEffectType.BounceTimesAdd && type is not (WeaponAttackType.Single or WeaponAttackType.Sawblade or WeaponAttackType.Homing or WeaponAttackType.Drill)) return false;
-			if (effect.Type == ModulatorEffectType.NewSawReturn && type != WeaponAttackType.Sawblade) return false;
-			if (effect.Type == ModulatorEffectType.NewSecondPulse && type != WeaponAttackType.Nova) return false;
-			if (effect.Type == ModulatorEffectType.NewTargetLockBias && type != WeaponAttackType.Homing) return false;
-			if (effect.Type == ModulatorEffectType.NewWeaponTransform && !IsFpsTransformCompatible(effect.Key, type)) return false;
-		}
-		return true;
-	}
+		=> WeaponModulatorCompatibility.CanApplyToWeapon(part, weapon, out _);
 	private void InstallDefenseModulator(WeaponModulatorData part)
 	{
 		EquipmentItem weapon = GetCurrentWeapon()!;

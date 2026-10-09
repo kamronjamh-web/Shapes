@@ -57,6 +57,7 @@ public enum ModulatorEffectType
     ApplyMark,
     ExecuteLowHealth,
     EliteBossHunter,
+    LuckAdd,
 }
 
 public sealed class WeaponModulatorEffectData
@@ -68,6 +69,11 @@ public sealed class WeaponModulatorEffectData
     public float MagnitudeC { get; set; }
     public int Count { get; set; }
     public int CountB { get; set; }
+    // Fractional bonus channel. Raw catalog topology remains in Count.
+    public float? CountValue { get; set; }
+    // Resolution metadata, never a saved baseline strength.
+    public float QualityStrength { get; set; } = 1f;
+    public float ResolvedCountValue => CountValue ?? (Count != 0 ? Count : Magnitude);
     public string Key { get; set; } = string.Empty;
 
     public bool IsPassive => Trigger == ModulatorEffectTrigger.Passive;
@@ -76,6 +82,7 @@ public sealed class WeaponModulatorEffectData
     {
         return roll.Type switch
         {
+            SubstatType.Luck => new WeaponModulatorEffectData { Type = ModulatorEffectType.LuckAdd, Magnitude = roll.Value },
             SubstatType.DamagePercent => new WeaponModulatorEffectData
             {
                 Type = ModulatorEffectType.DamageMultiplier,
@@ -147,18 +154,21 @@ public sealed class WeaponModulatorEffectData
                 Type = ModulatorEffectType.RicochetAdd,
                 Trigger = ModulatorEffectTrigger.Passive,
                 Count = Math.Max(0, (int)Math.Round(roll.Value)),
+                CountValue = roll.Value,
             },
             SubstatType.BounceTimes => new WeaponModulatorEffectData
             {
                 Type = ModulatorEffectType.BounceTimesAdd,
                 Trigger = ModulatorEffectTrigger.Passive,
                 Count = Math.Max(0, (int)Math.Round(roll.Value)),
+                CountValue = roll.Value,
             },
             SubstatType.ProjectileCount => new WeaponModulatorEffectData
             {
                 Type = ModulatorEffectType.ProjectileCountAdd,
                 Trigger = ModulatorEffectTrigger.Passive,
                 Count = Math.Max(0, (int)Math.Round(roll.Value)),
+                CountValue = roll.Value,
             },
             _ => new WeaponModulatorEffectData(),
         };
@@ -179,9 +189,10 @@ public sealed class WeaponModulatorEffectData
             ModulatorEffectType.RangeMultiplier => new SubstatRoll(SubstatType.Range, (Magnitude - 1f) * 100f),
             ModulatorEffectType.AreaMultiplier => new SubstatRoll(SubstatType.Size, (Magnitude - 1f) * 100f),
             ModulatorEffectType.CooldownMultiplier => new SubstatRoll(SubstatType.AttackSpeed, ((1f / Math.Max(0.01f, Magnitude)) - 1f) * 100f),
-            ModulatorEffectType.RicochetAdd => new SubstatRoll(SubstatType.Ricochet, Count),
-            ModulatorEffectType.BounceTimesAdd => new SubstatRoll(SubstatType.BounceTimes, Count),
-            ModulatorEffectType.ProjectileCountAdd => new SubstatRoll(SubstatType.ProjectileCount, Count),
+            ModulatorEffectType.LuckAdd => new SubstatRoll(SubstatType.Luck, Magnitude),
+            ModulatorEffectType.RicochetAdd => new SubstatRoll(SubstatType.Ricochet, ResolvedCountValue),
+            ModulatorEffectType.BounceTimesAdd => new SubstatRoll(SubstatType.BounceTimes, ResolvedCountValue),
+            ModulatorEffectType.ProjectileCountAdd => new SubstatRoll(SubstatType.ProjectileCount, ResolvedCountValue),
             _ => new SubstatRoll(SubstatType.None, 0f),
         };
 

@@ -3,308 +3,365 @@ using System.Collections.Generic;
 using System.Linq;
 using Godot;
 using SuperGatchaRebuild.Equipment;
-using SuperGatchaRebuild.Shapes;
+using SuperGatchaRebuild.Equipment.Data;
 
 namespace SuperGatchaRebuild.Fps;
 
-/// <summary>A presentation-only arsenal view. Selection and equip remain separate actions.</summary>
+/// <summary>Run-owned inventory surrounding a live, directly editable weapon.</summary>
 public partial class FpsWeaponInspectionUI : Control
 {
     public event Action<int>? ShapeSelected;
     public event Action? EquipRequested;
     public event Action? CloseRequested;
+    public event Action<int>? ShapeDropped;
+    public event Action<EquipmentItem, WeaponModulatorData, int>? ModulatorDropRequested;
+    public event Action<EquipmentItem, int>? ModulatorRemoveRequested;
+    public Func<EquipmentItem, WeaponModulatorData, int, bool>? CanInstallPart { get; set; }
+    public Func<EquipmentItem, int, bool>? CanRemovePart { get; set; }
 
-    private static readonly Color Accent = new(0.39f, 0.87f, 0.94f);
-    private static readonly Color Muted = new(0.61f, 0.69f, 0.77f);
+    private static readonly Color Accent = new(.36f, .89f, .91f), Muted = new(.57f, .67f, .74f), Ink = new(.035f, .058f, .078f), Border = new(.13f, .22f, .28f);
     private IReadOnlyList<EquipmentItem> _weapons = Array.Empty<EquipmentItem>();
-    private readonly List<Button> _choices = new();
-    private VBoxContainer _list = null!;
-    private Label _name = null!, _rarity = null!, _attack = null!, _description = null!, _stats = null!, _mods = null!;
-    private Button _equip = null!;
-    private SubViewport _gunViewport = null!, _shapeViewport = null!;
-    private Node3D _gunPivot = null!, _shapePivot = null!;
-    private Camera3D _gunCamera = null!, _shapeCamera = null!;
-    private Node3D? _gunVisual, _shapeVisual;
-    private SubViewportContainer _gunSurface = null!;
-    private int _selected = -1;
-    private bool _built, _inspectionVisible, _dragging;
-    private bool _flatShape;
-    private bool _identityInitialized;
-    private float _identityFrameSize, _identityFrameClock;
-    private float _zoom = 1f, _gunFrameSize = 0.4f;
+    private IReadOnlyList<WeaponModulatorData> _stored = Array.Empty<WeaponModulatorData>();
+    private IReadOnlyList<WeaponModulatorData?> _slots = Array.Empty<WeaponModulatorData?>();
+    private readonly List<FpsInventoryThumbnail> _thumbnails = new();
+    private readonly List<FpsInventoryTile> _choices = new();
+    private readonly List<FpsInventoryTile> _socketDock = new(), _socketTargets = new();
+    private GridContainer _grid = null!;
+    private VBoxContainer _left = null!, _right = null!;
+    private Label _name = null!, _rarity = null!, _status = null!, _inventoryCount = null!, _socketCount = null!;
+    private Label _detailName = null!, _detailMeta = null!, _mods = null!, _description = null!, _attack = null!;
+    private Label _damage = null!, _damageLabel = null!, _cadence = null!, _range = null!, _crit = null!, _outputs = null!, _health = null!;
+    private Button _equip = null!, _shapeTab = null!, _modTab = null!;
+    private LineEdit _search = null!;
+    private FpsInventoryDropTarget _storageDrop = null!;
+    private WeaponModulatorData? _detailPart;
+    private FpsInventoryWeaponStats? _stats;
+    private int _selected = -1, _equipped = -1, _session;
+    private bool _built, _inspectionVisible, _showModulators, _animateNextSelection;
+    private int _pendingSeat = -1, _pendingRemove = -1;
+    public bool IsTransforming => _motionPhase is "disassemble" or "assemble";
+    public int DragSession => _session;
+    public EquipmentItem? InspectedItem => _selected >= 0 && _selected < _weapons.Count ? _weapons[_selected] : null;
 
-    public override void _Ready()
-    {
-        EnsureBuilt();
-        SetInspectionVisible(_inspectionVisible);
-    }
+    public override void _Ready() { EnsureBuilt(); SetInspectionVisible(_inspectionVisible); }
 
     public void SetWeapons(IReadOnlyList<EquipmentItem> weapons, int selectedIndex, int equippedIndex)
     {
         EnsureBuilt();
         _weapons = weapons ?? Array.Empty<EquipmentItem>();
-        foreach (Node child in _list.GetChildren()) { _list.RemoveChild(child); child.QueueFree(); }
-        _choices.Clear();
-        for (int i = 0; i < _weapons.Count; i++)
-        {
-            int index = i;
-            Button button = MakeButton("", false);
-            button.Name = $"ShapeChoice{i}";
-            button.Alignment = HorizontalAlignment.Left;
-            button.CustomMinimumSize = new Vector2(0, 64);
-            button.Pressed += () => ShapeSelected?.Invoke(index);
-            _list.AddChild(button);
-            _choices.Add(button);
-        }
-        _selected = -1;
         SetSelection(selectedIndex, equippedIndex);
+        RebuildInventory();
     }
 
     public void SetSelection(int selectedIndex, int equippedIndex)
     {
         EnsureBuilt();
-        int next = selectedIndex >= 0 && selectedIndex < _weapons.Count ? selectedIndex : -1;
-        for (int i = 0; i < _choices.Count; i++)
-        {
-            EquipmentItem item = _weapons[i];
-            _choices[i].Text = $"{item.Shape?.DisplayName ?? "Unknown Shape"}{(i == equippedIndex ? "  •" : "")}\n{item.Rarity?.DisplayName ?? "Common"} · Lv {item.Level}";
-            _choices[i].AddThemeStyleboxOverride("normal", PanelStyle(i == next ? new Color(0.09f, 0.19f, 0.23f) : new Color(0.065f, 0.09f, 0.12f), i == next ? Accent : new Color(0.16f, 0.21f, 0.26f)));
-        }
-        _equip.Disabled = next < 0 || next == equippedIndex;
-        _equip.Text = next >= 0 && next == equippedIndex ? "Equipped" : "Equip shape";
-        if (next >= 0)
-        {
-            EquipmentItem current = _weapons[next];
-            _rarity.Text = $"{current.Rarity?.DisplayName ?? "Common"}  ·  Level {current.Level}{(next == equippedIndex ? "  ·  Equipped" : "")}";
-        }
-        if (_selected == next) return;
-        _selected = next;
-        ClearVisual(_gunPivot, ref _gunVisual);
-        ClearVisual(_shapePivot, ref _shapeVisual);
-        _dragging = false;
-        _zoom = 1f;
-        _identityInitialized = false;
-        _identityFrameSize = _identityFrameClock = 0;
-        if (next < 0)
-        {
-            _name.Text = "No shapes collected";
-            _rarity.Text = "Your current run arsenal appears here.";
-            _attack.Text = _description.Text = _stats.Text = _mods.Text = "";
-            return;
-        }
-        EquipmentItem weapon = _weapons[next];
-        Color tint = weapon.Rarity?.UiColor ?? Colors.White;
-        _name.Text = weapon.Shape?.DisplayName ?? "Unknown Shape";
-        _rarity.Text = $"{weapon.Rarity?.DisplayName ?? "Common"}  ·  Level {weapon.Level}{(next == equippedIndex ? "  ·  Equipped" : "")}";
-        _rarity.AddThemeColorOverride("font_color", tint.Lerp(Colors.White, 0.35f));
-        _attack.Text = weapon.Shape?.AttackName ?? "";
-        _description.Text = weapon.Shape?.SpecialDescription ?? "";
-        if (string.IsNullOrWhiteSpace(_description.Text)) _description.Text = weapon.Shape?.Description ?? "";
-        _stats.Text = $"Base damage   {weapon.Damage}\nShape health    {weapon.Health}\nBase interval   {weapon.Shape?.Cooldown ?? 0:0.##} s";
-        _mods.Text = weapon.Modulators is { Count: > 0 }
-            ? string.Join("\n", weapon.Modulators.Select(mod => mod.DisplayName))
-            : "No modulators installed";
-        _gunPivot.Rotation = new Vector3(0.35f, -0.95f, 0);
-        _flatShape = weapon.Shape?.ShapeGroup == SuperGatchaRebuild.Equipment.Data.ShapeGroup.TwoD;
-        _shapePivot.Rotation = !_flatShape ? new Vector3(-0.16f, 0.28f, 0)
-            : weapon.Shape?.Key == "triangle" ? new Vector3(0, 0, 0)
-            : new Vector3(1.45f, 0, 0);
-        _gunVisual = FpsWeaponVisualFactory.Create(weapon);
-        _gunPivot.AddChild(_gunVisual);
-        _shapeVisual = ShapeVisualFactory.CreateVisual(weapon.Shape, tint);
-        _shapePivot.AddChild(_shapeVisual);
-        // Generated shapes finish populating meshes in _Ready.
-        Callable.From(() => { if (IsInstanceValid(this) && _selected == next) FramePreviews(); }).CallDeferred();
+        int previous = _selected;
+        _selected = selectedIndex >= 0 && selectedIndex < _weapons.Count ? selectedIndex : -1;
+        _equipped = equippedIndex;
+        _detailPart = null;
+        EquipmentItem? weapon = InspectedItem;
+        _name.Text = weapon?.Shape?.DisplayName ?? "No shapes collected";
+        _rarity.Text = weapon == null ? "Collect a weapon shape to begin." : $"{weapon.Rarity?.DisplayName ?? "Common"}  /  LEVEL {weapon.Level}  /  {(_selected == _equipped ? "EQUIPPED" : "PREVIEW")}";
+        _rarity.AddThemeColorOverride("font_color", (weapon?.Rarity?.UiColor ?? Muted).Lerp(Colors.White, .25f));
+        _equip.Disabled = weapon == null || _selected == _equipped;
+        _equip.Text = _selected == _equipped ? "EQUIPPED" : "Equip this shape";
+        if (weapon != null) SyncWeaponPreview(weapon, _animateNextSelection && previous != _selected);
+        else ClearWeaponPreview();
+        _animateNextSelection = false;
+        RefreshShapeSelection();
+        ShowWeaponDetails();
+    }
+
+    public void SetInventory(IReadOnlyList<WeaponModulatorData> stored, IReadOnlyList<WeaponModulatorData?> slots, FpsInventoryWeaponStats? stats)
+    {
+        EnsureBuilt();
+        _stored = stored; _slots = slots; _stats = stats;
+        UpdateStats(); UpdateSockets(); RebuildInventory();
+        if (InspectedItem is { } weapon) SyncWeaponPreview(weapon, false);
+        if (_detailPart != null && (_stored.Contains(_detailPart) || _slots.Contains(_detailPart))) SelectModulatorDetails(_detailPart);
+        else ShowWeaponDetails();
+    }
+
+    public void SetStatus(string message, bool error = false)
+    {
+        EnsureBuilt();
+        _status.Text = message;
+        _status.AddThemeColorOverride("font_color", error ? new Color(1, .61f, .49f) : Accent);
     }
 
     public void SetInspectionVisible(bool visible)
     {
-        _inspectionVisible = visible;
         EnsureBuilt();
-        Visible = visible;
-        _dragging = false;
+        if (_inspectionVisible != visible) _session++;
+        _inspectionVisible = visible; Visible = visible;
         ProcessMode = visible ? ProcessModeEnum.Always : ProcessModeEnum.Disabled;
-        _gunViewport.RenderTargetUpdateMode = _shapeViewport.RenderTargetUpdateMode = visible ? SubViewport.UpdateMode.Always : SubViewport.UpdateMode.Disabled;
-        _gunViewport.ProcessMode = _shapeViewport.ProcessMode = visible ? ProcessModeEnum.Always : ProcessModeEnum.Disabled;
-        if (visible) Callable.From(FramePreviews).CallDeferred();
+        _gunViewport.RenderTargetUpdateMode = visible ? SubViewport.UpdateMode.Always : SubViewport.UpdateMode.Disabled;
+        _gunViewport.ProcessMode = visible ? ProcessModeEnum.Always : ProcessModeEnum.Disabled;
+        _draggingView = false;
+        if (!visible)
+        {
+            if (GetViewport().GuiIsDragging()) GetViewport().GuiCancelDrag();
+            FinishPreviewImmediately();
+            foreach (var preview in _thumbnails) preview.Suspend();
+        }
+        else
+        {
+            SetStatus("Drag a shape onto the weapon. Drag a modulator into an empty socket.");
+            Callable.From(() => { FrameWeapon(); foreach (var thumbnail in _thumbnails) thumbnail.RefreshThumbnail(); }).CallDeferred();
+        }
     }
 
     public override void _Process(double delta)
     {
-        if (_inspectionVisible && _shapeVisual != null && !_flatShape) _shapePivot.RotateY((float)delta * 0.24f);
-        if (_inspectionVisible && _shapeVisual != null)
-        {
-            _identityFrameClock += (float)delta;
-            if (_identityFrameClock >= 0.2f)
-            {
-                _identityFrameClock = 0;
-                FrameShape();
-            }
-        }
+        if (!_inspectionVisible) return;
+        AdvancePreview(delta);
+        PositionSocketTargets();
+        UpdateDragHighlights();
     }
 
     private void EnsureBuilt()
     {
         if (_built) return;
-        _built = true;
-        Name = "WeaponInspection";
-        SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
-        MouseFilter = MouseFilterEnum.Stop;
-        ColorRect backdrop = new() { Color = new Color(0.008f, 0.014f, 0.023f, 1f), MouseFilter = MouseFilterEnum.Stop };
-        AddChild(backdrop);
-        backdrop.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
+        _built = true; Name = "WeaponInspection";
+        SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect); MouseFilter = MouseFilterEnum.Stop;
+        ColorRect background = new() { Color = new Color(.016f, .028f, .043f), MouseFilter = MouseFilterEnum.Stop };
+        AddChild(background); background.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
         MarginContainer margin = new(); AddChild(margin); margin.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
-        foreach (string side in new[] { "left", "right", "top", "bottom" }) margin.AddThemeConstantOverride($"margin_{side}", 24);
-        VBoxContainer outer = new(); margin.AddChild(outer); outer.AddThemeConstantOverride("separation", 18);
-        HBoxContainer header = new(); outer.AddChild(header);
-        Label heading = Text("WEAPON SHAPES", 19, Accent); heading.SizeFlagsHorizontal = SizeFlags.ExpandFill; header.AddChild(heading);
-        Button close = MakeButton("Back", false); close.Name = "CloseWeaponInspection"; close.Pressed += () => CloseRequested?.Invoke(); header.AddChild(close);
-        HBoxContainer columns = new() { SizeFlagsVertical = SizeFlags.ExpandFill }; outer.AddChild(columns); columns.AddThemeConstantOverride("separation", 20);
+        foreach (string side in new[] { "left", "right", "top", "bottom" }) margin.AddThemeConstantOverride("margin_" + side, 20);
+        VBoxContainer outer = new(); margin.AddChild(outer); outer.AddThemeConstantOverride("separation", 14);
+        HBoxContainer header = new(); outer.AddChild(header); header.AddThemeConstantOverride("separation", 14);
+        VBoxContainer title = new() { SizeFlagsHorizontal = SizeFlags.ExpandFill }; header.AddChild(title);
+        title.AddChild(Text("A R S E N A L", 11, Accent)); title.AddChild(Text("Weapon workbench", 27, Colors.White));
+        Label paused = Text("●  COMBAT PAUSED", 12, new Color(.60f, .89f, .70f)); paused.VerticalAlignment = VerticalAlignment.Center; header.AddChild(paused);
+        Button close = MakeButton("Tab  /  Close"); close.Name = "CloseWeaponInspection"; close.Pressed += () => CloseRequested?.Invoke(); header.AddChild(close);
+        HBoxContainer columns = new() { SizeFlagsVertical = SizeFlags.ExpandFill }; columns.AddThemeConstantOverride("separation", 14); outer.AddChild(columns);
 
-        VBoxContainer left = new() { CustomMinimumSize = new Vector2(220, 0) }; columns.AddChild(left); left.AddThemeConstantOverride("separation", 12);
-        left.AddChild(Text("CURRENT RUN", 12, Muted));
-        ScrollContainer scroll = new() { SizeFlagsVertical = SizeFlags.ExpandFill, HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled }; left.AddChild(scroll);
-        _list = new VBoxContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill }; _list.AddThemeConstantOverride("separation", 8); scroll.AddChild(_list);
+        _left = new VBoxContainer { CustomMinimumSize = new Vector2(252, 0) }; columns.AddChild(_left); _left.AddThemeConstantOverride("separation", 10);
+        HBoxContainer inventoryHeading = new(); _left.AddChild(inventoryHeading);
+        inventoryHeading.AddChild(Text("INVENTORY", 13, Accent)); _inventoryCount = Text("", 12, Muted); _inventoryCount.HorizontalAlignment = HorizontalAlignment.Right; _inventoryCount.SizeFlagsHorizontal = SizeFlags.ExpandFill; inventoryHeading.AddChild(_inventoryCount);
+        HBoxContainer tabs = new(); _left.AddChild(tabs);
+        _shapeTab = MakeButton("Shapes"); _shapeTab.Name = "ShapeInventoryTab"; _shapeTab.SizeFlagsHorizontal = SizeFlags.ExpandFill; tabs.AddChild(_shapeTab); _shapeTab.Pressed += () => ShowModulatorInventory(false);
+        _modTab = MakeButton("Modulators"); _modTab.Name = "ModulatorInventoryTab"; _modTab.SizeFlagsHorizontal = SizeFlags.ExpandFill; tabs.AddChild(_modTab); _modTab.Pressed += () => ShowModulatorInventory(true);
+        _search = new LineEdit { Name = "InventorySearch", PlaceholderText = "Find an item…", ClearButtonEnabled = true, CustomMinimumSize = new Vector2(0, 34) }; _left.AddChild(_search); _search.TextChanged += _ => RebuildInventory();
+        PanelContainer inventoryPanel = new() { SizeFlagsVertical = SizeFlags.ExpandFill }; inventoryPanel.AddThemeStyleboxOverride("panel", CardStyle(Ink, Border, 10)); _left.AddChild(inventoryPanel);
+        _storageDrop = new FpsInventoryDropTarget { Name = "InventoryDropTarget", SizeFlagsHorizontal = SizeFlags.ExpandFill, SizeFlagsVertical = SizeFlags.ExpandFill, AcceptPayload = CanStorePayload, CommitPayload = StorePayload }; inventoryPanel.AddChild(_storageDrop);
+        ScrollContainer inventoryScroll = new() { Name = "InventoryGridScroll", HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled, MouseFilter = MouseFilterEnum.Pass }; _storageDrop.AddChild(inventoryScroll); inventoryScroll.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
+        _grid = new GridContainer { Columns = 2, SizeFlagsHorizontal = SizeFlags.ExpandFill, MouseFilter = MouseFilterEnum.Pass }; _grid.AddThemeConstantOverride("h_separation", 8); _grid.AddThemeConstantOverride("v_separation", 8); inventoryScroll.AddChild(_grid);
+        _left.AddChild(Wrapped("Drag a socketed part back here to store it.", 12, Muted));
 
-        VBoxContainer center = new() { SizeFlagsHorizontal = SizeFlags.ExpandFill }; columns.AddChild(center); center.AddThemeConstantOverride("separation", 10);
-        _name = Text("Select a shape", 36, Colors.White); center.AddChild(_name);
-        _rarity = Text("", 14, Muted); center.AddChild(_rarity);
-        PanelContainer previewPanel = new() { SizeFlagsVertical = SizeFlags.ExpandFill }; previewPanel.AddThemeStyleboxOverride("panel", PanelStyle(new Color(0.028f, 0.044f, 0.061f), new Color(0.13f, 0.22f, 0.27f))); center.AddChild(previewPanel);
-        _gunSurface = MakePreview(out _gunViewport, out _gunPivot, out _gunCamera);
-        _gunSurface.Name = "HandgunPreview";
-        _gunSurface.CustomMinimumSize = new Vector2(260, 260);
-        previewPanel.AddChild(_gunSurface);
-        _gunSurface.GuiInput += HandlePreviewInput;
-        _gunSurface.MouseExited += () => _dragging = false;
-        _gunSurface.Resized += () => { if (_inspectionVisible) Callable.From(FramePreviews).CallDeferred(); };
-        center.AddChild(Text("Drag to rotate  ·  Scroll to zoom", 13, Muted));
-        _equip = MakeButton("Equip shape", true); _equip.Name = "EquipInspectedShape"; _equip.CustomMinimumSize = new Vector2(0, 48); _equip.Pressed += () => EquipRequested?.Invoke(); center.AddChild(_equip);
-
-        VBoxContainer right = new() { CustomMinimumSize = new Vector2(240, 0) }; columns.AddChild(right); right.AddThemeConstantOverride("separation", 10);
-        right.AddChild(Text("SHAPE IDENTITY", 12, Accent));
-        SubViewportContainer shapeSurface = MakePreview(out _shapeViewport, out _shapePivot, out _shapeCamera); shapeSurface.CustomMinimumSize = new Vector2(240, 220); shapeSurface.SizeFlagsVertical = SizeFlags.Fill; shapeSurface.MouseFilter = MouseFilterEnum.Ignore; right.AddChild(shapeSurface);
-        shapeSurface.Resized += () => { if (_inspectionVisible) Callable.From(FramePreviews).CallDeferred(); };
-        ScrollContainer detailScroll = new() { SizeFlagsVertical = SizeFlags.ExpandFill, HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled }; right.AddChild(detailScroll);
-        VBoxContainer details = new() { CustomMinimumSize = new Vector2(228, 0), SizeFlagsHorizontal = SizeFlags.ExpandFill }; details.AddThemeConstantOverride("separation", 12); detailScroll.AddChild(details);
-        _attack = Text("", 20, Colors.White); _attack.AutowrapMode = TextServer.AutowrapMode.WordSmart; details.AddChild(_attack);
-        _description = Wrapped("", 14, Muted); details.AddChild(_description);
-        _stats = Text("", 14, new Color(0.79f, 0.85f, 0.9f)); details.AddChild(_stats);
-        details.AddChild(Text("INSTALLED MODULATORS", 12, Accent));
-        _mods = Wrapped("", 14, Muted); details.AddChild(_mods);
-    }
-
-    private SubViewportContainer MakePreview(out SubViewport viewport, out Node3D pivot, out Camera3D camera)
-    {
-        SubViewportContainer surface = new() { Stretch = true, SizeFlagsHorizontal = SizeFlags.ExpandFill, SizeFlagsVertical = SizeFlags.ExpandFill, MouseFilter = MouseFilterEnum.Stop };
-        viewport = new SubViewport { OwnWorld3D = true, TransparentBg = true, Size = new Vector2I(640, 480), HandleInputLocally = false, RenderTargetUpdateMode = SubViewport.UpdateMode.Disabled, Msaa3D = Viewport.Msaa.Msaa4X };
-        surface.AddChild(viewport);
-        WorldEnvironment environment = new() { Environment = new Godot.Environment { BackgroundMode = Godot.Environment.BGMode.Color, BackgroundColor = new Color(0.025f, 0.04f, 0.055f), AmbientLightSource = Godot.Environment.AmbientSource.Color, AmbientLightColor = new Color(0.72f, 0.8f, 0.88f), AmbientLightEnergy = 0.7f, TonemapMode = Godot.Environment.ToneMapper.Filmic } };
-        viewport.AddChild(environment);
-        pivot = new Node3D(); viewport.AddChild(pivot);
-        camera = new Camera3D { Projection = Camera3D.ProjectionType.Orthogonal, Size = 0.4f, Position = new Vector3(0, 0, 5), Current = true, Near = 0.01f, Far = 1000f, KeepAspect = Camera3D.KeepAspectEnum.Height }; viewport.AddChild(camera);
-        AddLight(viewport, new Vector3(-42, -35, 0), Colors.White, 1.65f);
-        AddLight(viewport, new Vector3(20, 125, 0), new Color(0.55f, 0.76f, 1f), 0.9f);
-        AddLight(viewport, new Vector3(-25, -155, 0), new Color(0.7f, 0.95f, 1f), 1.15f);
-        return surface;
-    }
-
-    private static void AddLight(Node parent, Vector3 rotation, Color color, float energy) => parent.AddChild(new DirectionalLight3D { RotationDegrees = rotation, LightColor = color, LightEnergy = energy, ShadowEnabled = false });
-
-    private void HandlePreviewInput(InputEvent input)
-    {
-        if (!_inspectionVisible) return;
-        if (input is InputEventMouseButton button)
+        VBoxContainer center = new() { SizeFlagsHorizontal = SizeFlags.ExpandFill }; center.AddThemeConstantOverride("separation", 10); columns.AddChild(center);
+        HBoxContainer weaponHeading = new(); center.AddChild(weaponHeading);
+        VBoxContainer weaponTitle = new() { SizeFlagsHorizontal = SizeFlags.ExpandFill }; weaponHeading.AddChild(weaponTitle);
+        _name = Text("Multiweapon", 28, Colors.White); weaponTitle.AddChild(_name);
+        _rarity = Text("", 12, Muted); weaponTitle.AddChild(_rarity);
+        _equip = MakeButton("EQUIPPED"); _equip.Name = "EquipInspectedShape"; _equip.CustomMinimumSize = new Vector2(112, 40); _equip.Pressed += () => { _animateNextSelection = true; EquipRequested?.Invoke(); }; weaponHeading.AddChild(_equip);
+        BuildWeaponPreview(center);
+        HBoxContainer socketHeading = new(); center.AddChild(socketHeading);
+        socketHeading.AddChild(Text("MODULATOR SOCKETS", 12, Accent)); _socketCount = Text("", 12, Muted); _socketCount.SizeFlagsHorizontal = SizeFlags.ExpandFill; _socketCount.HorizontalAlignment = HorizontalAlignment.Right; socketHeading.AddChild(_socketCount);
+        HBoxContainer dock = new() { Name = "WeaponSocketDock" }; dock.AddThemeConstantOverride("separation", 5); center.AddChild(dock);
+        for (int slot = 0; slot < 10; slot++)
         {
-            if (button.ButtonIndex == MouseButton.Left) _dragging = button.Pressed;
-            if (button.Pressed && button.ButtonIndex is MouseButton.WheelUp or MouseButton.WheelDown)
+            FpsInventoryTile button = MakeSocket(slot, false); button.Name = $"SocketDock{slot}"; button.CustomMinimumSize = new Vector2(34, 50); button.SizeFlagsHorizontal = SizeFlags.ExpandFill; dock.AddChild(button); _socketDock.Add(button);
+        }
+        center.AddChild(Text("Drag to rotate  ·  Scroll to zoom  ·  Drop shapes on the weapon", 12, Muted));
+
+        _right = new VBoxContainer { CustomMinimumSize = new Vector2(264, 0) }; _right.AddThemeConstantOverride("separation", 10); columns.AddChild(_right);
+        _right.AddChild(Text("WEAPON STATS", 13, Accent));
+        PanelContainer statPanel = new(); statPanel.AddThemeStyleboxOverride("panel", CardStyle(Ink, Border, 12)); _right.AddChild(statPanel);
+        VBoxContainer statRows = new(); statRows.AddThemeConstantOverride("separation", 9); statPanel.AddChild(statRows);
+        (_damageLabel, _damage) = StatRow(statRows, "HIT DAMAGE"); (_, _cadence) = StatRow(statRows, "INTERVAL"); (_, _range) = StatRow(statRows, "REACH"); (_, _crit) = StatRow(statRows, "CRIT CHANCE"); (_, _outputs) = StatRow(statRows, "EXTRA OUTPUT"); (_, _health) = StatRow(statRows, "PLAYER MAX HP");
+        ScrollContainer detailScroll = new() { Name = "WeaponDetailsScroll", SizeFlagsVertical = SizeFlags.ExpandFill, HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled }; _right.AddChild(detailScroll);
+        VBoxContainer detail = new() { SizeFlagsHorizontal = SizeFlags.ExpandFill }; detail.AddThemeConstantOverride("separation", 10); detailScroll.AddChild(detail);
+        _detailName = Wrapped("SHAPE DETAILS", 17, Colors.White); detail.AddChild(_detailName);
+        _detailMeta = Wrapped("", 12, Accent); _detailMeta.Name = "ModulatorDetailsMeta"; detail.AddChild(_detailMeta);
+        _attack = Wrapped("", 15, Colors.White); detail.AddChild(_attack);
+        _description = Wrapped("", 13, Muted); detail.AddChild(_description);
+        _mods = Wrapped("", 13, new Color(.76f, .83f, .88f)); _mods.Name = "InstalledModulatorDetails"; detail.AddChild(_mods);
+        Button details = MakeButton("Weapon details"); details.Pressed += ShowWeaponDetails; _right.AddChild(details);
+        _status = Wrapped("", 13, Accent); _status.CustomMinimumSize = new Vector2(0, 22); outer.AddChild(_status);
+        Resized += ResizeWorkbench;
+        ResizeWorkbench();
+    }
+
+    private void ResizeWorkbench()
+    {
+        if (!_built) return;
+        bool compact = Size.X < 1400;
+        _left.CustomMinimumSize = new Vector2(compact ? 232 : 270, 0);
+        _right.CustomMinimumSize = new Vector2(compact ? 236 : 282, 0);
+        Callable.From(FrameWeapon).CallDeferred();
+    }
+
+    public void ShowModulatorInventory(bool show)
+    {
+        _showModulators = show; _search.Text = ""; RebuildInventory();
+    }
+
+    private void RebuildInventory()
+    {
+        if (!_built) return;
+        foreach (Node child in _grid.GetChildren()) { _grid.RemoveChild(child); child.QueueFree(); }
+        _thumbnails.Clear(); _choices.Clear();
+        _shapeTab.Text = $"Shapes  {_weapons.Count}"; _modTab.Text = $"Mods  {_stored.Count}";
+        _shapeTab.AddThemeStyleboxOverride("normal", CardStyle(!_showModulators ? new Color(.07f, .23f, .25f) : Ink, !_showModulators ? Accent : Border, 7));
+        _modTab.AddThemeStyleboxOverride("normal", CardStyle(_showModulators ? new Color(.07f, .23f, .25f) : Ink, _showModulators ? Accent : Border, 7));
+        _inventoryCount.Text = "CURRENT RUN";
+        string query = _search.Text.Trim();
+        if (_showModulators)
+        {
+            for (int i = 0; i < _stored.Count; i++)
             {
-                _zoom = Mathf.Clamp(_zoom * (button.ButtonIndex == MouseButton.WheelUp ? 0.9f : 1.1f), 0.6f, 1.8f);
-                _gunCamera.Size = _gunFrameSize * _zoom;
+                WeaponModulatorData part = _stored[i];
+                if (!Matches(part.DisplayName + " " + ModulatorQualityText.Header(part), query)) continue;
+                FpsInventoryThumbnail preview = FpsInventoryThumbnail.Modulator(part);
+                FpsInventoryTile tile = ItemTile(part.BaseDisplayName, $"{ModulatorQualityText.QualityName(part.Tier)} · {(int)(part.QualityStrength * 100)}%", ModulatorLoot.GetTierColor(part.PowerTier), preview);
+                tile.Name = $"StoredModulator{i}"; tile.DragCaption = part.DisplayName;
+                tile.TooltipText = $"{part.DisplayName}\n{ModulatorQualityText.Header(part)}\n{ModulatorQualityText.Describe(part)}";
+                tile.CreatePayload = () => !_inspectionVisible || _motionPhase != "" || InspectedItem == null || !_stored.Contains(part) ? null : Payload(InspectedItem, part);
+                tile.Pressed += () => SelectModulatorDetails(part);
+                tile.AcceptPayload = CanStorePayload; tile.CommitPayload = StorePayload;
+                _grid.AddChild(tile);
             }
         }
-        if (input is InputEventMouseMotion motion && _dragging)
+        else
         {
-            Vector3 rotation = _gunPivot.Rotation;
-            rotation.Y += motion.Relative.X * 0.009f;
-            rotation.X = Mathf.Clamp(rotation.X + motion.Relative.Y * 0.009f, -1.4f, 1.4f);
-            _gunPivot.Rotation = rotation;
-            FramePreviews();
-        }
-        _gunSurface.AcceptEvent();
-    }
-
-    private void FramePreviews()
-    {
-        if (!_built || !IsInsideTree()) return;
-        if (_gunVisual != null) _gunFrameSize = Frame(_gunVisual, _gunPivot, _gunCamera, _gunViewport, false);
-        FrameShape();
-        _gunCamera.Size = _gunFrameSize * _zoom;
-    }
-
-    private void FrameShape()
-    {
-        if (_shapeVisual == null || !_shapeVisual.IsInsideTree()) return;
-        if (!_identityInitialized)
-        {
-            // Four-dimensional point clouds populate instance transforms on their first tick.
-            if (_shapeVisual is LegacyShapeVisualAnimator legacy) legacy._Process(0);
-            if (_selected >= 0 && _weapons[_selected].Shape?.Key == "triangle")
+            for (int i = 0; i < _weapons.Count; i++)
             {
-                // The canonical prism has its triangular face in XY, with a narrow X span
-                // after its local 90-degree roll. Keep that face and normalize its aspect.
-                Aabb? triangle = FpsWeaponVisualFactory.GetVisualBounds(_shapeVisual);
-                if (triangle.HasValue && triangle.Value.Size.X > 0)
-                    _shapeVisual.Scale *= new Vector3(triangle.Value.Size.Y / triangle.Value.Size.X, 1, 1);
+                int index = i; EquipmentItem item = _weapons[i];
+                if (!Matches(item.Shape?.DisplayName ?? "", query)) continue;
+                FpsInventoryThumbnail preview = FpsInventoryThumbnail.Shape(item);
+                FpsInventoryTile tile = ItemTile(item.Shape?.DisplayName ?? "Shape", $"{item.Rarity?.DisplayName ?? "Common"} · Lv {item.Level}", item.Rarity?.UiColor ?? Colors.White, preview);
+                tile.Name = $"ShapeChoice{i}"; tile.DragCaption = item.Shape?.DisplayName ?? "Shape";
+                tile.TooltipText = $"{item.Shape?.DisplayName}\n{item.Rarity?.DisplayName} · Level {item.Level}\nClick to inspect. Drag onto the multiweapon to equip.";
+                tile.CreatePayload = () => !_inspectionVisible || _motionPhase != "" ? null : Payload(item, null, index);
+                tile.Pressed += () => ShapeSelected?.Invoke(index);
+                tile.AcceptPayload = CanStorePayload; tile.CommitPayload = StorePayload;
+                tile.SetMeta("arsenal_index", index); _choices.Add(tile); _grid.AddChild(tile);
             }
-            _identityInitialized = true;
         }
-        float framed = Frame(_shapeVisual, _shapePivot, _shapeCamera, _shapeViewport, !_flatShape);
-        // Animated projections can expand after initialization. Grow the frame without
-        // pulsing the camera size as individual points move in and out of the bounds.
-        _identityFrameSize = Mathf.Max(_identityFrameSize, framed);
-        _shapeCamera.Size = _identityFrameSize;
+        if (_grid.GetChildCount() == 0)
+        {
+            Label empty = Wrapped(string.IsNullOrEmpty(query) ? _showModulators ? "No loose modulators yet.\n\nRecover parts from enemies and completed waves, or drag an installed cartridge here." : "Your collected shapes appear here." : "No matching items.", 14, Muted);
+            empty.CustomMinimumSize = new Vector2(_left.CustomMinimumSize.X - 30, 130); _grid.AddChild(empty);
+        }
+        RefreshShapeSelection();
     }
 
-    private static float Frame(Node3D visual, Node3D pivot, Camera3D camera, SubViewport viewport, bool rotationSafe)
+    private FpsInventoryTile ItemTile(string name, string subtitle, Color color, FpsInventoryThumbnail preview)
     {
-        Aabb? bounds = FpsWeaponVisualFactory.GetVisualBounds(visual);
-        if (bounds == null) return camera.Size;
-        Aabb box = visual.Transform * bounds.Value;
-        visual.Position -= box.GetCenter();
-        // A bounding sphere preserves the framing as the player turns the model.
-        float diameter = Mathf.Max(box.Size.Length(), 0.04f);
-        Vector3 center = pivot.Position;
-        camera.Position = center + new Vector3(0, 0, Mathf.Max(diameter * 3f, 1f));
-        float aspect = (float)viewport.Size.X / Mathf.Max(1, viewport.Size.Y);
-        Aabb oriented = pivot.Transform * new Aabb(-box.Size * 0.5f, box.Size);
-        camera.Size = rotationSafe ? diameter * 1.18f / Mathf.Min(1f, aspect)
-            : Mathf.Max(oriented.Size.Y, oriented.Size.X / aspect) * 1.2f;
-        return camera.Size;
+        FpsInventoryTile tile = new() { CustomMinimumSize = new Vector2(96, 137), SizeFlagsHorizontal = SizeFlags.ExpandFill, MouseDefaultCursorShape = CursorShape.PointingHand, ClipContents = true };
+        tile.AddThemeStyleboxOverride("normal", CardStyle(new Color(.055f, .085f, .11f), color.Darkened(.50f), 8));
+        tile.AddThemeStyleboxOverride("hover", CardStyle(new Color(.08f, .15f, .18f), color, 8));
+        tile.AddThemeStyleboxOverride("pressed", CardStyle(new Color(.08f, .20f, .23f), Accent, 8));
+        tile.AddThemeStyleboxOverride("focus", CardStyle(Colors.Transparent, Accent, 8));
+        VBoxContainer content = new() { MouseFilter = MouseFilterEnum.Ignore }; tile.AddChild(content); content.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect); content.OffsetLeft = content.OffsetTop = 6; content.OffsetRight = content.OffsetBottom = -6; content.AddThemeConstantOverride("separation", 3);
+        content.AddChild(preview); _thumbnails.Add(preview);
+        Label caption = Text(name, 13, Colors.White); caption.AutowrapMode = TextServer.AutowrapMode.WordSmart; caption.CustomMinimumSize = new Vector2(0, 34); caption.MaxLinesVisible = 2; content.AddChild(caption);
+        Label meta = Text(subtitle, 10, color.Lerp(Colors.White, .35f)); meta.TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis; content.AddChild(meta);
+        tile.Ready += () => tile.PreviewTexture = preview.ThumbnailTexture;
+        return tile;
     }
 
-    private static void ClearVisual(Node parent, ref Node3D? visual)
+    private void RefreshShapeSelection()
     {
-        if (visual == null) return;
-        parent.RemoveChild(visual); visual.QueueFree(); visual = null;
+        foreach (FpsInventoryTile tile in _choices)
+        {
+            int index = tile.GetMeta("arsenal_index").AsInt32();
+            Color color = _weapons[index].Rarity?.UiColor ?? Muted;
+            tile.AddThemeStyleboxOverride("normal", CardStyle(index == _selected ? new Color(.075f, .19f, .22f) : new Color(.055f, .085f, .11f), index == _selected ? Accent : color.Darkened(.5f), 8));
+        }
     }
 
-    private static Label Text(string text, int size, Color color)
+    private void UpdateStats()
+    {
+        if (_stats == null) return;
+        _damageLabel.Text = _stats.DamageLabel.ToUpperInvariant(); _damage.Text = _stats.Damage.ToString("0.#");
+        _cadence.Text = $"{_stats.IntervalSeconds:0.##} s"; _range.Text = $"{_stats.Range:0.#} m";
+        _crit.Text = $"{_stats.CritChancePercent:0.#}%"; _outputs.Text = $"+{_stats.AverageExtraOutput:0.##}";
+        _health.Text = $"{_stats.MaximumPlayerHealth:0.#}";
+    }
+
+    private void ShowWeaponDetails()
+    {
+        if (!_built) return;
+        _detailPart = null;
+        EquipmentItem? weapon = InspectedItem;
+        _detailName.Text = "SHAPE DETAILS"; _detailMeta.Text = "";
+        _detailMeta.Visible = false; _attack.Visible = _description.Visible = true;
+        _attack.Text = weapon?.Shape?.AttackName ?? "";
+        _description.Text = weapon == null ? "" : FpsModulatorPresentation.DescribeAttack(weapon);
+        _mods.Text = _stats == null ? "" : $"{_stats.DamageHint}\n\nAttack rate  {_stats.AttacksPerSecond:0.##} / s\nArea  ×{_stats.AreaScale:0.##}\nDuration  ×{_stats.DurationScale:0.##}\nPierce  +{_stats.AveragePierce:0.##}\nRicochet  +{_stats.AverageRicochet:0.##}\nBounces  +{_stats.AverageBounces:0.##}\nChain targets  +{_stats.AverageChains:0.##}\n\nSelect a cartridge to inspect its effects.";
+    }
+
+    public void SelectModulatorDetails(WeaponModulatorData part)
+    {
+        _detailPart = part;
+        _detailName.Text = part.DisplayName; _detailMeta.Text = ModulatorQualityText.Header(part);
+        _detailMeta.Visible = true; _attack.Visible = _description.Visible = false;
+        _detailMeta.AddThemeColorOverride("font_color", ModulatorLoot.GetTierColor(part.PowerTier));
+        _attack.Text = ""; _description.Text = "";
+        EquipmentItem? weapon = InspectedItem;
+        _mods.Text = weapon != null && weapon.Modulators.Contains(part)
+            ? FpsModulatorPresentation.DescribePart(part, weapon, _selected == _equipped, _selected, _weapons.Count > 0 ? _weapons[0] : null, includeHeading: false)
+            : ModulatorQualityText.Describe(part) + "\n\n" + ModulatorQualityText.Compare(part, weapon);
+        if (weapon != null && !WeaponModulatorCompatibility.CanApplyToWeapon(part, weapon, out string reason)) _mods.Text += "\n\n" + reason;
+    }
+
+    private FpsInventoryDragData Payload(EquipmentItem weapon, WeaponModulatorData? part, int arsenalIndex = -1, int sourceSlot = -1)
+        => new() { Owner = this, Session = _session, Weapon = weapon, Part = part, ArsenalIndex = arsenalIndex, SourceSlot = sourceSlot };
+    private bool Owns(FpsInventoryDragData payload) => _inspectionVisible && _motionPhase == "" && ReferenceEquals(payload.Owner, this) && payload.Session == _session;
+    private bool CanEquipPayload(FpsInventoryDragData payload) => Owns(payload) && payload.Part == null && payload.ArsenalIndex >= 0 && payload.ArsenalIndex < _weapons.Count && ReferenceEquals(_weapons[payload.ArsenalIndex], payload.Weapon);
+    private void EquipPayload(FpsInventoryDragData payload)
+    {
+        if (!CanEquipPayload(payload)) return;
+        _animateNextSelection = true; ShapeDropped?.Invoke(payload.ArsenalIndex); _animateNextSelection = false;
+    }
+    private bool CanInstallPayload(FpsInventoryDragData payload, int slot) => Owns(payload) && ReferenceEquals(payload.Weapon, InspectedItem) && payload.Part != null && payload.SourceSlot < 0 && _stored.Contains(payload.Part) && CanInstallPart?.Invoke(payload.Weapon, payload.Part, slot) == true;
+    private void InstallPayload(FpsInventoryDragData payload, int slot)
+    {
+        if (!CanInstallPayload(payload, slot)) return;
+        _pendingSeat = slot;
+        ModulatorDropRequested?.Invoke(payload.Weapon, payload.Part!, slot);
+        _pendingSeat = -1;
+        if (_slots.Contains(payload.Part)) SelectModulatorDetails(payload.Part!);
+    }
+    private bool CanStorePayload(FpsInventoryDragData payload) => Owns(payload) && ReferenceEquals(payload.Weapon, InspectedItem) && payload.Part != null && payload.SourceSlot >= 0 && payload.SourceSlot < _slots.Count && ReferenceEquals(_slots[payload.SourceSlot], payload.Part) && CanRemovePart?.Invoke(payload.Weapon, payload.SourceSlot) == true;
+    private void StorePayload(FpsInventoryDragData payload)
+    {
+        if (!CanStorePayload(payload)) return;
+        _pendingRemove = payload.SourceSlot;
+        ModulatorRemoveRequested?.Invoke(payload.Weapon, payload.SourceSlot);
+        _pendingRemove = -1;
+    }
+    private static bool Matches(string text, string query) => string.IsNullOrEmpty(query) || text.Contains(query, StringComparison.OrdinalIgnoreCase);
+
+    private static (Label, Label) StatRow(VBoxContainer parent, string name)
+    {
+        HBoxContainer row = new(); parent.AddChild(row);
+        Label label = Text(name, 11, Muted); label.SizeFlagsHorizontal = SizeFlags.ExpandFill; row.AddChild(label);
+        Label value = Text("—", 18, Colors.White); row.AddChild(value); return (label, value);
+    }
+    internal static Label Text(string text, int size, Color color)
     {
         Label label = new() { Text = text, MouseFilter = MouseFilterEnum.Ignore };
         label.AddThemeFontSizeOverride("font_size", size); label.AddThemeColorOverride("font_color", color); return label;
     }
     private static Label Wrapped(string text, int size, Color color) { Label label = Text(text, size, color); label.AutowrapMode = TextServer.AutowrapMode.WordSmart; return label; }
-    private static Button MakeButton(string text, bool primary)
+    private static Button MakeButton(string text)
     {
-        Button button = new() { Text = text, MouseDefaultCursorShape = CursorShape.PointingHand };
-        button.AddThemeFontSizeOverride("font_size", 15);
-        button.AddThemeColorOverride("font_color", primary ? new Color(0.025f, 0.08f, 0.1f) : Colors.White);
-        button.AddThemeStyleboxOverride("normal", PanelStyle(primary ? Accent : new Color(0.07f, 0.1f, 0.13f), primary ? Accent : new Color(0.19f, 0.27f, 0.33f)));
-        button.AddThemeStyleboxOverride("hover", PanelStyle(primary ? Accent.Lightened(0.15f) : new Color(0.12f, 0.2f, 0.25f), Accent));
-        button.AddThemeStyleboxOverride("pressed", PanelStyle(new Color(0.15f, 0.36f, 0.4f), Accent));
-        button.AddThemeStyleboxOverride("disabled", PanelStyle(new Color(0.09f, 0.13f, 0.16f), new Color(0.2f, 0.27f, 0.3f)));
-        button.AddThemeStyleboxOverride("focus", PanelStyle(Colors.Transparent, Accent));
-        return button;
+        Button button = new() { Text = text, MouseDefaultCursorShape = CursorShape.PointingHand, CustomMinimumSize = new Vector2(0, 36) };
+        button.AddThemeFontSizeOverride("font_size", 13);
+        button.AddThemeStyleboxOverride("normal", CardStyle(Ink, Border, 8));
+        button.AddThemeStyleboxOverride("hover", CardStyle(new Color(.09f, .20f, .23f), Accent, 8));
+        button.AddThemeStyleboxOverride("pressed", CardStyle(new Color(.1f, .29f, .31f), Accent, 8));
+        button.AddThemeStyleboxOverride("disabled", CardStyle(new Color(.035f, .055f, .07f), Border, 8));
+        button.AddThemeStyleboxOverride("focus", CardStyle(Colors.Transparent, Accent, 8)); return button;
     }
-    private static StyleBoxFlat PanelStyle(Color background, Color border) => new() { BgColor = background, BorderColor = border, BorderWidthLeft = 1, BorderWidthRight = 1, BorderWidthTop = 1, BorderWidthBottom = 1, CornerRadiusTopLeft = 8, CornerRadiusTopRight = 8, CornerRadiusBottomLeft = 8, CornerRadiusBottomRight = 8, ContentMarginLeft = 14, ContentMarginRight = 14, ContentMarginTop = 10, ContentMarginBottom = 10 };
+    internal static StyleBoxFlat CardStyle(Color background, Color border, int padding = 8) => new()
+    {
+        BgColor = background, BorderColor = border, BorderWidthLeft = 1, BorderWidthRight = 1, BorderWidthTop = 1, BorderWidthBottom = 1,
+        CornerRadiusTopLeft = 7, CornerRadiusTopRight = 7, CornerRadiusBottomLeft = 7, CornerRadiusBottomRight = 7,
+        ContentMarginLeft = padding, ContentMarginRight = padding, ContentMarginTop = padding, ContentMarginBottom = padding,
+    };
 }

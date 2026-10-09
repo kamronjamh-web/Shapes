@@ -40,7 +40,8 @@ public partial class FpsVerticalSlice
 		WeaponModulatorEffectData? result = null;
 		WeaponModulatorSharedRuntime.ForEachResolvedEffect(weapon, ModulatorEffectTrigger.Passive, effect =>
 		{
-			if (effect.Type == ModulatorEffectType.NewWeaponTransform && WeaponModulatorData.NormalizeKey(effect.Key) == key)
+			if (effect.Type == ModulatorEffectType.NewWeaponTransform && WeaponModulatorData.NormalizeKey(effect.Key) == key
+				&& (result == null || effect.QualityStrength >= result.QualityStrength))
 				result = effect;
 		});
 		return result;
@@ -77,7 +78,9 @@ public partial class FpsVerticalSlice
 		if (deployed.Count == 0) return false;
 		foreach (MineEffect mine in deployed)
 		{
+			_weaponPolishAudio?.PlayActivation(WeaponAttackType.Mine, mine.Position);
 			DealFpsSecondary(() => DamageEnemiesInRadius(mine.Position, mine.ExplosionRadius, mine.Damage, weapon, false));
+			_weaponPolish?.Burst(WeaponAttackType.Mine, mine.Position, mine.ExplosionRadius, PolishRarity(weapon));
 			OnFpsMineDetonated(mine);
 			int index = _playerMines.IndexOf(mine);
 			if (index >= 0) RemoveMine(index);
@@ -96,7 +99,7 @@ public partial class FpsVerticalSlice
 			float interval = FpsSpecialMagnitude(config.MagnitudeB, 0.18f, 0.02f, 1.5f);
 			for (int i = 1; i < count; i++)
 			{
-				float scale = damageScale * Mathf.Lerp(1f, power, i / (float)(count - 1));
+				float scale = damageScale * Mathf.Lerp(config.QualityStrength, power, i / (float)(count - 1));
 				Vector3 shotDirection = direction.Rotated(Vector3.Up, _weaponRng.RandfRange(-0.03f, 0.03f) * i);
 				QueueFpsSpecial(interval * i, () => FireWeaponAttack(weapon, origin, shotDirection, scale, true));
 			}
@@ -120,8 +123,13 @@ public partial class FpsVerticalSlice
 		}
 		if (type == WeaponAttackType.Nova)
 		{
-			if (WeaponModulatorSharedRuntime.HasWeaponItemPassiveFlag(weapon, ModulatorEffectType.NewSecondPulse))
-				QueueFpsSpecial(0.3f, () => DealFpsSecondary(() => FireNovaPulse(weapon, damageScale * 0.6f)));
+			float secondPulsePower = 0f;
+			WeaponModulatorSharedRuntime.ForEachResolvedEffect(weapon, ModulatorEffectTrigger.Passive, effect =>
+			{
+				if (effect.Type == ModulatorEffectType.NewSecondPulse) secondPulsePower = Mathf.Max(secondPulsePower, effect.Magnitude);
+			});
+			if (secondPulsePower > 0f)
+				QueueFpsSpecial(0.3f, () => DealFpsSecondary(() => FireNovaPulse(weapon, damageScale * secondPulsePower)));
 			if ((config = GetFpsTransformConfig(weapon, "collapse_pulse")) != null)
 			{
 				float scale = damageScale * FpsSpecialMagnitude(config.Magnitude, 0.65f);
@@ -129,7 +137,7 @@ public partial class FpsVerticalSlice
 				{
 					float radius = 8.5f * GetFpsAreaScale(weapon) * GetFpsRangeScale(weapon);
 					DealFpsSecondary(() => DamageEnemiesInRadius(_player.GlobalPosition, radius * 0.92f, GetScaledWeaponDamage(weapon, scale) * 1.35f, weapon, false));
-					SpawnPulse(_player.GlobalPosition + Vector3.Up, radius * 0.8f, 0.24f, GetWeaponAccentColor(WeaponAttackType.Nova));
+					SpawnPolishedPulse(WeaponAttackType.Nova, _player.GlobalPosition, radius * 0.92f, 0.24f, GetWeaponAccentColor(WeaponAttackType.Nova), weapon);
 					if (_playerZones.Count > 0) GetFpsSpecialObjectState(_playerZones[^1]).Contracting = true;
 				});
 			}
@@ -150,7 +158,11 @@ public partial class FpsVerticalSlice
 		if (original == null || config == null) return;
 		float damage = initialDamage * FpsSpecialMagnitude(config.Magnitude, 0.5f);
 		// Capture the final arc's origin at fire time; moving the player cannot change its impulse.
-		QueueFpsSpecial(0.12f, () => DealFpsSecondary(() => DealDirectionalDamageToEnemy(original, damage, original.HeadPosition, weapon, false, false, original.HeadPosition - returnOrigin)));
+		QueueFpsSpecial(0.12f, () =>
+		{
+			if (original.IsValid && original.IsAlive) _weaponPolish?.Arc(returnOrigin, original.HeadPosition, PolishRarity(weapon));
+			DealFpsSecondary(() => DealDirectionalDamageToEnemy(original, damage, original.HeadPosition, weapon, false, false, original.HeadPosition - returnOrigin));
+		});
 	}
 
 	private void SpawnFpsSpecialZone(EquipmentItem weapon, Vector3 position, float radius, float duration, float damage)
@@ -169,7 +181,12 @@ public partial class FpsVerticalSlice
 		state.Returned = true;
 		Vector3 toPlayer = _player.GlobalPosition + Vector3.Up - projectile.Position;
 		projectile.Direction = toPlayer.LengthSquared() > 0.001f ? toPlayer.Normalized() : -projectile.Direction;
-		projectile.Damage *= 0.9f;
+		float returnPower = 0f;
+		WeaponModulatorSharedRuntime.ForEachResolvedEffect(projectile.SourceItem, ModulatorEffectTrigger.Passive, effect =>
+		{
+			if (effect.Type == ModulatorEffectType.NewSawReturn) returnPower = Mathf.Max(returnPower, effect.Magnitude);
+		});
+		projectile.Damage *= returnPower > 0f ? returnPower : .9f;
 		projectile.Life = state.InitialLife > 0f ? state.InitialLife : SawbladeLife * WeaponModulatorSharedRuntime.GetWeaponItemDurationMultiplier(projectile.SourceItem);
 		projectile.RemainingHits = Mathf.Max(1, state.InitialHits);
 		projectile.HitEnemies.Clear();
@@ -242,8 +259,9 @@ public partial class FpsVerticalSlice
 			float damage = mine.Damage * FpsSpecialMagnitude(config.Magnitude, 0.35f);
 			QueueFpsSpecial(0.2f + i * 0.04f, () =>
 			{
+				_weaponPolishAudio?.PlayActivation(WeaponAttackType.Mine, position);
 				DealFpsSecondary(() => DamageEnemiesInRadius(position, mine.ExplosionRadius * 0.65f, damage, mine.SourceItem, false));
-				SpawnPulse(position, mine.ExplosionRadius * 0.65f, 0.2f, GetWeaponAccentColor(WeaponAttackType.Mine));
+				SpawnPolishedPulse(WeaponAttackType.Mine, position, mine.ExplosionRadius * 0.65f, 0.2f, GetWeaponAccentColor(WeaponAttackType.Mine), mine.SourceItem);
 			});
 		}
 	}
@@ -267,14 +285,15 @@ public partial class FpsVerticalSlice
 		if (state.Returned || config == null || zone.Kind != ZoneEffectKind.Rift) return;
 		float interval = FpsSpecialMagnitude(config.Magnitude, 0.6f, 0.1f, 2f);
 		float direction = ((int)(zone.Age / interval) & 1) == 0 ? 1f : -1f;
-		PullEnemiesToward(zone.Position, zone.Radius, 16f * direction, dt);
+		PullEnemiesToward(zone.Position, zone.Radius, FpsSpecialMagnitude(config.MagnitudeB, 16f, 0f, 64f) * direction, dt);
 	}
 	private void OnFpsZoneExpired(ZoneEffect zone)
 	{
 		WeaponModulatorEffectData? config = GetFpsTransformConfig(zone.SourceItem, "event_horizon_tear");
 		if (zone.Kind != ZoneEffectKind.Void || config == null || zone.SourceItem == null) return;
+		_weaponPolishAudio?.PlayActivation(WeaponAttackType.VoidSingularity, zone.Position);
 		DealFpsSecondary(() => DamageEnemiesInRadius(zone.Position, zone.Radius * 1.25f, zone.DamagePerTick * FpsSpecialMagnitude(config.Magnitude, 1.6f), zone.SourceItem, false));
-		SpawnPulse(zone.Position, zone.Radius * 1.5f, 0.26f, GetWeaponAccentColor(WeaponAttackType.VoidSingularity));
+		SpawnPolishedPulse(WeaponAttackType.VoidSingularity, zone.Position, zone.Radius * 1.25f, 0.26f, GetWeaponAccentColor(WeaponAttackType.VoidSingularity), zone.SourceItem);
 		int count = Mathf.Clamp(config.Count > 0 ? config.Count : 6, 1, 24);
 		for (int i = 0; i < count; i++)
 		{
@@ -347,13 +366,19 @@ public partial class FpsVerticalSlice
 	{
 		if (source == null || !trigger || _fpsSpecialDamageDepth > 0 || damage <= 0f) return;
 		// Original damage paths opt in; every secondary proc opts out to prevent feedback loops.
-		int copies = 0, stage = 0;
+		float qualitySum = 0f, strongestQuality = 0f;
 		foreach (EquipmentItem item in _arsenal)
 			foreach (WeaponModulatorData mod in item.Modulators)
-				if (mod != null && mod.NormalizedKey == "volitile") { copies++; stage = Mathf.Max(stage, (int)mod.Tier + 1); }
-		if (copies > 0)
+				if (mod != null && mod.NormalizedKey == "volitile")
+				{
+					float strength = ModulatorQuality.GetStrength(mod.Tier);
+					qualitySum += strength;
+					strongestQuality = Mathf.Max(strongestQuality, strength);
+				}
+		if (qualitySum > 0f)
 		{
-			float radius = Mathf.Clamp(stage + copies - 1, 1, 4);
+			// Baseline keeps the legacy n+1 radius; fractional copies contribute their potency.
+			float radius = Mathf.Clamp(qualitySum + strongestQuality, 1f, 4f);
 			SpawnPulse(position, radius, 0.22f, new Color(1f, 0.44f, 0.18f));
 			DealFpsSecondary(() =>
 			{
@@ -380,8 +405,9 @@ public partial class FpsVerticalSlice
 					IFpsCombatEnemy? next = FindNearestEnemy(point, cascade.Range, visited, true);
 					if (next == null) break;
 					visited.Add(next);
+					_weaponPolish?.Arc(point, next.HeadPosition, PolishRarity(source));
 					DealDirectionalDamageToEnemy(next, damage * cascade.DamageScale, next.HeadPosition, source, true, false, next.HeadPosition - point);
-					SpawnPulse(next.HeadPosition, 0.75f, 0.12f, GetWeaponAccentColor(WeaponAttackType.ChainLightning));
+					SpawnPolishedPulse(WeaponAttackType.ChainLightning, next.HeadPosition, 0.75f, 0.12f, GetWeaponAccentColor(WeaponAttackType.ChainLightning), source);
 					point = next.HeadPosition;
 				}
 			});
@@ -426,19 +452,28 @@ public partial class FpsVerticalSlice
 			{
 				state.Timer = FpsSpecialMagnitude(reactor.MagnitudeB, 1.5f, 0.1f, 10f);
 				float burst = stored * 0.3f;
+				_weaponPolishAudio?.PlayActivation(WeaponAttackType.WrathAura, _player.GlobalPosition);
 				DealFpsSecondary(() => DamageEnemiesInRadius(_player.GlobalPosition, 6.2f, burst, current, false));
-				SpawnPulse(_player.GlobalPosition + Vector3.Up, 6.2f, 0.25f, GetWeaponAccentColor(WeaponAttackType.WrathAura));
+				SpawnPolishedPulse(WeaponAttackType.WrathAura, _player.GlobalPosition, 6.2f, 0.25f, GetWeaponAccentColor(WeaponAttackType.WrathAura), current);
 				stored *= 0.55f;
 			}
 			_fpsBloodPrice[current] = stored;
 		}
 		// Bound per-object state by the currently live effect records.
 		HashSet<object> live = new();
-		foreach (var value in _playerProjectiles) live.Add(value);
-		foreach (var value in _playerZones) live.Add(value);
-		foreach (var value in _playerOrbitals) live.Add(value);
+		foreach (var value in _playerProjectiles) { live.Add(value); if (value.SourceItem != null) live.Add(value.SourceItem); }
+		foreach (var value in _playerZones) { live.Add(value); if (value.SourceItem != null) live.Add(value.SourceItem); }
+		foreach (var value in _playerOrbitals) { live.Add(value); if (value.SourceItem != null) live.Add(value.SourceItem); }
+		foreach (var value in _playerMines) if (value.SourceItem != null) live.Add(value.SourceItem);
+		foreach (var value in _playerMortars) if (value.SourceItem != null) live.Add(value.SourceItem);
+		foreach (var value in _playerClones) if (value.SourceItem != null) live.Add(value.SourceItem);
+		foreach (var value in _playerEchoes) live.Add(value.Weapon);
 		foreach (var value in _arsenal) live.Add(value);
+		foreach (var pair in _fpsWingWomanSources) if (_arsenal.Contains(pair.Key)) live.Add(pair.Value);
 		foreach (object value in new List<object>(_fpsSpecialObjects.Keys)) if (!live.Contains(value)) _fpsSpecialObjects.Remove(value);
+		_fpsRetiredCountKeys.Clear();
+		foreach (var key in _fpsCountCarry.Keys) if (!live.Contains(key.Source)) _fpsRetiredCountKeys.Add(key);
+		foreach (var key in _fpsRetiredCountKeys) _fpsCountCarry.Remove(key);
 	}
 	private void CaptureFpsBloodPriceHealth(float currentHealth, float maxHealth)
 	{
@@ -458,6 +493,8 @@ public partial class FpsVerticalSlice
 	}
 	private void ResetFpsModulatorSpecials()
 	{
+		_fpsCountCarry.Clear();
+		_fpsRetiredCountKeys.Clear();
 		_fpsDelayedSpecials.Clear(); _fpsSpecialObjects.Clear(); _fpsLockedTargets.Clear(); _fpsPackMarkTime.Clear();
 		_fpsOmniHitCounts.Clear(); _fpsBloodPrice.Clear(); _fpsCascadeCooldown = 0f;
 		_fpsPreviousHealth = _player != null ? _player.CurrentHealth : -1f;

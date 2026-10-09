@@ -106,7 +106,7 @@
   },
   "nodes": 478,
   "meshes": 454,
-  "bytes": 2593316,
+  "bytes": 2622312,
   "objects": [
     {
       "name": "GunRoot",
@@ -2498,5 +2498,187 @@
       "source": "MuzzleAnchor",
       "parent": "GunRoot"
     }
-  ]
+  ],
+  "workbench": {
+    "source": "Art/WeaponWorkbenchAnimations/ImpossibleCubeSingularityWorkbench.blend",
+    "approved_source_sha256": "0e124bf8165931f11387e01523573a69b289cef35be4e5b7e58fb07ecdd0ae4e",
+    "clips": [
+      {
+        "name": "Disassemble",
+        "duration": 0.7,
+        "targets": [
+          "ImpossibleCube_Dark_Singularity_Pulse",
+          "ImpossibleCube_Offset_Inner_Frame",
+          "ImpossibleCube_Suspended_Fragment_00",
+          "ImpossibleCube_Suspended_Fragment_01",
+          "ImpossibleCube_Suspended_Fragment_02",
+          "ImpossibleCube_Suspended_Fragment_03",
+          "ImpossibleCube_Suspended_Fragment_04",
+          "ImpossibleCube_Suspended_Fragment_05",
+          "ImpossibleCube_Suspended_Fragment_06",
+          "ImpossibleCube_Suspended_Fragment_07",
+          "ShapeSocket"
+        ]
+      },
+      {
+        "name": "Assemble",
+        "duration": 0.7,
+        "targets": [
+          "ImpossibleCube_Dark_Singularity_Pulse",
+          "ImpossibleCube_Offset_Inner_Frame",
+          "ImpossibleCube_Suspended_Fragment_00",
+          "ImpossibleCube_Suspended_Fragment_01",
+          "ImpossibleCube_Suspended_Fragment_02",
+          "ImpossibleCube_Suspended_Fragment_03",
+          "ImpossibleCube_Suspended_Fragment_04",
+          "ImpossibleCube_Suspended_Fragment_05",
+          "ImpossibleCube_Suspended_Fragment_06",
+          "ImpossibleCube_Suspended_Fragment_07",
+          "ShapeSocket"
+        ]
+      },
+      {
+        "name": "SocketSeat05",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge"
+        ]
+      },
+      {
+        "name": "SocketRemove05",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge"
+        ]
+      },
+      {
+        "name": "SocketSeat09",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.001"
+        ]
+      },
+      {
+        "name": "SocketRemove09",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.001"
+        ]
+      },
+      {
+        "name": "SocketSeat06",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.002"
+        ]
+      },
+      {
+        "name": "SocketRemove06",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.002"
+        ]
+      },
+      {
+        "name": "SocketSeat07",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.003"
+        ]
+      },
+      {
+        "name": "SocketRemove07",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.003"
+        ]
+      },
+      {
+        "name": "SocketSeat08",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.004"
+        ]
+      },
+      {
+        "name": "SocketRemove08",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.004"
+        ]
+      },
+      {
+        "name": "SocketSeat01",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.005"
+        ]
+      },
+      {
+        "name": "SocketRemove01",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.005"
+        ]
+      },
+      {
+        "name": "SocketSeat02",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.006"
+        ]
+      },
+      {
+        "name": "SocketRemove02",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.006"
+        ]
+      },
+      {
+        "name": "SocketSeat03",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.007"
+        ]
+      },
+      {
+        "name": "SocketRemove03",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.007"
+        ]
+      },
+      {
+        "name": "SocketSeat04",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.008"
+        ]
+      },
+      {
+        "name": "SocketRemove04",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.008"
+        ]
+      },
+      {
+        "name": "SocketSeat10",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.009"
+        ]
+      },
+      {
+        "name": "SocketRemove10",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.009"
+        ]
+      }
+    ],
+    "core": "ShapeSocket",
+    "authoring": "component-local fold around the core; no whole-gun scale; local-axis cartridge seating"
+  }
 }

@@ -22,12 +22,25 @@ public partial class FpsVerticalSlice
 		_weaponInspectionUi.ShapeSelected += PreviewInspectedWeapon;
 		_weaponInspectionUi.EquipRequested += () => EquipInspectedWeapon();
 		_weaponInspectionUi.CloseRequested += CloseWeaponInspection;
+		_weaponInspectionUi.ShapeDropped += index => TryEquipInventoryShape(index);
+		_weaponInspectionUi.CanInstallPart = (weapon, part, slot) => CanInstallInventoryModulator(weapon, part, slot, out _);
+		_weaponInspectionUi.CanRemovePart = (weapon, slot) => CanRemoveInventoryModulator(weapon, slot, out _);
+		_weaponInspectionUi.ModulatorDropRequested += (weapon, part, slot) =>
+		{
+			bool installed = TryInstallInventoryModulator(weapon, part, slot, out string reason);
+			_weaponInspectionUi.SetStatus(installed ? $"Installed {part.DisplayName}." : reason, !installed);
+		};
+		_weaponInspectionUi.ModulatorRemoveRequested += (weapon, slot) =>
+		{
+			bool removed = TryRemoveInventoryModulator(weapon, slot, out string reason);
+			_weaponInspectionUi.SetStatus(removed ? "Returned the part to run storage." : reason, !removed);
+		};
 		_weaponInspectionUi.SetInspectionVisible(false);
 	}
 
 	public void OpenWeaponInspection()
 	{
-		if (_weaponInspectionOpen || _victory || _defeat || _arsenal.Count == 0 || _weaponInspectionUi == null) return;
+		if (_weaponInspectionOpen || (_victory && !IsDefenseMap) || _defeat || _arsenal.Count == 0 || _weaponInspectionUi == null) return;
 		_inspectionWasPaused = _pauseRequested;
 		_inspectionReturnToShop = _shopOpen;
 		if (_shopOpen) CloseDefenseShop();
@@ -36,7 +49,7 @@ public partial class FpsVerticalSlice
 		_weaponInspectionOpen = true;
 		_pauseRequested = true;
 		_inspectionWeaponIndex = _selectedWeaponIndex;
-		_weaponInspectionUi.SetWeapons(_arsenal, _inspectionWeaponIndex, _selectedWeaponIndex);
+		RefreshInventoryInspection();
 		_weaponInspectionUi.SetInspectionVisible(true);
 		RefreshCombatState();
 	}
@@ -46,14 +59,12 @@ public partial class FpsVerticalSlice
 		if (!_weaponInspectionOpen || arsenalIndex < 0 || arsenalIndex >= _arsenal.Count) return;
 		_inspectionWeaponIndex = arsenalIndex;
 		_weaponInspectionUi?.SetSelection(_inspectionWeaponIndex, _selectedWeaponIndex);
+		_weaponInspectionUi?.SetInventory(GetInventoryStoredModulators(), GetInventoryWeaponSlots(_inspectionWeaponIndex), GetInventoryWeaponStats(_inspectionWeaponIndex));
 	}
 
 	public bool EquipInspectedWeapon()
 	{
-		if (!_weaponInspectionOpen || _victory || _defeat || _inspectionWeaponIndex < 0 || _inspectionWeaponIndex >= _arsenal.Count) return false;
-		if (_inspectionWeaponIndex != _selectedWeaponIndex) EquipWeapon(_inspectionWeaponIndex, false);
-		_weaponInspectionUi?.SetSelection(_inspectionWeaponIndex, _selectedWeaponIndex);
-		return true;
+		return TryEquipInventoryShape(_inspectionWeaponIndex);
 	}
 
 	public void CloseWeaponInspection() => CloseWeaponInspectionToPreviousMenu(true);
@@ -64,7 +75,7 @@ public partial class FpsVerticalSlice
 		_weaponInspectionOpen = false;
 		_weaponInspectionUi?.SetInspectionVisible(false);
 		_pauseRequested = _inspectionWasPaused;
-		bool reopenShop = returnToShop && _inspectionReturnToShop && !_pauseRequested && IsDefenseShopAvailable && IsNearDefenseShop();
+		bool reopenShop = returnToShop && _inspectionReturnToShop && !_pauseRequested && IsDefenseShopAvailable && (_victory || IsNearDefenseShop());
 		_inspectionReturnToShop = false;
 		RefreshCombatState();
 		if (reopenShop) OpenDefenseShop();
@@ -72,6 +83,12 @@ public partial class FpsVerticalSlice
 
 	private bool HandleWeaponInspectionInput(InputEvent input)
 	{
+		if (input is InputEventKey { Pressed: true, Echo: false, Keycode: Key.Tab })
+		{
+			if (_weaponInspectionOpen) CloseWeaponInspection();
+			else OpenWeaponInspection();
+			return true;
+		}
 		if (!_weaponInspectionOpen) return false;
 		if (input is InputEventKey { Pressed: true, Echo: false, Keycode: Key.Escape }) CloseWeaponInspection();
 		return true;

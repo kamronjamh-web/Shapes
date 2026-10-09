@@ -45,15 +45,6 @@ public partial class FpsVerticalSlice
 		EquipmentItem? weapon = GetCurrentWeapon();
 		if (weapon == null) return 1f;
 		float luck = GetFpsPassiveSubstat(weapon, SubstatType.Luck);
-		float apexScale = WeaponModulatorSharedRuntime.GetApexDoctrineMultiplier(weapon);
-		// Luck has no generic effect type, so resolved effects cannot represent this legacy roll.
-		if (weapon.Modulators != null)
-			foreach (WeaponModulatorData modulator in weapon.Modulators)
-			{
-				if (modulator?.Substats == null) continue;
-				foreach (SubstatRoll roll in modulator.Substats)
-					if (roll.Type == SubstatType.Luck && float.IsFinite(roll.Value)) luck += roll.Value * apexScale;
-			}
 		return Mathf.Max(0f, 1f + luck / 400f);
 	}
 

@@ -135,13 +135,13 @@ public static partial class FpsWeaponVisualFactory
             }
         }
 
+        IReadOnlyList<WeaponModulatorData?> sockets = FpsWeaponSocketLayout.GetSlots(weapon);
         for (int index = 0; index < 10; index++)
         {
             Node3D? bay = Find(root, $"ModulatorSocket{index + 1:00}");
             if (bay == null) throw new InvalidOperationException($"Runtime weapon lacks modulator bay {index + 1}.");
             bool unlocked = index < weapon.UnlockedModulatorSlots;
-            WeaponModulatorData? modulator = unlocked && index < (weapon.Modulators?.Count ?? 0)
-                ? weapon.Modulators![index] : null;
+            WeaponModulatorData? modulator = unlocked ? sockets[index] : null;
             bool installed = modulator != null;
             bay.SetMeta("slot_index", index);
             bay.SetMeta("state", !unlocked ? "locked" : installed ? "installed" : "empty");

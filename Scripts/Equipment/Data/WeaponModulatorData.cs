@@ -17,10 +17,10 @@ public enum WeaponModulatorCategory
 
 public enum WeaponModulatorTier
 {
-    Flawed,
-    Baseline,
-    Enhanced,
-    Flawless,
+    Flawed = 0,
+    Baseline = 1,
+    Enhanced = 2,
+    Flawless = 3,
 }
 
 public sealed class WeaponModulatorData
@@ -43,7 +43,10 @@ public sealed class WeaponModulatorData
     public WeaponModulatorTier Tier { get; set; } = WeaponModulatorTier.Baseline;
 
     public bool IsWingModulator => Category == WeaponModulatorCategory.Wing || IsWingModulatorKey(Key);
-    public bool UsesTierPresentation => SupportsTier || IsWingModulator;
+    public bool IsRetired => NormalizedKey == "apex_doctrine";
+    public bool UsesTierPresentation => true;
+    public float QualityStrength => ModulatorQuality.GetStrength(Tier);
+    private readonly ModulatorQuality.ResolutionCache _qualityCache = new();
     public string NormalizedKey => NormalizeKey(Key);
     public float WingCadenceMultiplier => IsWingModulator ? GetWingCadenceMultiplier(Tier) : 1f;
 
@@ -54,10 +57,8 @@ public sealed class WeaponModulatorData
         BlockedWeaponTags ??= new List<string>();
         Effects ??= new List<WeaponModulatorEffectData>();
 
-        if (!UsesTierPresentation)
-        {
-            Tier = WeaponModulatorTier.Baseline;
-        }
+        SupportsTier = true;
+        if (!Enum.IsDefined(typeof(WeaponModulatorTier), Tier)) Tier = WeaponModulatorTier.Baseline;
 
         BaseDisplayName = StripTierPrefix(string.IsNullOrWhiteSpace(BaseDisplayName) ? DisplayName : BaseDisplayName);
         if (string.IsNullOrWhiteSpace(BaseDisplayName))
@@ -125,12 +126,7 @@ public sealed class WeaponModulatorData
 
     public IReadOnlyList<WeaponModulatorEffectData> GetResolvedEffects()
     {
-        if (Effects.Count > 0)
-        {
-            return Effects;
-        }
-
-        return WeaponModulatorEffectData.FromSubstats(Substats);
+        return _qualityCache.Resolve(this);
     }
 
     public static string NormalizeKey(string? key)
@@ -143,6 +139,7 @@ public sealed class WeaponModulatorData
         switch (NormalizeKey(key))
         {
             case "flawed":
+            case "broken":
                 tier = WeaponModulatorTier.Flawed;
                 return true;
             case "baseline":
@@ -182,7 +179,7 @@ public sealed class WeaponModulatorData
 
         return tier switch
         {
-            WeaponModulatorTier.Flawed => $"Flawed {resolvedBaseName}",
+            WeaponModulatorTier.Flawed => $"Broken {resolvedBaseName}",
             WeaponModulatorTier.Enhanced => $"Enhanced {resolvedBaseName}",
             WeaponModulatorTier.Flawless => $"Flawless {resolvedBaseName}",
             _ => resolvedBaseName,
@@ -282,6 +279,8 @@ public sealed class WeaponModulatorData
     private static string StripTierPrefix(string? displayName)
     {
         string trimmed = (displayName ?? string.Empty).Trim();
+        if (trimmed.StartsWith("Broken ", StringComparison.OrdinalIgnoreCase)) return trimmed[7..].TrimStart();
+        if (trimmed.StartsWith("Baseline ", StringComparison.OrdinalIgnoreCase)) return trimmed[9..].TrimStart();
         if (trimmed.StartsWith("Flawed ", System.StringComparison.OrdinalIgnoreCase))
         {
             return trimmed[7..].TrimStart();
@@ -294,7 +293,7 @@ public sealed class WeaponModulatorData
 
         if (trimmed.StartsWith("Flawless ", System.StringComparison.OrdinalIgnoreCase))
         {
-            return trimmed[10..].TrimStart();
+            return trimmed[9..].TrimStart();
         }
 
         return trimmed;

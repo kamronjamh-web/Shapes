@@ -50,6 +50,8 @@ public partial class FpsPlayerController : CharacterBody3D
 	private StandardMaterial3D _weaponBodyMaterial = null!;
 	private StandardMaterial3D _weaponCoreMaterial = null!;
 	private Node3D? _weaponItemVisual;
+	private Node3D? _weaponMuzzle;
+	private FpsWeaponFireFeedback? _weaponFireFeedback;
 	private Node3D? _weaponSocketVisuals;
 	private ModifierVisualController? _weaponModifierVisual;
 	private string _weaponShapeKey = "square";
@@ -158,6 +160,7 @@ public partial class FpsPlayerController : CharacterBody3D
 		}
 
 		UpdateViewEffects(dt);
+		_weaponFireFeedback?.Advance(dt);
 	}
 
 	public void SetCombatEnabled(bool enabled)
@@ -171,6 +174,7 @@ public partial class FpsPlayerController : CharacterBody3D
 		{
 			ReleaseMouse();
 			_isAiming = false;
+			_weaponFireFeedback?.Reset();
 		}
 	}
 
@@ -187,8 +191,24 @@ public partial class FpsPlayerController : CharacterBody3D
 		_fireCooldown = Mathf.Max(0.01f, cooldownSeconds);
 		_recoilOffset = Mathf.Clamp(_recoilOffset + RecoilKick, 0f, 0.22f);
 		direction = BuildShotDirection();
-		FpsWeaponVisualFactory.PlayFire(_weaponItemVisual, cooldownSeconds);
+		PlayWeaponFireFeedback(cooldownSeconds);
 		return true;
+	}
+
+	/// <summary>Authored visual muzzle only; gameplay rays still originate at the camera.</summary>
+	public bool TryGetWeaponMuzzle(out Vector3 position)
+	{
+		position = Vector3.Zero;
+		if (_weaponMuzzle == null || !IsInstanceValid(_weaponMuzzle) || !_weaponMuzzle.IsInsideTree()) return false;
+		position = _weaponMuzzle.GlobalPosition;
+		return true;
+	}
+
+	/// <summary>Visual-only hook, also usable by isolated presentation captures.</summary>
+	public void PlayWeaponFireFeedback(float cooldownSeconds)
+	{
+		FpsWeaponVisualFactory.PlayFire(_weaponItemVisual, cooldownSeconds);
+		_weaponFireFeedback?.Fire(cooldownSeconds);
 	}
 
 	public void ApplyDamage(float damage)
@@ -292,6 +312,8 @@ public partial class FpsPlayerController : CharacterBody3D
 		_weaponViewCenter = FpsWeaponVisualFactory.GetVisualBounds(_weaponItemVisual)?.GetCenter() ?? Vector3.Zero;
 		_weaponAimBlend = _isAiming ? 1f : 0f;
 		UpdateWeaponPresentation();
+		_weaponMuzzle = _weaponItemVisual.FindChild("MuzzleAnchor", true, false) as Node3D;
+		_weaponFireFeedback = FpsWeaponFireFeedback.Create(_weaponItemVisual, _weaponMuzzle, _weaponShapeKey);
 		// Some canonical shape variants create meshes during child _Ready.
 		ConfigureViewModelRendering(_weaponItemVisual);
 	}
@@ -484,6 +506,9 @@ public partial class FpsPlayerController : CharacterBody3D
 
 	private void ClearWeaponItemVisual()
 	{
+		_weaponFireFeedback?.Reset();
+		_weaponFireFeedback = null;
+		_weaponMuzzle = null;
 		_weaponShapeKey = "square";
 		_weaponViewCenter = Vector3.Zero;
 		_weaponAimBlend = 0f;

@@ -1,0 +1,138 @@
+Modulator impact pass - 2026-10-09
+
+Direction confirmed by the user
+Replace overlapping stat-only parts with weapon-changing effects. Keep a small,
+clear set of useful stat upgrades. The proposals below are prepared for the next
+implementation pass; these replacement effects have not shipped. The separate
+quality/rarity implementation is documented in ModulatorQuality.txt.
+
+Foundation completed in this pass
+- One WeaponModulatorCompatibility check serves hub inventory, run assembly,
+  FPS/shop/debug installation and inspection. Existing FPS eligibility is retained.
+- Mobius now produces N initial shots and N base delayed shots, preserving each
+  shot's direction, source, delay and damage. Generic modulator echoes still replay
+  their full weapon pattern.
+- Inspection explains installed effects, selected-only player stats/reactors,
+  Wing activity, Apex retirement, Mimic limitations, initial hits versus sustained
+  ticks, and the shape-specific meaning of extra output/duration. Equipping
+  refreshes those explanations even when the preview selection does not change.
+
+Existing behaviors deliberately left for a balance decision
+1. Primary Mimic's copied damage cannot roll crits or trigger hit effects. Critical
+   Cascade, Omni Feedback and crit parts can consequently become ineffective on
+   that damage. Mobius/Boy's Surface copied patterns fall back to Square.
+   Recommendation: separate permission to crit from permission to trigger another
+   effect before reconsidering Mimic. Preserve bounded secondary generations.
+2. Triangle/Cone sustained ticks cannot roll crits or apply hit effects. Existing
+   marks, damage multipliers and lifesteal can still benefit those ticks.
+   Recommendation: keep the current rule for this catalog pass, then evaluate
+   normalized proc frequency per second instead of letting every tick chain.
+3. Klein attack-speed and output bonuses affect manual bursts, not its aura.
+   Klein's aura/reactor and player health/movement/regen/dodge/luck bonuses require
+   the weapon to be selected. Recommendation: retain and explain that distinction;
+   use an explicit aura-cadence effect if we later want faster aura ticks.
+4. Apex Doctrine has been retired at the user's request because tiers now denote
+   rarity. It cannot roll or be newly installed and grants no amplification.
+   Owned copies remain preserved for a later replacement; no replacement is active.
+
+Small combat-stat set to retain
+Sharpened Form (damage), Quickened Core (attack cadence), Expanded Shape (area),
+Long Reach (reach), Accelerated Flight (travel speed), Lasting Pattern (duration).
+These are a proposed core, not a decision to remove all other stat parts at once.
+Keep defensive, movement and crit choices for a later focused consolidation.
+Power Coil / Siege Core / Reinforced Geometry and Accelerator Fins remain later
+overlap candidates; changing seven parts is enough for the first comparison.
+
+Recommended first prototypes
+
+P1 - Ballistic Tuning -> Impulse Rail
+Current: projectile speed x1.15, weaker overlap with Accelerated Flight x1.20.
+Weapon: Square first; evaluate Hypercone after the interaction is established.
+Proposed: every third direct shot that hits an enemy pushes a short rectangular
+lane through the crowd behind that impact. Show the charged shot on the weapon,
+then a visible line and heavier impact sound when it releases.
+Payoff: creates breathing room at a piled gate. Cost: lower ordinary-shot damage
+and dependence on lining up the crowd. Not an additional explosion/echo mod.
+Prototype limits: one impulse per 0.5 s per weapon, up to eight displaced enemies;
+query the existing spatial grid. Secondary attacks cannot charge or release it.
+Confirm displacement works with crowd contact, piling, walls and elites.
+
+P1 - Beam Condenser -> Sweep Conductor
+Current: damage x1.22 / area x0.82; overlaps Line Driver x1.35 / area x0.75.
+Weapon: Triangle.
+Proposed: the sustained beam follows the player's aim through its existing short
+life, letting the player actively sweep a cutting line across the horde.
+Payoff: directional control and visible movement. Cost: shorter reach and weaker
+initial hit. Preserve current sustained-tick crit/proc rules for the prototype.
+Prototype limits: reuse the existing beam record and one segment query per tick;
+only the original beam follows aim. Prism Refraction's delayed branches retain
+their independent directions. Wing/mimic beams retain their source direction.
+Check aiming, switching weapons, pause, camera occlusion and source ownership.
+
+P1 - Fuse Tuner -> Crowd Fuse
+Current: cooldown x0.92; overlaps Quickened Core and other mine cadence packages.
+Weapon: Hexagon.
+Proposed: an armed mine waits for three enemies in its footprint, then releases
+a stronger, wider crowd blast. Three occupancy lights show the trigger condition.
+Payoff: rewards placement at a choke point. Cost: isolated enemies may walk past
+without detonating it. Exact damage/area bonuses need a matched prototype test.
+Prototype limits: count at most three candidates at 10 Hz per mine; preserve mine
+lifetime and existing active-mine limits. Command Cluster's manual detonation
+overrides waiting but does not award the full crowd bonus without enough targets.
+Check first-person readability from the wall, overlapping mines and target exits.
+
+Second group, after reviewing the first three in play
+
+P2 - Orbital Bracing -> Front Brace (Cube)
+Current: range x1.12, overlaps Long Reach.
+Move the existing orbitals into a controllable square ahead of the player to push
+contact damage into a gate lane. Trade rear coverage and some lifetime for forward
+control. This is damage positioning, not new projectile blocking. Reuse orbital
+records/contact cooldowns. Define the formation's phase motion with Aegis Carousel
+before allowing that combination; do not silently disable its transformation.
+
+P2 - Guidance Spine -> Fan Hunt (Pyramid)
+Current: homing x1.20, identical to Guiding Bias.
+Seekers from a volley reserve different nearby targets, visibly spreading across
+the crowd. Trade elite focus for coverage. One bounded query and at most eight
+reservations per volley. Pack Hunters concentrates targets, so choose explicit
+mutual exclusion or a documented precedence rule before shipping the combination.
+
+P2 - Extended Uptime -> Recast Anchor (Tesseract, Impossible Cube)
+Current: duration x1.20, overlaps Lasting Pattern x1.22.
+Recast moves the existing field to the aim point, visibly folding and reforming
+its frame. Trade field stacking and some area for precise repositioning. Use one
+field per source and a relocation cooldown. Moving must not trigger Event Horizon
+Tear; actual expiry still does. Preserve Phase Inversion's lifetime/phase state.
+This narrows existing compatibility; old mine/orbital/clone installations need an
+explicit migration path rather than being transformed silently.
+
+P2 - Mortar Barrage -> Airburst Crown (Hyperphere)
+Current: extra shell / lower damage; overlaps the extra-output family.
+The shell opens above the landing point into a descending shock front instead of
+adding another identical shell. Trade concentrated damage for crowd coverage.
+Use one bounded impact query and existing pulse geometry, with damage volumes
+matching the visible front. Scorch Crater occurs once at the ground target.
+
+Save/load requirement before any replacement ships
+InventoryManager now retains saved raw effect/substat payloads and quality for
+known keys; only old key-only saves fall back to the catalog definition. This
+prevents quality resolution from rebasing owned parts. Before a future replacement
+ships, use distinct behavior keys or explicit versioned conversion, retaining old
+lookup support and recovering parts that no longer fit. Existing saves must not
+be silently converted to an unrelated behavior by a catalog/UI change.
+
+Acceptance for each future prototype
+- A player can see and describe the changed attack after a few shots.
+- Compare against its replacement in an isolated target, a dense gate crowd, and
+  a 2,000-enemy run using the same camera, population, settings and firing route.
+- Confirm the payoff and tradeoff; do not label higher damage alone an improvement.
+- Exercise multishot, its shape transform, Wing firing and Primary Mimic where
+  installation allows them. Test unsupported combinations in the inspector too.
+- Fixed caps, bounded spatial queries, one generation of secondary effects, no
+  per-enemy unbounded scene spawning, and source ownership through delayed attacks.
+- Cover save round trips and old installed parts before catalog/drop changes.
+- Refresh the explicit 100-by-16 matrix when eligibility intentionally changes.
+
+Validation of the foundation is recorded in LAST_CHANGES.md. Automated installation
+coverage is not a claim that all 1,600 combinations were playtested for balance.

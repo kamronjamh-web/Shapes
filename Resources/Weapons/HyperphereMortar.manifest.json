@@ -74,7 +74,7 @@
   },
   "nodes": 232,
   "meshes": 214,
-  "bytes": 2615408,
+  "bytes": 2664544,
   "objects": [
     {
       "name": "GunRoot",
@@ -1236,5 +1236,211 @@
       "source": "HyperphereInsert | nested meridian Z",
       "parent": "HyperphereInsert___removable_shape_cartridge"
     }
-  ]
+  ],
+  "workbench": {
+    "source": "Art/WeaponWorkbenchAnimations/HyperphereMortarWorkbench.blend",
+    "approved_source_sha256": "834cd3c10e4fa9ca9bb5f609c1b00901a7bf5bccf316826f9b5dac2755102c17",
+    "clips": [
+      {
+        "name": "Disassemble",
+        "duration": 0.7,
+        "targets": [
+          "Hyperphere_Shoulder_Elevation_Pivot",
+          "Hyperphere___aft_dock_spine",
+          "Hyperphere___bearing_index_1",
+          "Hyperphere___bearing_index__1",
+          "Hyperphere___bearing_seal_1",
+          "Hyperphere___bearing_seal__1",
+          "Hyperphere___bonded_control_rail_1",
+          "Hyperphere___bonded_control_rail__1",
+          "Hyperphere___curved_shoulder_saddle",
+          "Hyperphere___dock_bridge",
+          "Hyperphere___handle_bond_1_0_078",
+          "Hyperphere___handle_bond_1_0_139",
+          "Hyperphere___handle_bond__1_0_078",
+          "Hyperphere___handle_bond__1_0_139",
+          "Hyperphere___offset_grab_handle_1",
+          "Hyperphere___offset_grab_handle__1",
+          "Hyperphere___rear_shoulder_cushion",
+          "Hyperphere___saddle_longitudinal_rail_1",
+          "Hyperphere___saddle_longitudinal_rail__1",
+          "Hyperphere___trunnion_housing_1",
+          "Hyperphere___trunnion_housing__1",
+          "Hyperphere___trunnion_tower_1",
+          "Hyperphere___trunnion_tower__1"
+        ]
+      },
+      {
+        "name": "Assemble",
+        "duration": 0.7,
+        "targets": [
+          "Hyperphere_Shoulder_Elevation_Pivot",
+          "Hyperphere___aft_dock_spine",
+          "Hyperphere___bearing_index_1",
+          "Hyperphere___bearing_index__1",
+          "Hyperphere___bearing_seal_1",
+          "Hyperphere___bearing_seal__1",
+          "Hyperphere___bonded_control_rail_1",
+          "Hyperphere___bonded_control_rail__1",
+          "Hyperphere___curved_shoulder_saddle",
+          "Hyperphere___dock_bridge",
+          "Hyperphere___handle_bond_1_0_078",
+          "Hyperphere___handle_bond_1_0_139",
+          "Hyperphere___handle_bond__1_0_078",
+          "Hyperphere___handle_bond__1_0_139",
+          "Hyperphere___offset_grab_handle_1",
+          "Hyperphere___offset_grab_handle__1",
+          "Hyperphere___rear_shoulder_cushion",
+          "Hyperphere___saddle_longitudinal_rail_1",
+          "Hyperphere___saddle_longitudinal_rail__1",
+          "Hyperphere___trunnion_housing_1",
+          "Hyperphere___trunnion_housing__1",
+          "Hyperphere___trunnion_tower_1",
+          "Hyperphere___trunnion_tower__1"
+        ]
+      },
+      {
+        "name": "SocketSeat01",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge"
+        ]
+      },
+      {
+        "name": "SocketRemove01",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge"
+        ]
+      },
+      {
+        "name": "SocketSeat02",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.001"
+        ]
+      },
+      {
+        "name": "SocketRemove02",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.001"
+        ]
+      },
+      {
+        "name": "SocketSeat03",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.002"
+        ]
+      },
+      {
+        "name": "SocketRemove03",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.002"
+        ]
+      },
+      {
+        "name": "SocketSeat04",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.003"
+        ]
+      },
+      {
+        "name": "SocketRemove04",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.003"
+        ]
+      },
+      {
+        "name": "SocketSeat05",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.004"
+        ]
+      },
+      {
+        "name": "SocketRemove05",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.004"
+        ]
+      },
+      {
+        "name": "SocketSeat06",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.005"
+        ]
+      },
+      {
+        "name": "SocketRemove06",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.005"
+        ]
+      },
+      {
+        "name": "SocketSeat07",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.006"
+        ]
+      },
+      {
+        "name": "SocketRemove07",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.006"
+        ]
+      },
+      {
+        "name": "SocketSeat08",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.007"
+        ]
+      },
+      {
+        "name": "SocketRemove08",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.007"
+        ]
+      },
+      {
+        "name": "SocketSeat09",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.008"
+        ]
+      },
+      {
+        "name": "SocketRemove09",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.008"
+        ]
+      },
+      {
+        "name": "SocketSeat10",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.009"
+        ]
+      },
+      {
+        "name": "SocketRemove10",
+        "duration": 0.4,
+        "targets": [
+          "Cartridge.009"
+        ]
+      }
+    ],
+    "core": "ShapeSocket",
+    "authoring": "component-local fold around the core; no whole-gun scale; local-axis cartridge seating"
+  }
 }

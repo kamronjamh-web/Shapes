@@ -783,7 +783,7 @@ public partial class ArenaDebugPanelUI : Control
         if (_loadoutModulatorTierDropdown != null)
         {
             _loadoutModulatorTierDropdown.Clear();
-            _loadoutModulatorTierDropdown.AddItem("Flawed");
+            _loadoutModulatorTierDropdown.AddItem("Broken");
             _loadoutModulatorTierDropdown.AddItem("Baseline");
             _loadoutModulatorTierDropdown.AddItem("Enhanced");
             _loadoutModulatorTierDropdown.AddItem("Flawless");
@@ -1518,8 +1518,8 @@ public partial class ArenaDebugPanelUI : Control
             return;
         }
 
-        string tierPrefix = modulator.UsesTierPresentation ? $"{modulator.Tier} " : string.Empty;
-        builder.AppendLine($"{tierPrefix}{modulator.DisplayName}");
+        builder.AppendLine(modulator.DisplayName);
+        builder.AppendLine(ModulatorQualityText.Header(modulator));
         builder.AppendLine($"Category: {WeaponModulatorData.GetCategoryDisplayName(modulator.Category)}");
 
         if (snapshot.HasItem)
@@ -1530,23 +1530,8 @@ public partial class ArenaDebugPanelUI : Control
             builder.AppendLine($"Open Socket Available: {(hasOpenSocket ? "Yes" : "No (replace needed)")}");
         }
 
-        Dictionary<SubstatType, float> addedStats = CollectModulatorAddedStats(modulator);
-        if (addedStats.Count == 0)
-        {
-            builder.Append("Added Stats: none (this modulator is mechanics/proc focused).");
-            return;
-        }
-
-        builder.AppendLine("Added Stats If Installed:");
-
-        List<SubstatType> orderedTypes = new(addedStats.Keys);
-        orderedTypes.Sort(static (left, right) => ((int)left).CompareTo((int)right));
-        for (int i = 0; i < orderedTypes.Count; i++)
-        {
-            SubstatType type = orderedTypes[i];
-            float value = addedStats[type];
-            builder.AppendLine($"- {FormatPreviewSubstatDelta(type, value)}");
-        }
+        builder.AppendLine("Effects If Installed:");
+        builder.AppendLine(ModulatorQualityText.Describe(modulator));
     }
 
     private bool TryGetSelectedLoadoutModulatorData(out WeaponModulatorData modulator)
@@ -1560,41 +1545,6 @@ public partial class ArenaDebugPanelUI : Control
         WeaponModulatorTier tier = WeaponModulatorTier.Baseline;
         _ = WeaponModulatorData.TryParseTierKey(GetSelectedLoadoutTierKey(), out tier);
         return EquipmentCatalogDefaults.TryCreateModulatorByKey(modulatorKey, tier, out modulator);
-    }
-
-    private static Dictionary<SubstatType, float> CollectModulatorAddedStats(WeaponModulatorData modulator)
-    {
-        Dictionary<SubstatType, float> totals = new();
-
-        for (int i = 0; i < modulator.Substats.Count; i++)
-        {
-            SubstatRoll roll = modulator.Substats[i];
-            if (roll.Type == SubstatType.None)
-            {
-                continue;
-            }
-
-            if (!totals.TryAdd(roll.Type, roll.Value))
-            {
-                totals[roll.Type] += roll.Value;
-            }
-        }
-
-        for (int i = 0; i < modulator.Effects.Count; i++)
-        {
-            WeaponModulatorEffectData effect = modulator.Effects[i];
-            if (!effect.TryConvertToSubstatRoll(out SubstatRoll roll) || roll.Type == SubstatType.None)
-            {
-                continue;
-            }
-
-            if (!totals.TryAdd(roll.Type, roll.Value))
-            {
-                totals[roll.Type] += roll.Value;
-            }
-        }
-
-        return totals;
     }
 
     private static bool IsModulatorTagCompatibleWithSnapshotWeapon(ArenaDebugLoadoutSlotSnapshot snapshot, WeaponModulatorData modulator)
@@ -1616,7 +1566,7 @@ public partial class ArenaDebugPanelUI : Control
             Modulators = new List<WeaponModulatorData>(),
         };
 
-        return modulator.CanApplyToWeapon(WeaponModulatorCompatibility.BuildWeaponTags(previewWeapon));
+        return WeaponModulatorCompatibility.CanApplyToWeapon(modulator, previewWeapon, out _);
     }
 
     private static string FormatPreviewSubstatDelta(SubstatType type, float value)

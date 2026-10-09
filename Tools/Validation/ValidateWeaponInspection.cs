@@ -59,6 +59,8 @@ public partial class ValidateWeaponInspection : Node
             Dictionary<string, byte[]> savesBefore = SaveSnapshot();
             await ValidateModels();
             await ValidateWorkflow();
+            await WeaponWorkbenchChecks.Run(this, _map, Check);
+            await ValidateModulatorDescriptions();
             await ValidatePresentation();
             Dictionary<string, byte[]> savesAfter = SaveSnapshot();
             Check(savesBefore.Count == savesAfter.Count && savesBefore.All(entry => savesAfter.TryGetValue(entry.Key, out byte[]? bytes) && entry.Value.SequenceEqual(bytes)), "Inspection and equipping leave all hub save files unchanged");
@@ -191,6 +193,7 @@ public partial class ValidateWeaponInspection : Node
         Check(RaritySurfaces(independent).OfType<StandardMaterial3D>().All(mat => mat.AlbedoColor == installedItem.Rarity!.UiColor), $"{shape}: recoloring cannot bleed into another instance");
         Material ownCartridge = Materials(Find<Node3D>(installed, "ModulatorSocket01")).First();
         Check(!Materials(Find<Node3D>(independent, "ModulatorSocket01")).Any(mat => mat.GetInstanceId() == ownCartridge.GetInstanceId()), $"{shape}: installed modulator material belongs to the instance");
+        ValidateWorkbenchAnimations(shape, model, independent);
         if (shape == "square")
         {
             lockedModel.Free(); installed.Free(); independent.Free();
@@ -218,6 +221,27 @@ public partial class ValidateWeaponInspection : Node
         lockedModel.Free(); installed.Free(); independent.Free();
     }
 
+    private void ValidateWorkbenchAnimations(string shape, Node3D model, Node3D independent)
+    {
+        AnimationPlayer animation = Nodes(model).OfType<AnimationPlayer>().Single(player => player.HasAnimation("Assemble"));
+        Check(animation.HasAnimation("Disassemble") && (shape == "square" || animation.HasAnimation("Fire")), $"{shape}: imported workbench clips preserve the existing firing mechanism");
+        var rest = Nodes(model).OfType<Node3D>().ToDictionary(node => node, node => node.Transform);
+        var independentRest = Nodes(independent).OfType<Node3D>().ToDictionary(node => node, node => node.Transform);
+        FpsWeaponWorkbenchAnimations playback = new(model);
+        Check(playback.HasClips && playback.PlayDisassemble(), $"{shape}: actual workbench playback starts Disassemble");
+        playback.Advance(playback.Duration * .5);
+        Check(rest.Any(pair => !pair.Key.Transform.IsEqualApprox(pair.Value)), $"{shape}: Disassemble moves actual imported weapon components");
+        playback.Advance(playback.Duration);
+        Check(playback.PlayAssemble(), $"{shape}: actual workbench playback starts Assemble");
+        playback.Advance(playback.Duration * .5);
+        Check(rest.Any(pair => !pair.Key.Transform.IsEqualApprox(pair.Value)), $"{shape}: Assemble presents actual intermediate component transforms");
+        playback.Advance(playback.Duration);
+        Check(rest.All(pair => pair.Key.Transform.IsEqualApprox(pair.Value)) && independentRest.All(pair => pair.Key.Transform.IsEqualApprox(pair.Value)),
+            $"{shape}: assembly restores exact authored rest without animating another instance");
+        Check(Enumerable.Range(1, 10).All(slot => animation.HasAnimation($"SocketSeat{slot:00}") && animation.HasAnimation($"SocketRemove{slot:00}")),
+            $"{shape}: all ten physical sockets have imported seat and removal clips");
+    }
+
     private async Task ValidateWorkflow()
     {
         Check(_map.TrySetArenaDebugLoadoutItem(0, "square", "common", 1) && _map.TrySetArenaDebugLoadoutItem(1, "triangle", "divine", EquipmentCatalogDefaults.MaxWeaponLevel), "Actual run arsenal contains two distinct shapes");
@@ -239,7 +263,7 @@ public partial class ValidateWeaponInspection : Node
         Find<Button>(_map, "ShapeChoice1").EmitSignal(BaseButton.SignalName.Pressed);
         await Frames(2);
         Check(_map.InspectedWeaponIndex == 1 && _map.EquippedWeaponIndex == 0 && player.ShotDamage == shotDamage && ReferenceEquals(Find<Node3D>(player, "EquippedHandgun"), equippedBefore), "Preview changes neither equipped geometry nor active weapon stats");
-        Check(Find<Node3D>(Find<Control>(_map, "HandgunPreview"), "EquippedHandgun").GetMeta("shape_key").AsString() == "triangle", "Inspection viewport displays the selected triangle while first person retains Square");
+        Check(Find<Node3D>(Find<Control>(_map, "HandgunPreview"), "InspectedWeaponModel").GetMeta("shape_key").AsString() == "triangle", "Inspection viewport displays the selected triangle while first person retains Square");
         Find<Button>(_map, "CloseWeaponInspection").EmitSignal(BaseButton.SignalName.Pressed);
         Check(!_map.IsWeaponInspectionOpen && _map.EquippedWeaponIndex == 0 && Field<bool>("_pauseRequested") && !CombatEnabled(player), "Close without equip preserves weapon and restores the previous paused state");
         _map._UnhandledInput(new InputEventKey { Keycode = Key.Escape, Pressed = true });
@@ -277,6 +301,63 @@ public partial class ValidateWeaponInspection : Node
         Input.ParseInputEvent(new InputEventKey { Keycode = Key.Escape, Pressed = true });
         await Frames(1);
         Check(!Field<bool>("_gameplayTuningVisible") && !_map.IsWeaponInspectionOpen, "Escape closes tuning without reopening inspection");
+    }
+
+    private async Task ValidateModulatorDescriptions()
+    {
+        Check(_map.TrySetArenaDebugLoadoutItem(0, "square", "divine", EquipmentCatalogDefaults.MaxWeaponLevel) &&
+            _map.TrySetArenaDebugLoadoutItem(1, "klein", "divine", EquipmentCatalogDefaults.MaxWeaponLevel), "Modulator inspection fixture prepares real arsenal slots");
+        foreach (string key in new[] { "quickened_core", "blood_price_reactor", "recovery_circuit", "wing_man" })
+            Check(_map.TryAddArenaDebugModulator(1, key, "baseline"), $"Inspection installs {key} on support Klein");
+        _map.OpenWeaponInspection();
+        _map.PreviewInspectedWeapon(0);
+        _map.EquipInspectedWeapon();
+        _map.PreviewInspectedWeapon(1);
+        await Frames(1);
+        Label details = Find<Label>(_map, "InstalledModulatorDetails");
+        string SupportDetails(string key)
+        {
+            Field<FpsWeaponInspectionUI>("_weaponInspectionUi").SelectModulatorDetails(Field<List<EquipmentItem>>("_arsenal")[1].Modulators.Single(part => part.Key == key));
+            return details.Text;
+        }
+        Check(SupportDetails("quickened_core").Contains("Passive aura tick speed stays the same") && SupportDetails("blood_price_reactor").Contains("cannot charge or vent") &&
+            SupportDetails("recovery_circuit").Contains("inactive until") && SupportDetails("wing_man").Contains("Escort fire is active"),
+            "Support preview distinguishes manual cadence, inactive reactor/player stats and active Wing");
+        _map.EquipInspectedWeapon();
+        Check(SupportDetails("blood_price_reactor").Contains("while Klein is equipped") && SupportDetails("recovery_circuit").Contains("Player stat bonuses apply while") &&
+            SupportDetails("wing_man").Contains("Escort fire pauses") && !SupportDetails("blood_price_reactor").Contains("cannot charge or vent"),
+            "Equipping updates conditional explanations without changing the preview selection");
+        _map.CloseWeaponInspection();
+
+        Check(_map.TryAddArenaDebugModulator(0, "sharpened_form", "broken"), "Inspector fixture installs a Broken quality part through the real debug gate");
+        _map.OpenWeaponInspection();
+        _map.PreviewInspectedWeapon(0);
+        Field<FpsWeaponInspectionUI>("_weaponInspectionUi").SelectModulatorDetails(Field<List<EquipmentItem>>("_arsenal")[0].Modulators.Single(part => part.Key == "sharpened_form"));
+        Check(Find<Label>(_map, "ModulatorDetailsMeta").Text.Contains("Tier 1 · Broken · 50% power") && details.Text.Contains("Damage: +6%") &&
+            !details.Text.Contains("Damage: +12%"), "Actual installed-details UI displays resolved Broken power rather than its raw Baseline bonus");
+        _map.CloseWeaponInspection();
+
+        WeaponModulatorData Part(string key) => ModulatorCatalog.CreateAll().Single(part => part.Key == key);
+        EquipmentItem clone = Item("boys", "divine", EquipmentCatalogDefaults.MaxWeaponLevel);
+        clone.Modulators = new() { Part("primary_mimic"), Part("focused_edge"), Part("apex_doctrine") };
+        EquipmentItem primary = Item("mobius", "divine", EquipmentCatalogDefaults.MaxWeaponLevel);
+        string cloneText = FpsModulatorPresentation.DescribeInstalled(clone, new[] { primary, clone }, 1, 0);
+        Check(cloneText.Contains("do not apply to copied attacks") && cloneText.Contains("Square shots instead") && cloneText.Contains("Retired"),
+            "Mimic preview exposes crit suppression, unsupported primary fallback and retired Apex");
+        clone.Modulators.RemoveAt(0);
+        string restored = FpsModulatorPresentation.DescribeInstalled(clone, new[] { primary, clone }, 1, 0);
+        Check(!restored.Contains("do not apply to copied attacks") && restored.Contains("Retired") && !restored.Contains("Active: this is the weapon's only Tier 3"),
+            "Removing Mimic restores ordinary clone crit while archived Apex remains inactive");
+        EquipmentItem triangle = Item("triangle", "divine", EquipmentCatalogDefaults.MaxWeaponLevel);
+        Check(FpsModulatorPresentation.DescribePart(Part("ballistic_tuning"), triangle, true, 0, triangle).Contains("Incompatible:"),
+            "Inspector uses the same capability rejection as installation");
+        Check(FpsModulatorPresentation.DescribePart(Part("focused_edge"), triangle, true, 0, triangle).Contains("initial hit"),
+            "Beam crit explanation distinguishes initial hits from sustained ticks");
+        EquipmentItem pyramid = Item("pyramid", "divine", EquipmentCatalogDefaults.MaxWeaponLevel);
+        Check(FpsModulatorPresentation.DescribePart(Part("extra_output"), pyramid, true, 0, pyramid).Contains("adds seekers"),
+            "Extra Output explains its actual seeker behavior");
+        Check(FpsModulatorPresentation.DescribeAttack(primary).Contains("instant shot") &&
+            !FpsModulatorPresentation.DescribeAttack(primary).Contains("Passive:"), "Mobius description reflects FPS firing rather than the legacy passive");
     }
 
     private async Task ValidatePresentation()

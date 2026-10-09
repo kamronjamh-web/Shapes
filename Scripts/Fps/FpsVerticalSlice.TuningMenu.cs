@@ -61,8 +61,18 @@ public partial class FpsVerticalSlice
 		if (BruiserArchetypeSettings != null) BuildTuningArchetype(enemies, "Cubes / melee", BruiserArchetypeSettings, false);
 		if (StrikerArchetypeSettings != null) BuildTuningArchetype(enemies, "Pyramids / ranged", StrikerArchetypeSettings, true);
 		BuildTuningPlayerTab(AddTuningTab(tabs, "Player"));
+		BuildTuningWeaponEffectsTab(AddTuningTab(tabs, "Weapon effects"));
 		_gameplayTuningStatus = TuningText("Choose a population, then Add or Replace. Changing the count field alone does not spawn enemies.");
 		content.AddChild(_gameplayTuningStatus);
+	}
+
+	private void BuildTuningWeaponEffectsTab(VBoxContainer page)
+	{
+		page.AddChild(TuningText("All 16 weapons: distinct trails, impacts, fields and sounds. These controls change presentation only."));
+		AddTuningCheck(page, "Projectile and field polish", () => WeaponPolishEnabled, v => { WeaponPolishEnabled = v; UpdateWeaponPolishState(); });
+		AddTuningCheck(page, "Weapon sounds", () => WeaponSoundsEnabled, v => { WeaponSoundsEnabled = v; UpdateWeaponPolishState(); });
+		AddTuningNumber(page, "Trail and fragment detail", 0, 1, .05, () => WeaponEffectDetail, v => WeaponEffectDetail = (float)v);
+		page.AddChild(TuningText("Lower detail reduces short trails and fragments. Active beam and rift boundaries stay visible."));
 	}
 
 	private void BuildTuningPopulationTab(VBoxContainer page)
@@ -173,7 +183,9 @@ public partial class FpsVerticalSlice
 		{
 			AddTuningNumber(page, "Base shape drop chance (%)", 0, 100, 0.1, () => DefenseSettings.WeaponDropChance * 100f, v => DefenseSettings.WeaponDropChance = (float)v / 100f);
 			AddTuningNumber(page, "Base modulator drop chance (%)", 0, 100, 0.1, () => DefenseSettings.ModulatorDropChance * 100f, v => DefenseSettings.ModulatorDropChance = (float)v / 100f);
+			AddTuningNumber(page, "Modulator fusion base cost", 1, 500, 1, () => DefenseSettings.ModulatorFusionBaseCost, v => DefenseSettings.ModulatorFusionBaseCost = (int)v);
 			page.AddChild(TuningText("Drop chances are independent and still receive equipped Luck bonuses."));
+			page.AddChild(TuningText("Modulator quality: 60% Broken / 30% Baseline / 9% Enhanced / 1% Flawless. Each completed wave grants one modulator using these odds. Fusion cost = base cost × rarity tier × current quality step (1–3)."));
 		}
 	}
 

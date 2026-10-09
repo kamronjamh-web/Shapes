@@ -26,6 +26,9 @@ public partial class ValidateFpsModulators : Node
 		{
 			Check(OS.GetUserDataDir().Replace('\\', '/').Contains("/.tmp/fps-modulator-validation/"), "Isolated validation save directory");
 			await LoadCrowd();
+			WeaponCompatibilityChecks.Run(_map, shape => Weapon(shape), Check);
+			ValidateMobiusVolleyReplay();
+			ValidateQualityOutputCounts();
 			ValidateAdvancedEffects();
 			ValidateDamageAndPatterns();
 			ValidateRangeDurationAndGuidance();
@@ -37,7 +40,10 @@ public partial class ValidateFpsModulators : Node
 			ValidatePlayerPassives();
 			ValidateBounceAndLuck();
 			ValidateImportedLoadout();
+			ValidateQualityWorkshop();
 			ValidateCatalogInstallation();
+			ValidateQualityWaveReward();
+			ValidateFinalWaveWorkshop();
 			GD.Print($"FPS modulator validation passed: {_checks} checks.");
 			GetTree().Quit();
 		}
@@ -48,6 +54,12 @@ public partial class ValidateFpsModulators : Node
 	{
 		_map = GD.Load<PackedScene>("res://Scenes/Fps/NorthGate.tscn").Instantiate<FpsVerticalSlice>();
 		LegacyHillFixture.Configure(_map);
+		// The shared combat fixture has one wave. Keep its first hundred targets intact,
+		// and add a distinct real terminal wave for normal-clear and victory-workshop checks.
+		FpsEncounterWaveSettings finalWave = (FpsEncounterWaveSettings)_map.EncounterSettings!.Waves[0].Duplicate(true);
+		finalWave.WaveName = "Quality final-wave workshop fixture";
+		finalWave.EnemySpawns[0].Count = 8;
+		_map.EncounterSettings.Waves.Add(finalWave);
 		// Duplicate tuning before scene initialization; disk resources remain untouched.
 		_map.BruiserArchetypeSettings = (FpsEnemyArchetypeSettings)_map.BruiserArchetypeSettings!.Duplicate(true);
 		_map.BruiserArchetypeSettings.MaxHealth = 1000000f;
@@ -106,6 +118,101 @@ public partial class ValidateFpsModulators : Node
 		float before = _targets[0].CurrentHealth;
 		Fire(weapon);
 		return before - _targets[0].CurrentHealth;
+	}
+
+	private void ValidateMobiusVolleyReplay()
+	{
+		foreach (int outputs in new[] { 1, 3 })
+		{
+			Arrange();
+			_targets[0].GlobalPosition = _origin + Vector3.Forward * 2f - Vector3.Up * _origin.Y;
+			EquipmentItem weapon = Weapon("mobius");
+			weapon.Substats.Add(new(SubstatType.ProjectileCount, outputs - 1));
+			float before = _targets[0].CurrentHealth;
+			Fire(weapon);
+			float initial = before - _targets[0].CurrentHealth;
+			IList pending = List("_playerEchoes");
+			Check(pending.Count == outputs && pending.Cast<object>().All(echo => ReferenceEquals(Effect<EquipmentItem>(echo, "Weapon"), weapon) &&
+				Near(Effect<float>(echo, "Delay"), .55f) && Near(Effect<float>(echo, "DamageScale"), .55f)), $"Mobius {outputs} outputs schedule exactly {outputs} same-source delayed shots");
+			Vector3[] directions = pending.Cast<object>().Select(echo => Effect<Vector3>(echo, "Direction")).ToArray();
+			Check(directions.All(direction => direction.IsFinite() && Near(direction.Length(), 1f)) && directions.Distinct().Count() == outputs,
+				$"Mobius {outputs} delayed records preserve distinct original volley directions");
+			Check(Near(initial, outputs * 75f), $"Mobius {outputs} initial hits preserve ordinary output damage");
+			Invoke("TickEchoes", .54f);
+			Check(pending.Count == outputs && _targets[0].CurrentHealth == before - initial, $"Mobius {outputs} delayed shots respect their actual delay");
+			float beforeReplay = _targets[0].CurrentHealth;
+			Invoke("TickEchoes", .02f);
+			Check(Near(beforeReplay - _targets[0].CurrentHealth, outputs * 75f * .55f) && pending.Count == 0,
+				$"Mobius {outputs} outputs replay exactly once each without squared output or recursive queues");
+			Invoke("TickEchoes", 2f);
+			Check(pending.Count == 0, $"Mobius {outputs} replay never schedules another echo generation");
+		}
+		Arrange();
+		EquipmentItem generic = Weapon("square", "echo_chamber");
+		Fire(generic);
+		Check(List("_playerEchoes").Count > 0 && List("_playerEchoes").Cast<object>().All(echo => !Effect<bool>(echo, "ReplaySingleTemporalOutput")),
+			"Generic on-fire echoes retain full-weapon replay semantics");
+	}
+
+	private void ValidateQualityOutputCounts()
+	{
+		var fixtures = new[] { ("square", "_playerProjectiles", 1), ("hexagon", "_playerMines", 3),
+			("cube", "_playerOrbitals", 3), ("pyramid", "_playerProjectiles", 2), ("boys", "_playerClones", 2) };
+		foreach (var (shape, list, baseline) in fixtures)
+		foreach (var (quality, expectedBonus) in new[] { (WeaponModulatorTier.Flawed, 2), (WeaponModulatorTier.Baseline, 4),
+			(WeaponModulatorTier.Enhanced, 6), (WeaponModulatorTier.Flawless, 8) })
+		{
+			Arrange();
+			EquipmentItem weapon = Weapon(shape);
+			weapon.Modulators.Add(ModulatorCatalog.CreateByKey("extra_output", quality));
+			for (int fire = 0; fire < 4; fire++)
+				Invoke("FireWeaponAttack", weapon, _origin, (_targets[0].HeadPosition - _origin).Normalized(), 1f, false);
+			Check(List(list).Count == 4 * baseline + expectedBonus && List(list).Cast<object>().All(record =>
+				ReferenceEquals(Effect<EquipmentItem>(record, "SourceItem"), weapon)),
+				$"{shape}/{quality}: four actual attacks preserve fractional extra outputs and exact source context");
+		}
+		Arrange();
+		EquipmentItem combined = Weapon("square");
+		combined.Modulators.Add(ModulatorCatalog.CreateByKey("extra_output", WeaponModulatorTier.Flawed));
+		combined.Modulators.Add(ModulatorCatalog.CreateByKey("split_chamber", WeaponModulatorTier.Flawed));
+		for (int fire = 0; fire < 4; fire++)
+		{
+			int before = List("_playerProjectiles").Count;
+			Invoke("FireWeaponAttack", combined, _origin, Vector3.Forward, 1f, false);
+			Check(List("_playerProjectiles").Count - before == 2, "Two Broken count bonuses combine before resolving each actual Square volley");
+		}
+		Arrange();
+		EquipmentItem first = Weapon("square"), second = Weapon("square");
+		first.Modulators.Add(ModulatorCatalog.CreateByKey("extra_output", WeaponModulatorTier.Flawed));
+		second.Modulators.Add(ModulatorCatalog.CreateByKey("extra_output", WeaponModulatorTier.Flawed));
+		Invoke("FireWeaponAttack", first, _origin, Vector3.Forward, 1f, false);
+		Invoke("FireWeaponAttack", second, _origin, Vector3.Forward, 1f, false);
+		Check(List("_playerProjectiles").Count == 2, "Fractional count carry stays with each exact weapon source");
+		Arrange();
+		for (int target = 0; target < 16; target++) _targets[target].GlobalPosition = new Vector3(60f + target * 1.3f, 0f, -76f);
+		EquipmentItem lightning = Weapon("pentachoron");
+		lightning.Modulators.Add(ModulatorCatalog.CreateByKey("extra_output", WeaponModulatorTier.Flawed));
+		lightning.Modulators.Add(ModulatorCatalog.CreateByKey("chain_capacitor", WeaponModulatorTier.Flawed));
+		int hits = 0;
+		for (int fire = 0; fire < 4; fire++)
+		{
+			float[] health = _targets.Take(16).Select(target => target.CurrentHealth).ToArray();
+			Fire(lightning);
+			hits += _targets.Take(16).Select((target, index) => target.CurrentHealth < health[index]).Count(damaged => damaged);
+		}
+		Check(hits == 4 * (2 + lightning.Shape!.Hits) + 6,
+			"Actual lightning aggregates Broken output and chain bonuses before fractional carry, retaining its base chain budget");
+		foreach (bool strongestFirst in new[] { true, false })
+		{
+			EquipmentItem mortar = Weapon("hyperphere");
+			WeaponModulatorData strong = ModulatorCatalog.CreateByKey("scorch_crater", WeaponModulatorTier.Flawless);
+			WeaponModulatorData weak = ModulatorCatalog.CreateByKey("scorch_crater", WeaponModulatorTier.Flawed);
+			mortar.Modulators.AddRange(strongestFirst ? new[] { strong, weak } : new[] { weak, strong });
+			WeaponModulatorEffectData config = (WeaponModulatorEffectData)Invoke("GetFpsTransformConfig", mortar, "scorch_crater")!;
+			Check(Mathf.Abs(config.QualityStrength - 2f) < .0001f && Mathf.Abs(config.Magnitude - .6f) < .0001f &&
+				Mathf.Abs(config.MagnitudeB - 3.5f) < .0001f,
+				"Mixed-quality transform copies keep the strongest damage and fixed lifetime independently of installed order");
+		}
 	}
 
 	private void ValidateAdvancedEffects()
@@ -240,7 +347,7 @@ public partial class ValidateFpsModulators : Node
 		Arrange();
 		float sharpened = ShotDamage(Weapon("square", "sharpened_form"));
 		float apex = ShotDamage(Weapon("square", "sharpened_form", "apex_doctrine"));
-		Check(apex > sharpened, "Apex Doctrine amplifies an installed non-Tier3 modulator in real hit damage");
+		Check(Near(apex, sharpened), "Archived Apex Doctrine adds no amplification to real hit damage");
 	}
 
 	private void ValidateControlAndSecondaryPatterns()
@@ -593,6 +700,153 @@ public partial class ValidateFpsModulators : Node
 		Check(List("_playerProjectiles").Count == count + 1, "Saw Storm creates another real saw attack instance");
 	}
 
+	private void ValidateQualityWorkshop()
+	{
+		Arrange();
+		List<WeaponModulatorData> recovered = Field<List<WeaponModulatorData>>("_recoveredModulators");
+		WeaponModulatorData[] priorStorage = recovered.ToArray();
+		int priorCoins = Field<int>("_defenseCoins"), priorCost = _map.DefenseSettings!.ModulatorFusionBaseCost;
+		try
+		{
+			recovered.Clear();
+			EquipmentItem weapon = Weapon();
+			WeaponModulatorData part = ModulatorCatalog.CreateByKey("sharpened_form", WeaponModulatorTier.Flawed);
+			weapon.Modulators.Add(part);
+			Select(weapon);
+			SetField("_combatShopRemaining", 100f);
+			SetField("_defenseCoins", 100);
+			_map.DefenseSettings.ModulatorFusionBaseCost = 20;
+			Field<FpsPlayerController>("_player").GlobalPosition = (Vector3)Invoke("ResolveDefenseGroundPosition", _map.DefenseSettings.ShopPosition)!;
+			Invoke("OpenDefenseShop");
+			Check(Field<bool>("_shopOpen"), "Quality workshop opens at the actual field shop location");
+			Check((bool)Invoke("ReturnDefenseModulator", weapon, part)! && recovered.Count == 1 &&
+				ReferenceEquals(recovered[0], part) && weapon.Modulators.Count == 0 && Field<int>("_defenseCoins") == 100,
+				"Actual field workshop returns an installed Broken part to loose storage without a coin charge or quality loss");
+			recovered.Add(ModulatorCatalog.Clone(part));
+			SetField("_defenseCoins", 19);
+			Check(!(bool)Invoke("FuseDefenseModulator", part)! && recovered.Count == 2 && Field<int>("_defenseCoins") == 19,
+				"Actual field workshop refuses unaffordable fusion without consuming either part");
+			SetField("_defenseCoins", 100);
+			Check((bool)Invoke("FuseDefenseModulator", part)! && recovered.Count == 1 &&
+				recovered[0].Key == "sharpened_form" && recovered[0].Tier == WeaponModulatorTier.Baseline && Field<int>("_defenseCoins") == 80 &&
+				Mathf.Abs(recovered[0].GetResolvedEffects()[0].Magnitude - 1.12f) < .0001f,
+				"Actual field workshop fuses two Broken copies into one Baseline copy and charges exactly twenty run coins");
+			Check(!(bool)Invoke("FuseDefenseModulator", part)! && recovered.Count == 1 && Field<int>("_defenseCoins") == 80,
+				"Stale field workshop callback cannot spend coins or fuse a second time");
+			recovered.Add(ModulatorCatalog.Clone(recovered[0]));
+			Invoke("CloseDefenseShop");
+			Check(!(bool)Invoke("FuseDefenseModulator", recovered[0])! && recovered.Count == 2 && Field<int>("_defenseCoins") == 80,
+				"Field fusion is unavailable after the actual shop closes");
+		}
+		finally
+		{
+			Invoke("CloseDefenseShop");
+			recovered.Clear(); recovered.AddRange(priorStorage);
+			SetField("_defenseCoins", priorCoins);
+			_map.DefenseSettings.ModulatorFusionBaseCost = priorCost;
+			Select(Weapon());
+		}
+	}
+
+	private void ValidateQualityWaveReward()
+	{
+		Arrange();
+		FpsDefenseSettings settings = _map.DefenseSettings!;
+		float weaponChance = settings.WeaponDropChance, partChance = settings.ModulatorDropChance;
+		List<WeaponModulatorData> pool = Field<List<WeaponModulatorData>>("_defenseModulatorPool");
+		WeaponModulatorData[] priorPool = pool.ToArray();
+		List<WeaponModulatorData> recovered = Field<List<WeaponModulatorData>>("_recoveredModulators");
+		int before = recovered.Count;
+		try
+		{
+			settings.WeaponDropChance = 0f; settings.ModulatorDropChance = 0f;
+			pool.Clear(); pool.Add(ModulatorCatalog.CreateByKey("extra_output"));
+			Check(!(bool)Invoke("GrantDefenseWaveModulator")! && recovered.Count == before,
+				"An uncleared real wave grants no guaranteed modulator early");
+			foreach (IFpsCombatEnemy target in _targets.ToArray()) target.ApplyDamage(target.CurrentHealth + 1f);
+			_crowd.FlushDeathEvents();
+			Check(_crowd.ActiveCount == 0 && recovered.Count == before + 1,
+				"Completing a real wave through all actual enemy deaths grants exactly one quality-bearing part");
+			WeaponModulatorData reward = recovered[^1];
+			Check(reward.Key == "extra_output" && Enum.IsDefined(typeof(WeaponModulatorTier), reward.Tier) &&
+				Field<string>("_lastWaveModulatorReward") == reward.DisplayName,
+				"Guaranteed wave reward uses the real catalog quality roll and exposes its actual quality name");
+			Invoke("HandleWaveCleared"); Invoke("HandleWaveCleared");
+			Check(recovered.Count == before + 1 && !(bool)Invoke("GrantDefenseWaveModulator")!,
+				"Repeated real wave-clear handling cannot duplicate its guaranteed reward");
+			EquipmentItem weapon = Weapon();
+			Select(weapon);
+			SetField("_combatShopRemaining", 100f);
+			Check((bool)Invoke("CanInstallDefenseModulator", reward)!, "Guaranteed reward is compatible with the actual shop installation path");
+			Invoke("InstallDefenseModulator", reward);
+			Check(weapon.Modulators.Count == 1 && weapon.Modulators[0].Tier == reward.Tier &&
+				!ReferenceEquals(weapon.Modulators[0], reward), "Actual installation clones the rewarded quality without resetting or doubling it");
+			Invoke("FireWeaponAttack", weapon, _origin, Vector3.Forward, 1f, false);
+			Check(List("_playerProjectiles").Count > 0 && List("_playerProjectiles").Cast<object>().All(record =>
+				ReferenceEquals(Effect<EquipmentItem>(record, "SourceItem"), weapon)),
+				"Attacks fired with the guaranteed reward retain the actual installed quality source");
+		}
+		finally { settings.WeaponDropChance = weaponChance; settings.ModulatorDropChance = partChance; pool.Clear(); pool.AddRange(priorPool); }
+	}
+
+	private void ValidateFinalWaveWorkshop()
+	{
+		Dictionary<string, byte[]?> saves = new();
+		foreach (string name in new[] { "inventory_state.cfg", "game_state.cfg", "currency_state.cfg", "save_manager.cfg" })
+		{
+			string path = ProjectSettings.GlobalizePath("user://" + name);
+			saves[path] = System.IO.File.Exists(path) ? System.IO.File.ReadAllBytes(path) : null;
+		}
+		int totalWaves = Field<int>("_totalWaveCount");
+		Check(totalWaves == 2 && Field<int>("_currentWaveNumber") == 1 && Field<int>("_nextWaveIndex") == 1 && !Field<bool>("_victory"),
+			"Normal wave reward leaves the distinct configured final wave pending");
+		Check((bool)Invoke("TrySpawnNextWave")! && Field<int>("_currentWaveNumber") == totalWaves && _crowd.ActiveCount > 0,
+			"Final workshop fixture spawns the real last configured wave");
+		FpsDefenseSettings settings = _map.DefenseSettings!;
+		float weaponChance = settings.WeaponDropChance, partChance = settings.ModulatorDropChance;
+		List<WeaponModulatorData> recovered = Field<List<WeaponModulatorData>>("_recoveredModulators");
+		int before = recovered.Count;
+		try
+		{
+			settings.WeaponDropChance = 0f; settings.ModulatorDropChance = 0f;
+			foreach (IFpsCombatEnemy target in _targets.ToArray()) target.ApplyDamage(target.CurrentHealth + 1f);
+			_crowd.FlushDeathEvents();
+			Check(Field<bool>("_victory") && _crowd.ActiveCount == 0 && recovered.Count == before + 1,
+				"The real final wave ends defense and grants its own exactly-once reward");
+			Field<FpsPlayerController>("_player").GlobalPosition = new Vector3(60f, 0f, -65f);
+			Check(!(bool)Invoke("IsNearDefenseShop")!, "Final reward fixture remains away from the core shop");
+			Button inventory = Field<Button>("_inventoryButton");
+			EquipmentItem alternate = Weapon("circle");
+			Field<List<EquipmentItem>>("_arsenal").Add(alternate);
+			Check(!inventory.Disabled && inventory.Text == "Final reward / workshop", "Victory presents an enabled final-reward workshop button");
+			inventory.EmitSignal(BaseButton.SignalName.Pressed);
+			Check(Field<bool>("_shopOpen") && !Field<Control>("_overlayBackdrop").Visible && !IsCombatRunning(),
+				"Pressing the real final-reward button opens the workshop away from the core without resuming combat");
+			Field<VBoxContainer>("_shopContent").GetNode<Button>("InspectWeaponButton").EmitSignal(BaseButton.SignalName.Pressed);
+			_map.PreviewInspectedWeapon(1);
+			Button equip = Field<Node>("_weaponInspectionUi").FindChild("EquipInspectedShape", true, false) as Button
+				?? throw new InvalidOperationException("Final inspection equip button is missing");
+			equip.EmitSignal(BaseButton.SignalName.Pressed);
+			Check(_map.IsWeaponInspectionOpen && !Field<bool>("_shopOpen") && !IsCombatRunning() && _map.EquippedWeaponIndex == 1 &&
+				ReferenceEquals(Invoke("GetCurrentWeapon"), alternate),
+				"Final workshop inspection actually equips a different shape while completed defense stays stopped");
+			_map.CloseWeaponInspection();
+			Check(Field<bool>("_shopOpen") && !_map.IsWeaponInspectionOpen && !IsCombatRunning(),
+				"Closing final inspection returns to the victory workshop away from the core");
+			Button results = Field<VBoxContainer>("_shopContent").GetChildren().OfType<Button>().Single(button => button.Text == "Back to results / F or Esc");
+			results.EmitSignal(BaseButton.SignalName.Pressed);
+			_map._PhysicsProcess(1d / 60d);
+			Invoke("TickWaveFlow", 10f);
+			Check(!Field<bool>("_shopOpen") && Field<bool>("_victory") && Field<Control>("_overlayBackdrop").Visible &&
+				!IsCombatRunning() && !_crowd.CombatEnabled && _crowd.ActiveCount == 0 && recovered.Count == before + 1,
+				"Returning to results restores the victory overlay without restarting combat, spawning a wave or granting another reward");
+			Check(saves.All(pair => pair.Value == null ? !System.IO.File.Exists(pair.Key) : System.IO.File.Exists(pair.Key) &&
+				pair.Value.SequenceEqual(System.IO.File.ReadAllBytes(pair.Key))), "Final reward, workshop and inspection leave hub save files unchanged");
+		}
+		finally { settings.WeaponDropChance = weaponChance; settings.ModulatorDropChance = partChance; }
+		bool IsCombatRunning() => (bool)Invoke("IsCombatRunning")!;
+	}
+
 	private void ValidateCatalogInstallation()
 	{
 		Check(!(bool)Invoke("IsDefensePartCompatible", ModulatorCatalog.CreateByKey("ballistic_tuning"), Weapon("triangle"))!, "Shop rejects projectile speed on a beam that has no travelling projectile");
@@ -600,12 +854,19 @@ public partial class ValidateFpsModulators : Node
 		Check(!(bool)Invoke("IsDefensePartCompatible", ModulatorCatalog.CreateByKey("rebound_array"), Weapon("triangle"))!, "Shop rejects wall bounce on a beam that has no bouncing projectile");
 		List<WeaponModulatorData> catalog = ModulatorCatalog.CreateAll();
 		List<WeaponModulatorData> pool = Field<List<WeaponModulatorData>>("_defenseModulatorPool");
-		Check(catalog.All(part => pool.Any(candidate => candidate.Key == part.Key)), "North Gate loot/shop pool includes every current catalog modulator");
+		Check(catalog.Where(part => part.Key != "apex_doctrine").All(part => pool.Any(candidate => candidate.Key == part.Key)) &&
+			!pool.Any(part => part.Key == "apex_doctrine"), "North Gate loot/shop pool includes all ninety-nine active parts and excludes archived Apex");
 		List<EquipmentItem> arsenal = Field<List<EquipmentItem>>("_arsenal");
 		SetField("_combatShopRemaining", 100f);
 		int sourceContextRecords = 0;
 		foreach (WeaponModulatorData part in catalog)
 		{
+			if (part.Key == "apex_doctrine")
+			{
+				Check(EquipmentCatalogDefaults.CreateDefaultShapes().All(shape => !(bool)Invoke("IsDefensePartCompatible", part, Weapon(shape.Key))!),
+					"Archived Apex remains readable but cannot be installed on any FPS shape");
+				continue;
+			}
 			EquipmentItem? weapon = EquipmentCatalogDefaults.CreateDefaultShapes().Select(shape => Weapon(shape.Key))
 				.FirstOrDefault(candidate => (bool)Invoke("IsDefensePartCompatible", part, candidate)!);
 			Check(weapon != null, $"Catalog modulator {part.Key} has an eligible FPS weapon");
@@ -679,12 +940,12 @@ public partial class ValidateFpsModulators : Node
 			Invoke("SweepDefenseLoot");
 			Check(Field<int>("_defenseCoins") - balance == 522, "Lucky Prism boosts actual run currency with fractional carry across one hundred drops");
 			Select(Weapon("square", "lucky_prism", "apex_doctrine"));
-			Check(Mathf.Abs((float)Invoke("GetFpsModulatorLuckMultiplier")! - 1.06075f) < 0.00001f, "Apex Doctrine amplifies Lucky Prism's legacy luck roll");
+			Check(Mathf.Abs((float)Invoke("GetFpsModulatorLuckMultiplier")! - 1.045f) < 0.00001f, "Archived Apex Doctrine adds no amplification to Lucky Prism");
 			balance = Field<int>("_defenseCoins");
 			SetField("_defenseCoinRemainder", 0f);
 			for (int drop = 0; drop < 100; drop++) Invoke("SpawnDefenseLoot", _origin);
 			Invoke("SweepDefenseLoot");
-			Check(Field<int>("_defenseCoins") - balance == 530, "Amplified Lucky Prism increases actual currency across one hundred drops");
+			Check(Field<int>("_defenseCoins") - balance == 522, "Archived Apex leaves actual Lucky Prism currency unchanged across one hundred drops");
 		}
 		finally { defense.WeaponDropChance = originalWeaponChance; defense.ModulatorDropChance = originalModulatorChance; defense.CoinsPerEnemy = originalCoins; }
 		Select(Weapon());
