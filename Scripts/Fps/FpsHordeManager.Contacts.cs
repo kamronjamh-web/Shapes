@@ -17,6 +17,7 @@ public partial class FpsHordeManager
 		float half = Mathf.Max(0f, _extent * 0.5f - radius);
 		desired.X = Mathf.Clamp(desired.X, -half, half);
 		desired.Z = Mathf.Clamp(desired.Z, -half, half);
+		if (BodyWorldResolver != null) return BodyWorldResolver(from, desired, radius, height);
 		if (ConstrainBodyMovement != null) desired = ConstrainBodyMovement(from, desired, radius, height);
 		else if (ConstrainMovement != null) desired = ConstrainMovement(from, desired, radius);
 		float floor = SurfaceSupportHeight?.Invoke(from, desired, radius, height) ?? SurfaceHeight?.Invoke(desired) ?? 0f;
@@ -52,7 +53,7 @@ public partial class FpsHordeManager
 		for (int pass = 0; pass < iterations; pass++)
 		{
 			BuildContactGrid();
-			for (int slot = 0; slot < _enemies.Length; slot++)
+			foreach (int slot in EnumerateAliveSlots())
 			{
 				ref Enemy body = ref _enemies[slot];
 				if (!body.Alive) continue;
@@ -160,7 +161,7 @@ public partial class FpsHordeManager
 		}
 		StackedEnemyCount = 0;
 		HighestPileFeet = 0f;
-		for (int i = 0; i < _enemies.Length; i++)
+		foreach (int i in EnumerateAliveSlots())
 		{
 			ref Enemy body = ref _enemies[i];
 			if (!body.Alive) continue;

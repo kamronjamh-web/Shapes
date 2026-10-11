@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://b8a2byi7qd2eg"
+path="res://.godot/imported/crowd_contacts.glsl-f974b0f5b7602304a36861c580664540.res"
+
+[deps]
+
+source_file="res://Resources/Shaders/GpuCrowd/crowd_contacts.glsl"
+dest_files=["res://.godot/imported/crowd_contacts.glsl-f974b0f5b7602304a36861c580664540.res"]
+
+[params]
+

@@ -35,6 +35,12 @@ public partial class FpsPlayerController : CharacterBody3D
 	public event Action? Died;
 
 	public Camera3D Camera => _camera;
+	public void SetWeaponInspectionActive(bool active)
+	{
+		_viewModelRoot.Visible = !active;
+		_weaponInspectionActive = active;
+		if (active) { _isAiming = false; _inspectionFov = HipFov; _camera.Fov = _inspectionFov; }
+	}
 	public float CurrentHealth { get; private set; }
 	public bool IsAlive => CurrentHealth > 0.001f;
 	public bool IsAiming => _isAiming;
@@ -60,6 +66,8 @@ public partial class FpsPlayerController : CharacterBody3D
 	private readonly RandomNumberGenerator _rng = new();
 
 	private bool _combatEnabled = true;
+	private bool _weaponInspectionActive;
+	private float _inspectionFov;
 	private bool _isAiming;
 	private float _pitch;
 	private float _fireCooldown;
@@ -461,7 +469,10 @@ public partial class FpsPlayerController : CharacterBody3D
 		}
 
 		float targetFov = _isAiming ? AimFov : HipFov;
-		_camera.Fov = Mathf.Lerp(_camera.Fov, targetFov, Mathf.Clamp(dt * AimLerpSpeed, 0f, 1f));
+		// Shape-specific combat FOV changes take effect after inspection closes.
+		// Holding the lens here keeps socket projections steady during a shape conversion.
+		_camera.Fov = _weaponInspectionActive ? _inspectionFov
+			: Mathf.Lerp(_camera.Fov, targetFov, Mathf.Clamp(dt * AimLerpSpeed, 0f, 1f));
 		_weaponCoreMaterial.EmissionEnergyMultiplier = _fireCooldown > 0f ? 2.3f : 1.6f;
 		if (_weaponModifierVisual != null && IsInstanceValid(_weaponModifierVisual))
 		{

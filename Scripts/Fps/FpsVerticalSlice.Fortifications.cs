@@ -11,6 +11,11 @@ public partial class FpsVerticalSlice
 	private float HillDoorHeight => Mathf.Clamp(HillMapSettings!.DoorHeight, 3f, Mathf.Max(4f, HillMapSettings.RoomWallHeight) - 0.5f);
 	private readonly List<FortSolid> _fortSolids = new();
 	private readonly List<FortRamp> _fortRamps = new();
+	internal FpsFortSpatialIndex? _fortSpatialIndex;
+	internal bool FortSpatialQueriesEnabled { get; set; } = true;
+	internal int FortSpatialIndexVersion { get; private set; }
+	internal int FortSolidCount => _fortSolids.Count;
+	internal int FortRampCount => _fortRamps.Count;
 	private float _fortGeometryHalf;
 	private readonly record struct FortSolid(Vector3 Center, Vector3 Size)
 	{
@@ -27,6 +32,7 @@ public partial class FpsVerticalSlice
 	private void BuildFortifications()
 	{
 		_fortSolids.Clear(); _fortRamps.Clear();
+		_fortSpatialIndex = null;
 		FpsHillMapSettings settings = HillMapSettings!;
 		float inside = FortInteriorHalf, thickness = FortWallThickness, room = HillRoomHalf;
 		float outer = inside + thickness, wallHeight = Mathf.Max(4f, settings.RoomWallHeight);
@@ -75,7 +81,38 @@ public partial class FpsVerticalSlice
 			}
 			AddMapLabel($"{new[] { "NORTH", "EAST", "SOUTH", "WEST" }[side]} GATE", outward * room + Vector3.Up * (top + 1.3f), new Color(0.45f, 0.9f, 1f), 38);
 		}
+		RebuildFortSpatialIndex();
 	}
+
+	private void RebuildFortSpatialIndex()
+	{
+		var solids = new FpsFortSpatialIndex.Bounds[_fortSolids.Count];
+		for (int i = 0; i < solids.Length; i++)
+		{
+			FortSolid solid = _fortSolids[i];
+			solids[i] = new(solid.Center.X - solid.Size.X * 0.5f, solid.Center.Z - solid.Size.Z * 0.5f,
+				solid.Center.X + solid.Size.X * 0.5f, solid.Center.Z + solid.Size.Z * 0.5f);
+		}
+		var ramps = new FpsFortSpatialIndex.Bounds[_fortRamps.Count];
+		for (int i = 0; i < ramps.Length; i++)
+		{
+			FortRamp ramp = _fortRamps[i];
+			Vector3 center = ramp.Outward * ((ramp.Start + ramp.End) * 0.5f) + ramp.Across * ramp.AcrossCenter;
+			float halfX = (Mathf.Abs(ramp.Outward.X) * (ramp.End - ramp.Start) + Mathf.Abs(ramp.Across.X) * ramp.Width) * 0.5f;
+			float halfZ = (Mathf.Abs(ramp.Outward.Z) * (ramp.End - ramp.Start) + Mathf.Abs(ramp.Across.Z) * ramp.Width) * 0.5f;
+			ramps[i] = new(center.X - halfX, center.Z - halfZ, center.X + halfX, center.Z + halfZ);
+		}
+		_fortSpatialIndex = FpsFortSpatialIndex.Create(solids, ramps);
+		FortSpatialIndexVersion++;
+	}
+
+	private FpsFortSpatialIndex.Cell FortCandidates(Vector3 from, Vector3 desired, float radius)
+		=> FortSpatialQueriesEnabled && _fortSpatialIndex != null
+			? _fortSpatialIndex.Query(from, desired, Mathf.Max(0.05f, radius + 0.1f)) : default;
+	private FpsFortSpatialIndex.Candidates SolidCandidates(FpsFortSpatialIndex.Cell cell)
+		=> new(cell.Solids, _fortSolids.Count, FortSpatialQueriesEnabled && _fortSpatialIndex != null);
+	private FpsFortSpatialIndex.Candidates RampCandidates(FpsFortSpatialIndex.Cell cell)
+		=> new(cell.Ramps, _fortRamps.Count, FortSpatialQueriesEnabled && _fortSpatialIndex != null);
 
 	private static Vector3 CardinalSize(int side, float width, float height, float depth) => side % 2 == 0 ? new(width, height, depth) : new(depth, height, width);
 	private void AddFortSolid(string name, Vector3 center, Vector3 size, Color color)
@@ -107,9 +144,16 @@ public partial class FpsVerticalSlice
 	{
 		float support = SampleHillSurfaceHeight(desired);
 		if (Mathf.Abs(desired.X) > _fortGeometryHalf + radius || Mathf.Abs(desired.Z) > _fortGeometryHalf + radius) return support;
+		return SampleFortSupport(previous, desired, radius, support, FortCandidates(previous, desired, radius));
+	}
+
+	private float SampleFortSupport(Vector3 previous, Vector3 desired, float radius, float support, FpsFortSpatialIndex.Cell candidates)
+	{
+		if (Mathf.Abs(desired.X) > _fortGeometryHalf + radius || Mathf.Abs(desired.Z) > _fortGeometryHalf + radius) return support;
 		float rampLanding = float.NegativeInfinity;
-		foreach (FortRamp ramp in _fortRamps)
+		foreach (int index in RampCandidates(candidates))
 		{
+			FortRamp ramp = _fortRamps[index];
 			// Rounded bodies reach the deck edge before their foot centre reaches the ramp end.
 			if (ramp.Contains(previous, 0.05f) && previous.Y >= ramp.HeightAt(previous) - 0.05f
 				&& previous.Y >= ramp.Top - 0.3f && desired.Dot(ramp.Outward) >= ramp.End - radius
@@ -123,18 +167,30 @@ public partial class FpsVerticalSlice
 				|| (previous.Y >= ramp.Base - 0.05f && rampHeight <= previous.Y + 0.25f);
 			if (arrivedFromAbove || walkingUp) support = Mathf.Max(support, rampHeight);
 		}
-		foreach (FortSolid solid in _fortSolids)
+		foreach (int index in SolidCandidates(candidates))
+		{
+			FortSolid solid = _fortSolids[index];
 			if ((previous.Y >= solid.Top - 0.001f || Mathf.Abs(solid.Top - rampLanding) < 0.001f) && solid.Contains(desired, radius))
 				support = Mathf.Max(support, solid.Top);
+		}
 		return support;
 	}
 
 	private float SampleFortMaxFoot(Vector3 position, float radius, float height)
 	{
+		if (Mathf.Abs(position.X) > _fortGeometryHalf + radius || Mathf.Abs(position.Z) > _fortGeometryHalf + radius) return float.PositiveInfinity;
+		return SampleFortMaxFoot(position, radius, height, FortCandidates(position, position, radius));
+	}
+
+	private float SampleFortMaxFoot(Vector3 position, float radius, float height, FpsFortSpatialIndex.Cell candidates)
+	{
 		float cap = float.PositiveInfinity;
 		if (Mathf.Abs(position.X) > _fortGeometryHalf + radius || Mathf.Abs(position.Z) > _fortGeometryHalf + radius) return cap;
-		foreach (FortSolid solid in _fortSolids)
+		foreach (int index in SolidCandidates(candidates))
+		{
+			FortSolid solid = _fortSolids[index];
 			if (position.Y < solid.Bottom && solid.Contains(position, radius)) cap = Mathf.Min(cap, solid.Bottom - height);
+		}
 		return cap;
 	}
 
@@ -146,11 +202,17 @@ public partial class FpsVerticalSlice
 		if (Mathf.Max(from.X, desired.X) < -bounds || Mathf.Min(from.X, desired.X) > bounds || Mathf.Max(from.Z, desired.Z) < -bounds || Mathf.Min(from.Z, desired.Z) > bounds)
 		{ desired.Y = Mathf.Max(desired.Y, SampleHillSurfaceHeight(desired)); return desired; }
 		desired.Y = Mathf.Max(desired.Y, SampleFortSupport(from, desired, radius));
-		foreach (FortSolid solid in _fortSolids)
+		// Sliding only shortens the original XZ sweep, so its candidate set stays conservative.
+		FpsFortSpatialIndex.Cell candidates = FortCandidates(from, desired, radius);
+		foreach (int index in SolidCandidates(candidates))
+		{
+			FortSolid solid = _fortSolids[index];
 			if (Mathf.Min(from.Y, desired.Y) < solid.Top - 0.001f && Mathf.Max(from.Y, desired.Y) + height > solid.Bottom + 0.001f)
 				SlideHillWall(from, ref desired, solid.Center, solid.Size, radius);
-		foreach (FortRamp ramp in _fortRamps)
+		}
+		foreach (int index in RampCandidates(candidates))
 		{
+			FortRamp ramp = _fortRamps[index];
 			if (ramp.Contains(desired, radius) && desired.Y < ramp.HeightAt(desired) - 0.05f)
 			{
 				Vector3 center = ramp.Outward * ((ramp.Start + ramp.End) * 0.5f) + ramp.Across * ramp.AcrossCenter;

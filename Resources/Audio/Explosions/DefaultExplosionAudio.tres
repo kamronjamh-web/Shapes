@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="FpsExplosionAudioSettings" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://Scripts/Fps/FpsExplosionAudioSettings.cs" id="1"]
+[ext_resource type="AudioStream" path="res://Resources/Audio/Explosions/medium_explosion.wav" id="2"]
+
+[resource]
+script = ExtResource("1")
+MediumClose = ExtResource("2")
+MediumFar = ExtResource("2")

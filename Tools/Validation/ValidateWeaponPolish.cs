@@ -149,9 +149,9 @@ public partial class ValidateWeaponPolish : Node
         audio.Enabled = true;
         audio.SetPaused(false);
         _player.Camera.Current = true;
-        foreach ((string shape, WeaponAttackType type, string tick) in new[]
+        foreach ((string shape, string tick) in new[]
         {
-            ("hexagon", WeaponAttackType.Mine, "TickMines"), ("hyperphere", WeaponAttackType.Mortar, "TickMortars"),
+            ("hexagon", "TickMines"), ("hyperphere", "TickMortars"),
         })
         {
             Invoke("ResetWeaponEffectRuntimeState");
@@ -168,16 +168,23 @@ public partial class ValidateWeaponPolish : Node
                 _targets[1].GlobalPosition = new Vector3(62f, 0f, -77f);
             }
             finally { crowd.ConstrainMovement = constrain; }
-            // Learn the public activation mapping from actual pooled playback, without cache indices.
+            // The supplied medium recording is shared across weapon types; learn
+            // its actual pooled stream without relying on native cache indices.
             audio.Clear();
-            audio.PlayActivation(type, _player.HeadPosition);
+            audio.PlayExplosion(_player.HeadPosition, 4.4f);
             AudioStream activation = audio.GetChildren().OfType<AudioStreamPlayer3D>().Single(voice => voice.Playing).Stream
-                ?? throw new InvalidOperationException("Activation playback did not select a cached stream.");
+                ?? throw new InvalidOperationException("Explosion playback did not select the medium recording.");
             audio.Clear();
             EquipmentItem item = Item(shape);
             Field<List<EquipmentItem>>("_arsenal")[0] = item;
             Invoke("EquipWeapon", 0, false);
             Invoke("FireWeaponAttack", item, _origin, (_targets[0].HeadPosition - _origin).Normalized(), 1f, false);
+            // Retune the actual spawned blast record to prove sound selection
+            // receives its gameplay radius, rather than a per-weapon constant.
+            float blastRadius = shape == "hexagon" ? 5.5f : 9.25f;
+            IList blasts = Field<IList>(shape == "hexagon" ? "_playerMines" : "_playerMortars");
+            foreach (object blast in blasts)
+                blast.GetType().GetField(shape == "hexagon" ? "ExplosionRadius" : "Radius")!.SetValue(blast, blastRadius);
             // Synthetic simulation advances faster than the audio device. Stop the onset voice
             // while preserving cooldown state, so it cannot impersonate the later detonation cue.
             foreach (AudioStreamPlayer3D voice in audio.GetChildren().OfType<AudioStreamPlayer3D>()) voice.Stop();
@@ -202,9 +209,36 @@ public partial class ValidateWeaponPolish : Node
             }
             Check(detonated && audio.GetChildren().OfType<AudioStreamPlayer3D>().Any(voice => voice.Playing && !voice.StreamPaused &&
                 voice.VolumeDb > -75f && ReferenceEquals(voice.Stream, activation)),
-                $"{shape}: real damaging detonation preserves its cached activation cue despite victim impact callbacks");
+                $"{shape}: real damaging detonation uses the shared medium recording despite victim impact callbacks");
+            Check(audio.LastExplosionRadius == blastRadius
+                && audio.LastExplosionSize == (shape == "hexagon" ? FpsExplosionSize.Medium : FpsExplosionSize.Large),
+                $"{shape}: final damage radius selects its medium/large catalog band");
+            Check(audio.GetChildren().OfType<AudioStreamPlayer3D>().Where(voice => voice.Playing)
+                .All(voice => ReferenceEquals(voice.Stream, activation)),
+                $"{shape}: explosion victims do not add duplicate per-target impact sounds");
             audio.Clear();
         }
+        Invoke("ResetWeaponEffectRuntimeState");
+        EquipmentItem volatileWeapon = Item("square");
+        volatileWeapon.Modulators.Add(ModulatorCatalog.CreateByKey("volitile", WeaponModulatorTier.Baseline));
+        Field<List<EquipmentItem>>("_arsenal")[0] = volatileWeapon;
+        Invoke("EquipWeapon", 0, false);
+        _targets[0].GlobalPosition = new Vector3(60f, 0f, -76f);
+        _targets[1].GlobalPosition = new Vector3(60.8f, 0f, -76f);
+        audio.Clear();
+        long beforeExplosions = audio.ExplosionPlaybackCount;
+        float neighborHealth = _targets[1].CurrentHealth;
+        Invoke("FireWeaponAttack", volatileWeapon, _origin, (_targets[0].HeadPosition - _origin).Normalized(), 1f, false);
+        for (int frame = 0; frame < 90 && audio.ExplosionPlaybackCount == beforeExplosions; frame++)
+        {
+            audio._Process(1d / 60d);
+            Invoke("TickPlayerProjectiles", 1f / 60f);
+        }
+        Check(_targets[1].CurrentHealth < neighborHealth && audio.ExplosionPlaybackCount == beforeExplosions + 1
+            && audio.LastExplosionRadius == 2f && audio.LastExplosionSize == FpsExplosionSize.Small,
+            "A real player Volitile hit damages a neighbor and selects the small band from its 2m blast radius");
+        Check(Field<int>("_explosionAudioDepth") == 0, "Explosion victim-audio scope restores after chained weapon damage");
+        audio.Clear();
         Invoke("ResetWeaponEffectRuntimeState");
     }
 

@@ -9,14 +9,18 @@ namespace SuperGatchaRebuild.Fps;
 
 public partial class FpsVerticalSlice
 {
-    public IReadOnlyList<EquipmentItem> GetInventoryShapes() => _arsenal.AsReadOnly();
+    public IReadOnlyList<EquipmentItem> GetInventoryShapes()
+    {
+        List<EquipmentItem> shapes = new(_arsenal);
+        shapes.AddRange(_reserveShapes);
+        return shapes.AsReadOnly();
+    }
     public IReadOnlyList<WeaponModulatorData> GetInventoryStoredModulators() => _recoveredModulators.AsReadOnly();
     public IReadOnlyList<WeaponModulatorData?> GetInventoryWeaponSlots(int arsenalIndex)
-        => arsenalIndex >= 0 && arsenalIndex < _arsenal.Count
-            ? FpsWeaponSocketLayout.GetSlots(_arsenal[arsenalIndex]) : Array.Empty<WeaponModulatorData?>();
+        => GetInventoryShape(arsenalIndex) is EquipmentItem weapon
+            ? FpsWeaponSocketLayout.GetSlots(weapon) : Array.Empty<WeaponModulatorData?>();
 
-    private EquipmentItem? InventoryTarget => _inspectionWeaponIndex >= 0 && _inspectionWeaponIndex < _arsenal.Count
-        ? _arsenal[_inspectionWeaponIndex] : null;
+    private EquipmentItem? InventoryTarget => GetInventoryShape(_inspectionWeaponIndex);
 
     private bool CanEditInventory(EquipmentItem? expectedWeapon, out string reason)
     {
@@ -31,9 +35,25 @@ public partial class FpsVerticalSlice
     public bool TryEquipInventoryShape(int arsenalIndex)
     {
         if (!_weaponInspectionOpen || !_pauseRequested || _defeat || (_victory && !IsDefenseMap)
-            || arsenalIndex < 0 || arsenalIndex >= _arsenal.Count) return false;
+            || GetInventoryShape(arsenalIndex) == null) return false;
         bool samePreview = _inspectionWeaponIndex == arsenalIndex;
         bool changedEquipment = _selectedWeaponIndex != arsenalIndex;
+        if (arsenalIndex >= _arsenal.Count)
+        {
+            int reserveIndex = arsenalIndex - _arsenal.Count;
+            EquipmentItem incoming = _reserveShapes[reserveIndex];
+            if (!CanSwapReserveShape(incoming, _selectedWeaponIndex, out string reason))
+            {
+                ShowNotice(reason, 3f);
+                _weaponInspectionUi?.SetStatus(reason, true);
+                return false;
+            }
+            _reserveShapes[reserveIndex] = _arsenal[_selectedWeaponIndex];
+            _arsenal[_selectedWeaponIndex] = incoming;
+            arsenalIndex = _selectedWeaponIndex;
+            ResetWeaponEffectRuntimeState();
+            EquipWeapon(arsenalIndex, false);
+        }
         _inspectionWeaponIndex = arsenalIndex;
         if (_selectedWeaponIndex != arsenalIndex) EquipWeapon(arsenalIndex, false);
         RefreshInventoryInspection();
@@ -56,7 +76,7 @@ public partial class FpsVerticalSlice
             reason = "Return the installed part to storage before using this socket.";
         else if (weapon.AvailableModulatorSlots <= 0)
             reason = "This shape has no open sockets.";
-        else if (_arsenal.Exists(item => item.Modulators.Exists(candidate => ReferenceEquals(candidate, part))))
+        else if (IsInventoryPartInstalled(part))
             reason = "This part is already installed.";
         else if (!WeaponModulatorCompatibility.CanApplyToWeapon(part, weapon, out reason)) return false;
         else if (!CanInstallModulatorForFpsWeapon(weapon, part))
@@ -88,6 +108,8 @@ public partial class FpsVerticalSlice
             reason = "This socket is locked.";
         else if (FpsWeaponSocketLayout.GetSlots(expectedWeapon!)[slotIndex] == null)
             reason = "This socket is empty.";
+        else if (_recoveredModulators.Count >= StoredModulatorCapacity)
+            reason = "Modulator storage is full (100/100). Drop or install a stored part first.";
         return reason.Length == 0;
     }
 
@@ -120,15 +142,16 @@ public partial class FpsVerticalSlice
 
     private void RefreshInventoryInspection()
     {
-        _weaponInspectionUi?.SetWeapons(_arsenal, _inspectionWeaponIndex, _selectedWeaponIndex);
+        _weaponInspectionUi?.SetCapacityState(_arsenal.Count, _reserveShapes.Count, _recoveredModulators.Count);
+        _weaponInspectionUi?.SetWeapons(GetInventoryShapes(), _inspectionWeaponIndex, _selectedWeaponIndex);
         _weaponInspectionUi?.SetInventory(GetInventoryStoredModulators(), GetInventoryWeaponSlots(_inspectionWeaponIndex),
             GetInventoryWeaponStats(_inspectionWeaponIndex));
     }
 
     public FpsInventoryWeaponStats? GetInventoryWeaponStats(int arsenalIndex)
     {
-        if (arsenalIndex < 0 || arsenalIndex >= _arsenal.Count || _arsenal[arsenalIndex].Shape == null) return null;
-        EquipmentItem weapon = _arsenal[arsenalIndex];
+        EquipmentItem? weapon = GetInventoryShape(arsenalIndex);
+        if (weapon?.Shape == null) return null;
         float cadence = Mathf.Max(.1f, 1f + StatGenerator.GetTotalSubstatValue(weapon, SubstatType.AttackSpeed) / 100f);
         float maxHealth = Mathf.Max(1f, _debugBaseMaxHealth) * Mathf.Max(.01f, 1f + GetFpsPassiveSubstat(weapon, SubstatType.HealthPercent) / 100f);
         if (_arenaDebugOverridesActive) maxHealth += _arenaDebugOverrides.MaxHpFlat;

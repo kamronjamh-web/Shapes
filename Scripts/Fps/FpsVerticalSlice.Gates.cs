@@ -94,6 +94,11 @@ public partial class FpsVerticalSlice
 	private Vector3 ConstrainHordeBodyWithGates(Vector3 from, Vector3 desired, float radius, float height)
 	{
 		desired = ConstrainHillCrowdBodyMovement(from, desired, radius, height);
+		return ConstrainHordeGates(from, desired, radius, height);
+	}
+
+	private Vector3 ConstrainHordeGates(Vector3 from, Vector3 desired, float radius, float height)
+	{
 		foreach (var gate in _defenseGates)
 		{
 			if (!gate.IsAlive) continue;

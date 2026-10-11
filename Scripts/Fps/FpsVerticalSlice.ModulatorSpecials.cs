@@ -78,8 +78,7 @@ public partial class FpsVerticalSlice
 		if (deployed.Count == 0) return false;
 		foreach (MineEffect mine in deployed)
 		{
-			_weaponPolishAudio?.PlayActivation(WeaponAttackType.Mine, mine.Position);
-			DealFpsSecondary(() => DamageEnemiesInRadius(mine.Position, mine.ExplosionRadius, mine.Damage, weapon, false));
+			DealFpsSecondary(() => DamageEnemiesInExplosion(mine.Position, mine.ExplosionRadius, mine.Damage, weapon, false));
 			_weaponPolish?.Burst(WeaponAttackType.Mine, mine.Position, mine.ExplosionRadius, PolishRarity(weapon));
 			OnFpsMineDetonated(mine);
 			int index = _playerMines.IndexOf(mine);
@@ -136,7 +135,7 @@ public partial class FpsVerticalSlice
 				QueueFpsSpecial(0.45f, () =>
 				{
 					float radius = 8.5f * GetFpsAreaScale(weapon) * GetFpsRangeScale(weapon);
-					DealFpsSecondary(() => DamageEnemiesInRadius(_player.GlobalPosition, radius * 0.92f, GetScaledWeaponDamage(weapon, scale) * 1.35f, weapon, false));
+					DealFpsSecondary(() => DamageEnemiesInExplosion(_player.GlobalPosition, radius * 0.92f, GetScaledWeaponDamage(weapon, scale) * 1.35f, weapon, false));
 					SpawnPolishedPulse(WeaponAttackType.Nova, _player.GlobalPosition, radius * 0.92f, 0.24f, GetWeaponAccentColor(WeaponAttackType.Nova), weapon);
 					if (_playerZones.Count > 0) GetFpsSpecialObjectState(_playerZones[^1]).Contracting = true;
 				});
@@ -259,8 +258,7 @@ public partial class FpsVerticalSlice
 			float damage = mine.Damage * FpsSpecialMagnitude(config.Magnitude, 0.35f);
 			QueueFpsSpecial(0.2f + i * 0.04f, () =>
 			{
-				_weaponPolishAudio?.PlayActivation(WeaponAttackType.Mine, position);
-				DealFpsSecondary(() => DamageEnemiesInRadius(position, mine.ExplosionRadius * 0.65f, damage, mine.SourceItem, false));
+				DealFpsSecondary(() => DamageEnemiesInExplosion(position, mine.ExplosionRadius * 0.65f, damage, mine.SourceItem, false));
 				SpawnPolishedPulse(WeaponAttackType.Mine, position, mine.ExplosionRadius * 0.65f, 0.2f, GetWeaponAccentColor(WeaponAttackType.Mine), mine.SourceItem);
 			});
 		}
@@ -291,8 +289,7 @@ public partial class FpsVerticalSlice
 	{
 		WeaponModulatorEffectData? config = GetFpsTransformConfig(zone.SourceItem, "event_horizon_tear");
 		if (zone.Kind != ZoneEffectKind.Void || config == null || zone.SourceItem == null) return;
-		_weaponPolishAudio?.PlayActivation(WeaponAttackType.VoidSingularity, zone.Position);
-		DealFpsSecondary(() => DamageEnemiesInRadius(zone.Position, zone.Radius * 1.25f, zone.DamagePerTick * FpsSpecialMagnitude(config.Magnitude, 1.6f), zone.SourceItem, false));
+		DealFpsSecondary(() => DamageEnemiesInExplosion(zone.Position, zone.Radius * 1.25f, zone.DamagePerTick * FpsSpecialMagnitude(config.Magnitude, 1.6f), zone.SourceItem, false));
 		SpawnPolishedPulse(WeaponAttackType.VoidSingularity, zone.Position, zone.Radius * 1.25f, 0.26f, GetWeaponAccentColor(WeaponAttackType.VoidSingularity), zone.SourceItem);
 		int count = Mathf.Clamp(config.Count > 0 ? config.Count : 6, 1, 24);
 		for (int i = 0; i < count; i++)
@@ -380,11 +377,19 @@ public partial class FpsVerticalSlice
 			// Baseline keeps the legacy n+1 radius; fractional copies contribute their potency.
 			float radius = Mathf.Clamp(qualitySum + strongestQuality, 1f, 4f);
 			SpawnPulse(position, radius, 0.22f, new Color(1f, 0.44f, 0.18f));
-			DealFpsSecondary(() =>
+			_weaponPolishAudio?.PlayExplosion(position, radius);
+			_explosionAudioDepth++;
+			try
 			{
-				foreach (IFpsCombatEnemy nearby in QueryCombatRadius(position, radius))
-					if (nearby.IsAlive) DealDirectionalDamageToEnemy(nearby, damage * 0.5f, nearby.HeadPosition, source, critical, false, nearby.CollisionCenter - position);
-			});
+				// Preserve Volitile's existing critical/source/query rules while
+				// emitting one radius-classified sound for the complete blast.
+				DealFpsSecondary(() =>
+				{
+					foreach (IFpsCombatEnemy nearby in QueryCombatRadius(position, radius))
+						if (nearby.IsAlive) DealDirectionalDamageToEnemy(nearby, damage * 0.5f, nearby.HeadPosition, source, critical, false, nearby.CollisionCenter - position);
+				});
+			}
+			finally { _explosionAudioDepth--; }
 		}
 		WeaponModulatorEffectData? pack = GetFpsTransformConfig(source, "pack_hunters");
 		if (trigger && source.Shape?.AttackType == WeaponAttackType.Homing && pack != null)
@@ -452,8 +457,7 @@ public partial class FpsVerticalSlice
 			{
 				state.Timer = FpsSpecialMagnitude(reactor.MagnitudeB, 1.5f, 0.1f, 10f);
 				float burst = stored * 0.3f;
-				_weaponPolishAudio?.PlayActivation(WeaponAttackType.WrathAura, _player.GlobalPosition);
-				DealFpsSecondary(() => DamageEnemiesInRadius(_player.GlobalPosition, 6.2f, burst, current, false));
+				DealFpsSecondary(() => DamageEnemiesInExplosion(_player.GlobalPosition, 6.2f, burst, current, false));
 				SpawnPolishedPulse(WeaponAttackType.WrathAura, _player.GlobalPosition, 6.2f, 0.25f, GetWeaponAccentColor(WeaponAttackType.WrathAura), current);
 				stored *= 0.55f;
 			}

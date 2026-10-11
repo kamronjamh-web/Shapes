@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://c6nwucj4gmwb3"
+path="res://.godot/imported/crowd_render.glsl-b42048cd6fc3cda49f4abb826ba17abe.res"
+
+[deps]
+
+source_file="res://Resources/Shaders/GpuCrowd/crowd_render.glsl"
+dest_files=["res://.godot/imported/crowd_render.glsl-b42048cd6fc3cda49f4abb826ba17abe.res"]
+
+[params]
+

@@ -34,7 +34,7 @@ public partial class FpsHordeManager
 
 	private void UpdateRollingMotion()
 	{
-		for (int slot = 0; slot < _enemies.Length; slot++)
+		foreach (int slot in EnumerateAliveSlots())
 		{
 			ref Enemy body = ref _enemies[slot];
 			if (!body.Alive || body.Role != FpsEnemyRole.Bruiser) continue;
@@ -43,18 +43,25 @@ public partial class FpsHordeManager
 			Vector3 travel = body.Position - body.PreviousPosition;
 			travel.Y = 0f;
 			float distance = travel.Length();
-			if (distance <= 0.00001f) continue;
 			float width = Mathf.Max(0.2f, body.Radius * 2f);
 			// Contacts and external pushes can move a resting cube too. Its visible roll follows
 			// real displacement, while collision bounds remain upright for combat and piling.
-			Vector3 axis = Vector3.Up.Cross(travel / distance);
-			float angle = distance / width * Mathf.Pi * 0.5f;
-			body.RollOrientation = (new Quaternion(axis, angle) * body.RollOrientation).Normalized();
-			body.RollDistance += distance;
-			if (body.RollDistance >= width - 0.00001f)
+			if (distance > 0.00001f)
+			{
+				Vector3 axis = Vector3.Up.Cross(travel / distance);
+				float angle = distance / width * Mathf.Pi * 0.5f;
+				body.RollOrientation = (new Quaternion(axis, angle) * body.RollOrientation).Normalized();
+				body.RollDistance += distance;
+			}
+			// At large map coordinates the final fraction of a roll can be smaller
+			// than one representable position step. Finish within two coordinate ULPs,
+			// including a zero-displacement tick, instead of requesting that step forever.
+			float coordinate = Mathf.Max(Mathf.Abs(body.Position.X), Mathf.Abs(body.Position.Z));
+			float tolerance = Mathf.Max(0.00001f, 2f * (MathF.BitIncrement(coordinate) - coordinate));
+			if (body.RollDistance >= width - tolerance)
 			{
 				body.RollDistance %= width;
-				if (body.RollDistance < 0.00001f || width - body.RollDistance < 0.00001f) body.RollDistance = 0f;
+				if (body.RollDistance <= tolerance || body.RollDistance >= width - tolerance) body.RollDistance = 0f;
 				body.RollPause = Mathf.Max(body.RollPause, Mathf.Max(0f, body.RollNextPause - body.RollUnusedSeconds));
 			}
 		}

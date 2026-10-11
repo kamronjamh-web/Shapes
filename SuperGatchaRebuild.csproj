@@ -7,4 +7,8 @@
     <Nullable>enable</Nullable>
     <EnableDynamicLoading>true</EnableDynamicLoading>
   </PropertyGroup>
+  <ItemGroup Condition="Exists('Native/Box3D/win-x64/box3d_corpses.dll') And ('$(RuntimeIdentifier)' == '' Or '$(RuntimeIdentifier)' == 'win-x64')">
+    <Content Include="Native/Box3D/win-x64/box3d_corpses.dll" Link="box3d_corpses.dll" TargetPath="box3d_corpses.dll" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <Content Include="Native/Box3D/win-x64/BOX3D-LICENSE.txt" Link="BOX3D-LICENSE.txt" TargetPath="BOX3D-LICENSE.txt" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
 </Project>

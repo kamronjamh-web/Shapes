@@ -10,9 +10,11 @@ public partial class FpsVerticalSlice
     [Export] public bool WeaponPolishEnabled { get; set; } = true;
     [Export] public bool WeaponSoundsEnabled { get; set; } = true;
     [Export(PropertyHint.Range, "0,1,0.05")] public float WeaponEffectDetail { get; set; } = 1f;
+    [Export] public FpsExplosionAudioSettings? ExplosionAudioSettings { get; set; }
     public FpsWeaponPolishEffects? WeaponEffects => _weaponPolish;
     private FpsWeaponPolishEffects? _weaponPolish;
     private FpsWeaponPolishAudio? _weaponPolishAudio;
+    private int _explosionAudioDepth;
 
     private void EnsureWeaponPolishRuntime()
     {
@@ -23,7 +25,13 @@ public partial class FpsVerticalSlice
         }
         if (_weaponPolishAudio == null || !IsInstanceValid(_weaponPolishAudio))
         {
-            _weaponPolishAudio = new FpsWeaponPolishAudio { Name = "WeaponSound", Enabled = WeaponSoundsEnabled };
+            _weaponPolishAudio = new FpsWeaponPolishAudio
+            {
+                Name = "WeaponSound", Enabled = WeaponSoundsEnabled,
+                ExplosionSettings = ExplosionAudioSettings
+                    ?? GD.Load<FpsExplosionAudioSettings>("res://Resources/Audio/Explosions/DefaultExplosionAudio.tres")
+                    ?? new FpsExplosionAudioSettings(),
+            };
             AddChild(_weaponPolishAudio);
         }
     }
@@ -121,7 +129,20 @@ public partial class FpsVerticalSlice
         float overkill = Mathf.Max(0f, damage - healthBefore) / Mathf.Max(1f, healthBefore);
         float intensity = Mathf.Min(2.4f, 1f + overkill * .45f + (critical ? .2f : 0f));
         _weaponPolish?.Impact(weapon.Shape.AttackType, hit, direction, PolishRarity(weapon), intensity);
-        _weaponPolishAudio?.PlayImpact(weapon.Shape.AttackType, hit, intensity);
+        // A blast is one spatial sound, independent of how many bodies it hits.
+        // Its visual impacts and weapon effects still execute for every victim.
+        if (_explosionAudioDepth == 0) _weaponPolishAudio?.PlayImpact(weapon.Shape.AttackType, hit, intensity);
+    }
+
+    private int DamageEnemiesInExplosion(Vector3 center, float radius, float damage,
+        EquipmentItem? sourceItem = null, bool triggerModulatorOnHitEffects = true)
+    {
+        // Call with the final gameplay radius after area/range modifiers. Fields,
+        // aura ticks and electrical chains remain ordinary radius/segment damage.
+        _weaponPolishAudio?.PlayExplosion(center, radius);
+        _explosionAudioDepth++;
+        try { return DamageEnemiesInRadius(center, radius, damage, sourceItem, triggerModulatorOnHitEffects); }
+        finally { _explosionAudioDepth--; }
     }
 
     private bool DrawPolishedZone(ZoneEffect zone)

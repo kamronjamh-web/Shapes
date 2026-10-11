@@ -20,6 +20,8 @@ public partial class FpsVerticalSlice
 		if (!UsesHorde) return;
 		RefreshHillWorldExtent();
 		HordeManager = new FpsHordeManager { Name = "Horde", Settings = HordeSettings! };
+		HordeManager.GpuCrowdWorldProvider = CaptureGpuCrowdWorld;
+		HordeManager.BodyWorldResolver = ResolveHordeBodyWorld;
 		HordeManager.SurfaceHeight = position => IsHillMap ? SampleHillSurfaceHeight(position) : 0f;
 		HordeManager.SurfaceSupportHeight = SampleHillCrowdSupportHeight;
 		HordeManager.MaxFootHeight = SampleHillCrowdMaxFootHeight;
@@ -38,7 +40,8 @@ public partial class FpsVerticalSlice
 			return hit.Count == 0 || hit["collider"].AsGodotObject() is FpsDefenseGate gate && gate == GateAtTarget(to);
 		};
 		HordeManager.EnemyDied += OnHordeEnemyDied;
-		CorpsePool = new FpsEnemyCorpsePool { Name = "EnemyCorpses", Settings = HordeSettings!, PlayerBody = _player };
+		CorpsePool = new FpsEnemyCorpsePool { Name = "EnemyCorpses", Settings = HordeSettings!, PlayerBody = _player,
+			WorkerWorldProvider = CaptureCorpseWorld };
 		AddChild(CorpsePool);
 		if (_defenseCore != null) CorpsePool.IgnoreBody(_defenseCore);
 		HordeManager.EnemyDefeated += CorpsePool.SpawnCorpse;

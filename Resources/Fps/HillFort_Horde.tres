@@ -5,7 +5,11 @@
 [resource]
 script = ExtResource("1")
 Enabled = true
-Capacity = 2000
+GpuCrowdContactsEnabled = true
+GpuCrowdRenderingEnabled = true
+Capacity = 100000
+CorpseCapacity = 2056
+CorpseWorkerEnabled = true
 SimulationHz = 30.0
 DecisionHz = 6.0
 GridCellSize = 3.0

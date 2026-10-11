@@ -6,9 +6,11 @@ namespace SuperGatchaRebuild.Fps;
 [GlobalClass]
 public partial class FpsHordeSettings : Resource
 {
+	public const int MaximumCapacity = 100_000;
 	[ExportGroup("Budget")]
 	[Export] public bool Enabled { get; set; } = true;
-	[Export(PropertyHint.Range, "100,10000,100")] public int Capacity { get; set; } = 1000;
+	[Export] public bool GpuCrowdRenderingEnabled { get; set; }
+	[Export(PropertyHint.Range, "100,100000,100")] public int Capacity { get; set; } = 1000;
 	[Export(PropertyHint.Range, "5,60,1")] public float SimulationHz { get; set; } = 30f;
 	[Export(PropertyHint.Range, "1,30,1")] public float DecisionHz { get; set; } = 6f;
 	[Export(PropertyHint.Range, "1,128,1")] public int MaxSeparationNeighbors { get; set; } = 12;
@@ -23,6 +25,7 @@ public partial class FpsHordeSettings : Resource
 	[Export(PropertyHint.Range, "0,10,0.05")] public float CoreContactRadius { get; set; } = 0.5f;
 	[Export(PropertyHint.Range, "0,0.5,0.01")] public float HitFlashSeconds { get; set; } = 0.1f;
 	[ExportGroup("Body Contact And Piling")]
+	[Export] public bool GpuCrowdContactsEnabled { get; set; }
 	[Export] public bool SoftCollisionEnabled { get; set; } = true;
 	[Export] public bool StackingEnabled { get; set; } = true;
 	[Export(PropertyHint.Range, "0.05,1,0.05")] public float ContactStiffness { get; set; } = 0.65f;

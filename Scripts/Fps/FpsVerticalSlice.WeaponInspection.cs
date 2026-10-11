@@ -10,6 +10,7 @@ public partial class FpsVerticalSlice
 	private bool _inspectionWasPaused;
 	private bool _inspectionReturnToShop;
 	private int _inspectionWeaponIndex;
+	private readonly System.Collections.Generic.List<CanvasItem> _inspectionHiddenHud = new();
 
 	public bool IsWeaponInspectionOpen => _weaponInspectionOpen;
 	public int InspectedWeaponIndex => _inspectionWeaponIndex;
@@ -19,10 +20,21 @@ public partial class FpsVerticalSlice
 	{
 		_weaponInspectionUi = new FpsWeaponInspectionUI { Name = "WeaponInspection", Visible = false };
 		hudRoot.AddChild(_weaponInspectionUi);
+		_weaponInspectionUi.BindWorldCamera(_player.Camera);
 		_weaponInspectionUi.ShapeSelected += PreviewInspectedWeapon;
 		_weaponInspectionUi.EquipRequested += () => EquipInspectedWeapon();
 		_weaponInspectionUi.CloseRequested += CloseWeaponInspection;
 		_weaponInspectionUi.ShapeDropped += index => TryEquipInventoryShape(index);
+		_weaponInspectionUi.ShapeDropRequested += index =>
+		{
+			bool dropped = TryDropInventoryShape(index, out string reason);
+			_weaponInspectionUi.SetStatus(dropped ? "Shape placed on the ground." : reason, !dropped);
+		};
+		_weaponInspectionUi.StoredModulatorDropRequested += part =>
+		{
+			bool dropped = TryDropInventoryModulator(part, out string reason);
+			_weaponInspectionUi.SetStatus(dropped ? "Modulator placed on the ground." : reason, !dropped);
+		};
 		_weaponInspectionUi.CanInstallPart = (weapon, part, slot) => CanInstallInventoryModulator(weapon, part, slot, out _);
 		_weaponInspectionUi.CanRemovePart = (weapon, slot) => CanRemoveInventoryModulator(weapon, slot, out _);
 		_weaponInspectionUi.ModulatorDropRequested += (weapon, part, slot) =>
@@ -50,13 +62,21 @@ public partial class FpsVerticalSlice
 		_pauseRequested = true;
 		_inspectionWeaponIndex = _selectedWeaponIndex;
 		RefreshInventoryInspection();
+		_player.SetWeaponInspectionActive(true);
+		_inspectionHiddenHud.Clear();
+		foreach (Node sibling in _weaponInspectionUi.GetParent().GetChildren())
+			if (sibling is CanvasItem item && item != _weaponInspectionUi && item.Visible)
+			{
+				_inspectionHiddenHud.Add(item);
+				item.Hide();
+			}
 		_weaponInspectionUi.SetInspectionVisible(true);
 		RefreshCombatState();
 	}
 
 	public void PreviewInspectedWeapon(int arsenalIndex)
 	{
-		if (!_weaponInspectionOpen || arsenalIndex < 0 || arsenalIndex >= _arsenal.Count) return;
+		if (!_weaponInspectionOpen || GetInventoryShape(arsenalIndex) == null) return;
 		_inspectionWeaponIndex = arsenalIndex;
 		_weaponInspectionUi?.SetSelection(_inspectionWeaponIndex, _selectedWeaponIndex);
 		_weaponInspectionUi?.SetInventory(GetInventoryStoredModulators(), GetInventoryWeaponSlots(_inspectionWeaponIndex), GetInventoryWeaponStats(_inspectionWeaponIndex));
@@ -74,6 +94,10 @@ public partial class FpsVerticalSlice
 		if (!_weaponInspectionOpen) return;
 		_weaponInspectionOpen = false;
 		_weaponInspectionUi?.SetInspectionVisible(false);
+		_player.SetWeaponInspectionActive(false);
+		foreach (CanvasItem item in _inspectionHiddenHud)
+			if (IsInstanceValid(item) && (item != _noticeLabel || _noticeTimer > 0f)) item.Show();
+		_inspectionHiddenHud.Clear();
 		_pauseRequested = _inspectionWasPaused;
 		bool reopenShop = returnToShop && _inspectionReturnToShop && !_pauseRequested && IsDefenseShopAvailable && (_victory || IsNearDefenseShop());
 		_inspectionReturnToShop = false;

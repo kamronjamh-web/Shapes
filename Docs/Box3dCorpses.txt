@@ -1,0 +1,161 @@
+Box3D corpse backends and comparison (2026-10-10)
+
+Status: FpsEnemyCorpsePool now has batched cube/pyramid rendering, immutable shared
+collision shapes, bounded reusable slots, and an optional background CPU Box3D
+backend. CorpseWorkerEnabled selects that backend for supported fort worlds;
+generic settings default to the existing Godot physics backend. North Gate enables
+the worker by default and is
+configured for 2,056 active corpses; generic settings retain a default of 64.
+The pool allocates slots lazily and recycles the oldest when full. The tuning
+menu can lower the run's limit; lowering it retires excess bodies.
+Lifetime remains 4 s. The worker mode creates no per-corpse Godot rigid bodies;
+Godot fallback uses shared shapes/material and the same batched visual publication.
+These are cosmetic single-body cubes/pyramids, not jointed character ragdolls.
+Box3D runs on the CPU, never GPU compute. A dedicated thread owns one serial native
+world; gameplay deaths, lifetime, rewards, caps and rendering remain on the main
+thread. Completed poses can lag simulation; this backend has no combat authority.
+
+Production implementation:
+  Scripts/Fps/Physics/Box3dCorpseWorker.cs
+  Scripts/Fps/Physics/Box3dNativeWorld.cs and CorpsePhysicsTypes.cs
+  Scripts/Fps/FpsEnemyCorpsePool.Worker.cs and .Rendering.cs
+  Scripts/Fps/FpsVerticalSlice.CorpseWorld.cs
+The main thread captures static layer-1 boxes, convex hulls and CCW triangle meshes
+from known fort geometry, excluding player/core/corpses. Gate alive state and fort
+geometry version invalidate the snapshot. Replacement runs on the worker and wakes
+sleepers. Unsupported geometry or absent/incompatible DLL retains Godot physics.
+
+Commands coalesce in fixed arrays for 2,056 slots, with per-slot generations and
+clear epochs. Dirty commands retry instead of losing spawns/removals to contention.
+Main-thread pose copies are nonblocking and reject recycled/cleared generations.
+Pause is atomic, clears timing backlog, and main-thread visuals/lifetimes freeze.
+The worker advances at 60 Hz/four substeps with at most .25 s pending cosmetic time;
+excess/contended time is reported as dropped, rather than blocking the game.
+Frame telemetry separates worker StepMs and ReadMs from main-thread publication.
+Shutdown joins the owning thread before disposing the world; no per-frame native
+Step wait is introduced. Managed/native failures select the Godot fallback.
+
+Code/scene: Tools/Experiments/Box3dCorpses/
+Upstream: https://github.com/erincatto/box3d
+Pinned revision: 5d83df83ab47172c2c745b44315e7538ead02397
+Native/DEPENDENCY.txt lists toolchain versions, official hashes and source layout.
+MIT license is retained in Native/BOX3D-LICENSE.txt. Upstream is unmodified.
+Portable Zig/CMake/Ninja and source live under .tmp/box3d-corpses; no machine install
+or global PATH changes. Native/Box3D/win-x64 contains the production DLL, full MIT
+notice, pinned dependency/toolchain record and DLL checksum. SuperGatchaRebuild.csproj
+copies the DLL/license beside build/publish output on Windows x64. The loader tries
+the assembly/base/executable directory, a project path globalized on the main
+thread, deployed Native folder and development experiment folder;
+BOX3D_CORPSES_DLL provides an explicit absolute override for deployment or
+missing-DLL tests. No shared DllImport resolver or machine PATH is modified.
+See Native/Box3D/README.txt for packaging and ABI details.
+The DLL targets baseline x86-64/SSE2; scoped AVX2 kernels are selected by upstream
+CPUID/OS-state checks. AVX2/FMA are not unconditional hardware requirements.
+
+Native mesh ownership regression: Box3D hulls copy their source data, but triangle
+mesh shapes borrow it. The bridge now keeps each mesh until its body is removed
+or its world is destroyed. Native smoke passes five 2,056-body mixed spawn/clear
+cycles before first terrain contact, bounded storage, terrain settling and support
+removal/wake. The actual North Gate worker checkpoint then completed with all
+2,056 corpse poses moving and no dropped time:
+  .tmp/corpse-performance/worker-checkpoint-v2-worker
+Copied-output DLL loading was checked with an explicit BOX3D_CORPSES_DLL path
+(35 checks); a separate flat-floor validation launched from .tmp without an
+override also passed (36 checks). These precede the final wake-signal adjustment;
+final integrated validation/performance is tracked separately. Full export was
+not exercised by these development-path checks.
+
+On this prepared workspace:
+  powershell -NoProfile -ExecutionPolicy Bypass -File Tools/Experiments/Box3dCorpses/RunBox3dCorpses.ps1 -GodotPath <Godot console exe> -RunName my-comparison
+This rebuilds native+C#, runs the native smoke test, and compares 64/256/2056 bodies.
+Use a fresh RunName; existing reports are preserved. Add -SkipNativeBuild to reuse
+the existing DLL. Add -Headless for collision/lifecycle tests without image capture.
+For an interactive window add -Demo -Counts 2056; P pauses, R respawns, C clears,
+Escape quits. Godot is left, Box3D right. Each population uses a single actual
+production Godot corpse pool. -Counts 1024 is also available as an intermediate size.
+APPDATA/LOCALAPPDATA are redirected into .tmp for isolated save data and restored.
+
+Recreating dependencies on a fresh checkout:
+  git clone https://github.com/erincatto/box3d .tmp/box3d-corpses/upstream
+  git -C .tmp/box3d-corpses/upstream checkout --detach 5d83df83ab47172c2c745b44315e7538ead02397
+Download the three exact official archives listed in Native/DEPENDENCY.txt, verify
+their SHA256, then extract into .tmp/box3d-corpses/toolchain preserving the Zig and
+CMake top-level directories. BuildNative.ps1 checks the source revision and builds
+only the core library plus our C ABI shim and smoke executable, not upstream samples.
+
+Comparison method:
+The Godot side uses the actual production pool and FpsHordeDeath records. Box3D
+receives copied initial transforms, shape dimensions and launch/angular velocities.
+Nominal mass 1, friction .65, restitution .12, effective damping .25/.45, gravity
+9.8 m/s^2, 60 Hz, Box3D four substeps. Floor, ramp and wall have matched dimensions.
+Both sides collide with static geometry only, with no corpse-to-corpse contacts.
+The diagnostic lifetime is 15 s to preserve samples through the measurement.
+
+Box3D defaults enable continuous collision (pinned src/types.c); dynamic-versus-
+static CCD is active without setting isBullet. The thin-wall test launches a .1 m
+cube at 24 m/s toward a .03 m wall. Passing this case does not establish matching
+CCD behavior for every orientation/speed. Sleep, mass properties, damping/material
+mixing and solver trajectories differ; four substeps are not trajectory parity.
+
+Godot Performance.TimePhysicsProcess publishes the recent approximately-one-second
+maximum, not independent per-tick times. Each phase warms for 66 ticks then records
+180 distinct ticks; three monitor observations are spaced 60 ticks apart. Raw CSV
+monitor values repeat between updates. Direct Box3D Step and read/visual-publication
+costs are measured separately per tick. The inactive Godot pool stays frozen/hidden
+in the Box3D phase. Engine observations include synchronization/harness work and
+are not isolated solver timings. Never divide Godot monitor by Box3D Step as speedup.
+
+Historical isolated-comparison limits (the measurements below used the first shim,
+before production worker integration and ABI2):
+- The comparison had floor/ramp/wall fixtures, not live fort terrain/gate updates.
+- Its native handle storage was append-only. ABI2 now reuses generation-safe slots
+  and retires them on generation exhaustion, rather than aliasing stale handles.
+- The harness owned cohort lifetime; production pool lifetime remains authoritative.
+- Only local i9-14900KF/RTX4070 diagnostics, not target GTX1060/RX580 hardware.
+- No sustained firing, whole-horde combat, GPU cost, or 50k/45 FPS claim.
+
+These historical results establish that Box3D can simulate the isolated corpses;
+they are not a production-worker or full-combat performance measurement.
+
+Historical isolated measured run: .tmp/box3d-corpses/native-final3-64_256_2056-native/
+Native Release shim, Godot 4.7.2 .NET Debug project, Windows, i9-14900KF/RTX4070.
+77 checks passed: real single-pool capacity at each count, gravity, floor/ramp/wall,
+thin-wall CCD case, finite state, static-only filtering, paused poses/lifetime,
+expiry, clear, oldest-body recycling at capacity and stale native handle rejection.
+The runner exited 0 with no unexpected engine errors or shutdown resource leaks.
+The known machine root-certificate warning also appears in unrelated Godot runs.
+
+Engine physics recent-window maxima (three observations, milliseconds):
+  count       Godot                          Box3D
+  64          .482, .470, .348                .301, .246, .195
+  256         .828, .749, .402                .667, .576, .467
+  2056        9.050, 10.076, 7.225            2.901, 3.567, 4.003
+Box3D direct per-step mean / p95 (milliseconds):
+  64          .0493 / .0860
+  256         .1447 / .3223
+  2056        1.3181 / 1.9421
+Box3D managed pose read/visual-publication mean / p95 (milliseconds):
+  64          .0528 / .0619
+  256         .1802 / .2617
+  2056        1.2379 / 1.3949
+The 2056 comparison is promising, but the methodological limits above still apply.
+The timed trajectory spans ages 1.1-4.1 s and includes eventual sleeping bodies.
+Report.txt and samples.csv preserve the exact observations. Inspected captures are
+corpses-64.png, corpses-256.png and corpses-2056.png. The 2056 image includes airborne
+upper spawn tiers at 90 ticks, not a settled pile or corpse-to-corpse collision test.
+Earlier native-first/native-final/native-final2 folders are superseded; native-first
+also contains an incorrect CCD description corrected after verifying upstream code.
+
+Current production validation: enemy motion/deaths and batched rendering pass 61
+checks headless and 61 native. Worker integration passes 53 headless and 53 native,
+including 2056 bodies, pause/recycle/clear/expiration, sleep/wake, actual inclined
+terrain, flat ground, summit, convex ramp, closed/breached/restored gate collision,
+world rebuild and live fallback. A separate absent-DLL process passes 3 checks.
+Fort defense 80, tuning 56, weapon polish 363 headless and FPS modulators 484 pass;
+C# build has zero warnings/errors. The native buffer test includes shrinking the
+capacity in a render frame before the next physics tick. Only the known root-
+certificate diagnostic and expected headless GPU-crowd fallback warnings remain.
+
+Copied-output DLL loading and launch from a different working directory passed
+isolated flat-world tests. A full shipping Godot export has not been validated.
+Current production performance and exact artifacts: Docs/CorpseOptimization.txt.

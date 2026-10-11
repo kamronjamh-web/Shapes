@@ -1,0 +1,87 @@
+Shared explosion audio (2026-10-10)
+
+Catalog: Resources/Audio/Explosions/DefaultExplosionAudio.tres
+Code: Scripts/Fps/FpsExplosionAudioSettings.cs and FpsWeaponPolishAudio.Explosions.cs
+The director exposes ExplosionAudioSettings for an optional catalog override.
+
+Size comes from the final gameplay damage radius, after weapon/modulator scaling:
+  Small: radius below 3 m
+  Medium: radius at least 3 m and below 8 m
+  Large: radius at least 8 m
+MediumRadiusStart and LargeRadiusStart are editable catalog settings.
+These are initial tuning values, not a user-specified fixed balance rule.
+
+All six slots exist: small/medium/large, each close/far. Only the supplied medium
+recording is available. Both medium slots reference the same imported WAV.
+An absent distance partner uses its size partner first; absent small/large pairs
+temporarily use medium. Replace those slots when their recordings are supplied.
+
+Same-source close/far plays one AudioStreamPlayer3D, with continuous native distance
+attenuation and high-frequency filtering. No second asset, doubled playback or
+global filter bus is needed. Current tuning: close UnitSize 24 m, max distance
+160 m, authored gain -12 dB, distant attenuation filter 2500 Hz/-24 dB.
+The close band (up to 24 m) has zero filter attenuation, preserving the original
+attack. Shelf strength ramps with a smoothstep of physical distance to 100 m.
+This corrects the previous constant -24 dB filter setting: Godot factors authored
+volume into shelf strength, so that setting also muffled close explosions.
+Each accepted detonation varies pitch uniformly within +/-1.5 semitones (roughly
+0.917-1.091 playback speed), configurable with PitchVariationSemitones. Close/far
+partners share one sampled pitch; listener movement never retunes a playing voice.
+The audio-only random generator is separate from combat and other weapon sounds.
+If distinct close/far recordings are assigned later, paired voices crossfade with
+equal-power gains between 24 and 100 m. FarDistance controls the crossfade endpoint
+and full distance-filter strength for both single-source and distinct-clip playback.
+
+Four reusable voice pairs and a 90 ms global event interval bound explosion audio.
+The supplied identical medium pair uses at most four simultaneous voices. Dense
+events are coalesced and oldest voices reused; not every chain event starts a sound.
+Damage and visual timing are unaffected. Playback respects pause, sound enable,
+the existing SFX bus/slider, fallback Master routing, and run clear/restart.
+
+Actual detonation paths: nova, manual wrath burst, mines, mortars, command-cluster
+detonations, collapse pulse, delayed cluster bursts, event-horizon expiry, reactor
+burst and player-weapon Volitile. Each passes its actual damage radius. Victim hit
+sounds are suppressed within the explosion damage scope, restored in finally.
+Continuous fields, passive aura ticks, lightning and clone bullet hits retain their
+existing audio rather than repeatedly playing an explosion. Existing secondary-proc
+guards, source identity, critical handling and damage queries are preserved.
+
+Source supplied by user:
+  C:\Users\Kamron\Downloads\8nPD5lwK0_XFm1uaMI1zb_tmp_ru4ceqq.m4a
+  SHA256 BEA581A2D9ADCA5B4689B80B928660BDE38EA7BA0A9D1C642989A5B9184342D5
+Imported asset: Resources/Audio/Explosions/medium_explosion.wav
+  SHA256 5DCF2183CBB4E55B77BFBE8EB4F621F746963F0751993DAE16C3CEEB8DCB8B43
+FFmpeg decoded the full recording to mono, 44100 Hz, PCM16 without gain/pitch edits.
+Duration 7.987 s, peak 0.769287, RMS 0.075573, zero clipped samples.
+
+Validation:
+  powershell -NoProfile -ExecutionPolicy Bypass -File Tools/Validation/RunWeaponPolishValidation.ps1 -GodotPath <Godot console exe> -NativeAudio
+Build the C# project first. NativeAudio imports assets and uses isolated saves.
+Native validation passed 377 checks: all 16 weapon damage/timing comparisons,
+actual modified-radius mine/mortar and Volitile detonation routes, size boundaries,
+catalog fallbacks, custom catalogs, bounded storm playback, pause/disable, distance
+culling, moving-listener crossfade and volume routing. Each voice's MaxDb matches
+its effective VolumeDb, preventing near-distance amplification from undoing authored
+gain, crossfade or the fallback SFX mute. Existing procedural PCM
+regressions remain unchanged.
+Actual engine audio was captured upstream of a muted Master bus, without playing
+the capture through OS speakers. Close at 3 m: RMS 0.012928; far at 90 m: 0.001552.
+The full recording captures fix pitch at 1.0 on copied settings so the comparison
+isolates distance; normal gameplay keeps pitch variation enabled. Repeated-event
+tests verify the configured pitch range, variation and matched pair pitch.
+Actual 500/8000 Hz test-tone captures verify timbre separately from loudness:
+high/low amplitude ratio is 1.0000 at 3 m, 0.0044 at 100 m, and 1.0000 at 3 m
+with authored volume reduced a further 18 dB. Nearby playback therefore stays
+unfiltered even at quiet gain; distance produces the high-frequency loss.
+Files for listening review:
+  .tmp/weapon-polish-audio/medium-close-actual.wav
+  .tmp/weapon-polish-audio/medium-far-actual.wav
+This verifies playback and attenuation, not subjective listening quality.
+Headless regression also passes: weapon polish 363, FPS modulators 484, enemy
+motion/deaths 30, horde tuning 56. Headless mode skips native mix capture and
+renderer-only checks.
+
+Engine behavior verified against Godot 4.7.2's multiplier/db_att calculation:
+https://github.com/godotengine/godot/blob/4.7.2-stable/scene/3d/audio_stream_player_3d.cpp#L434
+Previous constant-filter recordings are retained as medium-close-before-distance-fix.wav
+and medium-far-before-distance-fix.wav in the same capture directory.

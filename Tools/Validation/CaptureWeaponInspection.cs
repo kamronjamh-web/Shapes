@@ -88,6 +88,7 @@ public partial class CaptureWeaponInspection : Node
                 _map.OpenWeaponInspection();
                 _map.PreviewInspectedWeapon(0);
                 await Frames(50);
+                VerifyWorldInspection(shape);
                 await Capture($"Inspector-{shape}");
                 if (reviewModulators)
                 {
@@ -105,7 +106,7 @@ public partial class CaptureWeaponInspection : Node
                     continue;
                 }
                 Node3D preview = Nodes(_map).OfType<Node3D>().First(node => node.Name.ToString() == "InspectedWeaponModel" &&
-                    node.GetParent() != null && HasPreviewAncestor(node));
+                    node.GetParent()?.Name == "WeaponPreviewPivot");
                 AnimationPlayer mechanism = Nodes(preview).OfType<AnimationPlayer>().Single(player => player.HasAnimation("Fire"));
                 FpsWeaponInspectionUI inspector = Nodes(_map).OfType<FpsWeaponInspectionUI>().Single();
                 inspector.SetProcess(false);
@@ -130,21 +131,25 @@ public partial class CaptureWeaponInspection : Node
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         _map.CloseWeaponInspection();
         var arsenal = (List<EquipmentItem>)typeof(FpsVerticalSlice).GetField("_arsenal", flags)!.GetValue(_map)!;
+        var reserves = (List<EquipmentItem>)typeof(FpsVerticalSlice).GetField("_reserveShapes", flags)!.GetValue(_map)!;
         var storage = (List<WeaponModulatorData>)typeof(FpsVerticalSlice).GetField("_recoveredModulators", flags)!.GetValue(_map)!;
-        arsenal.Clear(); storage.Clear();
-        foreach (string shape in new[] { "square", "circle", "triangle", "hexagon", "pyramid", "cube", "klein", "boys" })
+        arsenal.Clear(); reserves.Clear(); storage.Clear();
+        foreach (string shape in new[] { "square", "circle", "triangle", "hexagon", "pyramid", "cube", "klein" })
         {
             EquipmentItem item = new() { Shape = EquipmentCatalogDefaults.CreateDefaultShapes().Single(value => value.Key == shape),
                 Rarity = EquipmentCatalogDefaults.CreateRarityByKey("divine"), Level = EquipmentCatalogDefaults.MaxWeaponLevel };
             StatGenerator.RecalculateDerivedStats(item);
-            arsenal.Add(item);
+            if (!_map.TryStoreRunShape(item, out string storeReason)) throw new InvalidOperationException(storeReason);
         }
         foreach (var (key, quality) in new[] { ("sharpened_form", WeaponModulatorTier.Flawed), ("quickened_core", WeaponModulatorTier.Baseline),
             ("extra_output", WeaponModulatorTier.Enhanced), ("sharpened_form", WeaponModulatorTier.Flawless),
             ("heavy_payload", WeaponModulatorTier.Flawed), ("return_arc", WeaponModulatorTier.Enhanced),
             ("ballistic_tuning", WeaponModulatorTier.Baseline), ("prism_refraction", WeaponModulatorTier.Flawless),
             ("wing_man", WeaponModulatorTier.Enhanced), ("blood_price_reactor", WeaponModulatorTier.Flawed) })
-            storage.Add(ModulatorCatalog.CreateByKey(key, quality));
+            if (!_map.TryStoreRunModulator(ModulatorCatalog.CreateByKey(key, quality), out string storeReason))
+                throw new InvalidOperationException(storeReason);
+        if (_map.EquippedShapeCount != FpsVerticalSlice.EquippedShapeCapacity || _map.ReserveShapeCount != FpsVerticalSlice.ReserveShapeCapacity)
+            throw new InvalidOperationException("Workbench capture requires five equipped and two reserve shapes.");
         typeof(FpsVerticalSlice).GetMethod("EquipWeapon", flags)!.Invoke(_map, new object[] { 0, false });
         _map.OpenWeaponInspection();
         _map.PreviewInspectedWeapon(0);
@@ -243,11 +248,16 @@ public partial class CaptureWeaponInspection : Node
     {
         foreach (Node child in root.GetChildren()) { yield return child; foreach (Node node in Nodes(child)) yield return node; }
     }
-    private static bool HasPreviewAncestor(Node node)
+    private void VerifyWorldInspection(string shape)
     {
-        for (Node? parent = node.GetParent(); parent != null; parent = parent.GetParent())
-            if (parent.Name.ToString() == "HandgunPreview") return true;
-        return false;
+        FpsPlayerController player = Nodes(_map).OfType<FpsPlayerController>().Single();
+        Camera3D camera = (Camera3D)typeof(FpsPlayerController).GetField("_camera", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(player)!;
+        Node3D pivot = Nodes(player).OfType<Node3D>().Single(node => node.Name == "WeaponPreviewPivot");
+        Node3D model = Nodes(pivot).OfType<Node3D>().Single(node => node.Name == "InspectedWeaponModel");
+        Node3D equipped = Nodes(player).OfType<Node3D>().Single(node => node.Name == "EquippedHandgun");
+        if (!ReferenceEquals(pivot.GetParent(), camera) || !pivot.IsVisibleInTree() || equipped.IsVisibleInTree() ||
+            !ReferenceEquals(model.GetViewport(), camera.GetViewport()) || model.GetMeta("shape_key").AsString() != shape)
+            throw new InvalidOperationException($"{shape}: capture must show the selected inspection weapon in the actual arena camera viewport.");
     }
     private async Task Capture(string name)
     {

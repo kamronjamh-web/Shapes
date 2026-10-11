@@ -30,7 +30,7 @@ public partial class FpsHordeManager
 		}
 		if (_contactPositions.Length != capacity) _contactPositions = new Vector3[capacity];
 		_maxContactHeight = 0f;
-		for (int slot = 0; slot < capacity; slot++)
+		foreach (int slot in EnumerateAliveSlots())
 		{
 			ref Enemy body = ref _enemies[slot];
 			if (body.Alive) _maxContactHeight = Mathf.Max(_maxContactHeight, body.Height);
@@ -38,11 +38,11 @@ public partial class FpsHordeManager
 		_contactHorizontalCellSize = Mathf.Max(1f, _maxRadius * 2f);
 		_contactVerticalCellSize = Mathf.Max(1f, _maxContactHeight);
 		Array.Fill(_contactHeads, -1);
-		for (int slot = 0; slot < capacity; slot++)
+		foreach (int slot in EnumerateAliveSlots())
 		{
 			ref Enemy body = ref _enemies[slot];
 			_contactPositions[slot] = body.Position;
-			if (!body.Alive) { _contactNext[slot] = -1; continue; }
+			if (!body.Alive) continue;
 			int x = Mathf.FloorToInt(body.Position.X / _contactHorizontalCellSize);
 			int y = Mathf.FloorToInt(body.Position.Y / _contactVerticalCellSize);
 			int z = Mathf.FloorToInt(body.Position.Z / _contactHorizontalCellSize);

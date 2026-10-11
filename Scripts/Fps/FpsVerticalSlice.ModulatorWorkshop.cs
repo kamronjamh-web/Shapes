@@ -19,8 +19,8 @@ public partial class FpsVerticalSlice
         WeaponModulatorData? reward = ModulatorLoot.Roll(_defenseModulatorPool, _defenseRng);
         if (reward == null) return false;
         _rewardedDefenseWaves.Add(_currentWaveNumber);
-        _recoveredModulators.Add(reward);
-        _lastWaveModulatorReward = reward.DisplayName;
+        SpawnGroundModulator(reward);
+        _lastWaveModulatorReward = $"{reward.DisplayName} on the ground near you";
         return true;
     }
 
@@ -48,10 +48,12 @@ public partial class FpsVerticalSlice
             () => _shopOpen && Available() && Affordable() && CanInstallDefenseModulator(part), Install);
         if (purchased)
             AddShopButton($"Buy for storage / {DefenseSettings!.ModulatorPrice} coins",
-                () => Available() && Affordable(), () =>
+                () => _shopOpen && Available() && Affordable() && _recoveredModulators.Count < StoredModulatorCapacity, () =>
                 {
-                    if (!Available() || !TrySpendDefenseCoins(DefenseSettings!.ModulatorPrice)) return;
-                    _shopStock.Remove(part); _recoveredModulators.Add(part); RebuildDefenseShopMenu();
+                    if (!IsDefenseShopAvailable || !_shopOpen || !Available() || !Affordable() || _recoveredModulators.Count >= StoredModulatorCapacity) return;
+                    if (!TrySpendDefenseCoins(DefenseSettings!.ModulatorPrice)) return;
+                    if (!TryStoreRunModulator(part, out _)) { _defenseCoins += DefenseSettings!.ModulatorPrice; return; }
+                    _shopStock.Remove(part); RebuildDefenseShopMenu();
                 });
     }
 
@@ -60,7 +62,7 @@ public partial class FpsVerticalSlice
         AddShopLabel("INSTALLED MODULATORS", 18);
         if (weapon != null)
             foreach (WeaponModulatorData part in weapon.Modulators)
-                AddShopButton($"Return {part.DisplayName} to storage", () => weapon.Modulators.Contains(part),
+                AddShopButton($"Return {part.DisplayName} to storage", () => weapon.Modulators.Contains(part) && _recoveredModulators.Count < StoredModulatorCapacity,
                     () => ReturnDefenseModulator(weapon, part));
 
         AddShopLabel("FUSE TWO MATCHING MODULATORS", 18);
@@ -97,8 +99,9 @@ public partial class FpsVerticalSlice
 
     private bool ReturnDefenseModulator(EquipmentItem weapon, WeaponModulatorData part)
     {
-        if (!IsDefenseShopAvailable || !_shopOpen || !ReferenceEquals(weapon, GetCurrentWeapon()) || !weapon.Modulators.Remove(part)) return false;
-        _recoveredModulators.Add(part);
+        if (!IsDefenseShopAvailable || !_shopOpen || !ReferenceEquals(weapon, GetCurrentWeapon())
+            || _recoveredModulators.Count >= StoredModulatorCapacity || !weapon.Modulators.Remove(part)) return false;
+        TryStoreRunModulator(part, out _);
         RefreshDefenseWeapon(weapon);
         return true;
     }

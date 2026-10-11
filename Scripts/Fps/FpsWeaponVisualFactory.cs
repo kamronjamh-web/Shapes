@@ -146,7 +146,6 @@ public static partial class FpsWeaponVisualFactory
             bay.SetMeta("slot_index", index);
             bay.SetMeta("state", !unlocked ? "locked" : installed ? "installed" : "empty");
             bay.SetMeta("modulator_key", modulator?.Key ?? "");
-            StandardMaterial3D? identity = installed ? AccentMaterial(modulator!.UiColor) : null;
             foreach (Node node in Descendants(bay))
             {
                 if (node is not Node3D part) continue;
@@ -154,10 +153,8 @@ public static partial class FpsWeaponVisualFactory
                 if (name.StartsWith("Locked", StringComparison.Ordinal)) part.Visible = !unlocked;
                 else if (name.StartsWith("EmptyContact", StringComparison.Ordinal)) part.Visible = unlocked && !installed;
                 else if (name.StartsWith("Cartridge", StringComparison.Ordinal)) part.Visible = installed;
-                if (identity != null && part is MeshInstance3D mesh &&
-                    (name.StartsWith("TypeColor", StringComparison.Ordinal) || name.StartsWith("IdentityBar", StringComparison.Ordinal)))
-                    mesh.MaterialOverride = identity;
             }
+            if (installed) FpsModulatorCartridgeStyle.Apply(bay, modulator!);
         }
 
         if (!authored && key != "square") BuildShapeUpper(root, weapon.Shape, key, rarity);

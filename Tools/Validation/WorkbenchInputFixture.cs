@@ -7,6 +7,25 @@ namespace SuperGatchaRebuild.Validation;
 
 internal static class WorkbenchInputFixture
 {
+    public static async Task Click(Node host, Control target)
+    {
+        if (!target.IsVisibleInTree()) throw new InvalidOperationException("Workbench click requires a visible control: " + target.Name);
+        if (DisplayServer.GetName() == "headless")
+        {
+            ((BaseButton)target).EmitSignal(BaseButton.SignalName.Pressed);
+            await Frames(host, 2);
+            return;
+        }
+        Vector2 position = target.GetGlobalRect().GetCenter();
+        Input.WarpMouse(position);
+        Motion(host, position, Vector2.Zero, false);
+        await Frames(host, 2);
+        Dispatch(host, new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = true, Position = position, GlobalPosition = position });
+        await Frames(host, 2);
+        Dispatch(host, new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = false, Position = position, GlobalPosition = position });
+        await Frames(host, 2);
+    }
+
     // Real viewport GUI drag dispatch; source/target rectangles follow the actual layout.
     public static async Task Drag(Node host, Control source, Control target, bool leaveHeld = false, Func<string>? diagnosticContext = null)
     {

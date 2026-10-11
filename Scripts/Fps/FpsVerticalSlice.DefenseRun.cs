@@ -10,10 +10,18 @@ public partial class FpsVerticalSlice
 {
 	private sealed class DefensePickup
 	{
-		public MeshInstance3D Visual = null!;
+		public Node3D? Visual;
+		public Vector3 Position;
+		public float DistanceSquared;
+		public int Id;
 		public int Coins;
 		public EquipmentItem? Weapon;
 		public WeaponModulatorData? Modulator;
+		public RigidBody3D? DropBody;
+		public float DropAge;
+		public Vector3 DropVisualCenter;
+		public bool DropBodyPaused;
+		public Vector3 DropPausedVelocity, DropPausedSpin;
 	}
 	private readonly List<DefensePickup> _defensePickups = new();
 	private readonly List<WeaponModulatorData> _recoveredModulators = new();
@@ -50,7 +58,7 @@ public partial class FpsVerticalSlice
 			if (key.Keycode is Key.Escape or Key.F) CloseDefenseShop();
 			return true;
 		}
-		if (_pauseRequested || _victory || _defeat) return false;
+		if (_pauseRequested || (_victory && !_lootingAfterVictory) || _defeat) return false;
 		if (key.Keycode == Key.F && IsDefenseShopAvailable && IsNearDefenseShop())
 		{
 			OpenDefenseShop();
@@ -68,6 +76,7 @@ public partial class FpsVerticalSlice
 
 	private void TickDefenseRun(float dt)
 	{
+		TickGroundLoot(dt);
 		if (!IsDefenseMap) return;
 		if (!_pauseRequested && !_victory && !_defeat)
 		{
@@ -75,8 +84,8 @@ public partial class FpsVerticalSlice
 			for (int index = _defensePickups.Count - 1; index >= 0; index--)
 			{
 				DefensePickup pickup = _defensePickups[index];
-				pickup.Visual.RotateY(dt * 1.4f);
-				Vector3 offset = pickup.Visual.GlobalPosition - _player.GlobalPosition;
+				if (pickup.Coins <= 0) continue;
+				Vector3 offset = pickup.Position - _player.GlobalPosition;
 				offset.Y = 0f;
 				if (offset.LengthSquared() <= DefenseSettings!.PickupRadius * DefenseSettings.PickupRadius) CollectDefensePickup(pickup);
 			}
@@ -102,12 +111,13 @@ public partial class FpsVerticalSlice
 	private void SpawnDefenseLoot(Vector3 position)
 	{
 		if (!IsDefenseMap || _defeat || _victory) return;
-		position.Y = (IsHillMap ? SampleHillSurfaceHeight(position) : 0f) + 0.45f;
+		Vector3 burstOrigin = position;
+		position = ResolveGroundLootPosition(position);
 		float luck = GetFpsModulatorLuckMultiplier();
 		float coinValue = Mathf.Max(0, DefenseSettings!.CoinsPerEnemy) * luck + _defenseCoinRemainder;
 		int coins = Mathf.FloorToInt(coinValue);
 		_defenseCoinRemainder = coinValue - coins;
-		DefensePickup? merged = _defensePickups.Find(p => p.Coins > 0 && p.Visual.Position.DistanceSquaredTo(position) < 9f);
+		DefensePickup? merged = _defensePickups.Find(p => p.Coins > 0 && p.Position.DistanceSquaredTo(position) < 9f);
 		if (merged != null) merged.Coins += coins;
 		else if (coins > 0) AddDefensePickup(position, coins, null, null);
 		if (_defenseRng.Randf() < Mathf.Clamp(DefenseSettings.WeaponDropChance * luck, 0f, 1f))
@@ -115,7 +125,7 @@ public partial class FpsVerticalSlice
 			List<ShapeData> shapes = EquipmentCatalogDefaults.CreateDefaultShapes();
 			ShapeData shape = WeightedRandom.Pick(shapes, item => item.Weight, _defenseRng);
 			EquipmentItem weapon = CreateDefenseShapeWeapon(shape);
-			AddDefensePickup(position + Vector3.Right * 0.65f, 0, weapon, null);
+			SpawnBurstWeaponLoot(burstOrigin, weapon);
 		}
 		if (_defenseModulatorPool.Count > 0 && _defenseRng.Randf() < Mathf.Clamp(DefenseSettings.ModulatorDropChance * luck, 0f, 1f))
 		{
@@ -134,36 +144,46 @@ public partial class FpsVerticalSlice
 
 	private void AddDefensePickup(Vector3 position, int coins, EquipmentItem? weapon, WeaponModulatorData? modulator)
 	{
-		Color color = weapon != null ? new Color(0.23f, 0.75f, 1f) : modulator != null ? ModulatorLoot.GetTierColor(modulator.PowerTier) : new Color(1f, 0.76f, 0.25f);
-		Mesh mesh = weapon != null ? new BoxMesh { Size = new Vector3(0.55f, 0.55f, 0.55f) }
-			: modulator != null ? new CylinderMesh { TopRadius = 0f, BottomRadius = 0.30f, Height = 0.65f, RadialSegments = 4 }
-			: new SphereMesh { Radius = 0.22f, Height = 0.44f, RadialSegments = 8, Rings = 4 };
-		MeshInstance3D visual = AddDefenseVisual(mesh, position, color);
-		DefensePickup pickup = new() { Visual = visual, Coins = coins, Weapon = weapon, Modulator = modulator };
+		if (coins <= 0 && weapon == null && modulator == null) return;
+		DefensePickup pickup = new() { Position = ResolveGroundLootPosition(position), Coins = coins, Weapon = weapon, Modulator = modulator, Id = ++_groundLootSerial };
 		_defensePickups.Add(pickup);
-		if (_defensePickups.Count > Mathf.Max(8, DefenseSettings!.MaxLoosePickups)) CollectDefensePickup(_defensePickups[0]);
+		if (weapon != null || modulator != null) _groundPillarsDirty = true;
+		_groundVisualRefresh = 0f;
+		// Only currency retains the overflow collection policy. Equipment stays on the ground.
+		if (coins > 0 && ++_groundCoinCount > Mathf.Max(8, DefenseSettings?.MaxLoosePickups ?? 128))
+		{
+			DefensePickup? oldestCoin = _defensePickups.Find(candidate => candidate.Coins > 0);
+			if (oldestCoin != null) CollectDefensePickup(oldestCoin);
+		}
 	}
 
 	private void CollectDefensePickup(DefensePickup pickup)
 	{
-		_defenseCoins += pickup.Coins;
+		if (!_defensePickups.Contains(pickup)) return;
 		if (pickup.Weapon != null)
 		{
-			_arsenal.Add(pickup.Weapon);
-			ShowNotice($"Recovered {pickup.Weapon.Shape!.DisplayName}. Q/E or mouse wheel switches shapes.", 2.5f);
+			if (!TryStoreRunShape(pickup.Weapon, out string reason)) { ShowNotice(reason, 2.5f); return; }
+			ShowNotice($"Recovered {pickup.Weapon.Shape!.DisplayName}. Tab: inventory / equipment.", 2.5f);
 		}
 		if (pickup.Modulator != null)
 		{
-			_recoveredModulators.Add(pickup.Modulator);
-			ShowNotice($"Recovered {pickup.Modulator.DisplayName}. Install it at a field shop.", 2.5f);
+			if (!TryStoreRunModulator(pickup.Modulator, out string reason)) { ShowNotice(reason, 2.5f); return; }
+			ShowNotice($"Recovered {pickup.Modulator.DisplayName}. Tab: install modulators.", 2.5f);
 		}
-		pickup.Visual.QueueFree();
+		_defenseCoins += pickup.Coins;
+		if (pickup.Coins > 0) _groundCoinCount--;
+		RemoveGroundLootBody(pickup);
+		pickup.Visual?.QueueFree();
 		_defensePickups.Remove(pickup);
+		if (pickup.Weapon != null || pickup.Modulator != null) _groundPillarsDirty = true;
+		if (_focusedGroundPickup == pickup) { _focusedGroundPickup = null; _groundItemCard?.HideItem(); }
+		_groundVisualRefresh = 0f;
 	}
 
 	private void SweepDefenseLoot()
 	{
-		while (_defensePickups.Count > 0) CollectDefensePickup(_defensePickups[0]);
+		for (int index = _defensePickups.Count - 1; index >= 0; index--)
+			if (_defensePickups[index].Coins > 0) CollectDefensePickup(_defensePickups[index]);
 	}
 
 	private void RestockDefenseShop()
@@ -259,8 +279,14 @@ public partial class FpsVerticalSlice
 			() => { EquipmentItem? current = GetCurrentWeapon(); if (current == null || current.Level >= EquipmentCatalogDefaults.MaxWeaponLevel || !TrySpendDefenseCoins(settings.WeaponUpgradePrice)) return; current.Level++; RefreshDefenseWeapon(current); });
 		AddShopLabel("BASE WEAPON SHAPES", 18);
 		foreach (EquipmentItem shapeWeapon in _shopShapes)
-			AddShopButton($"Buy {shapeWeapon.Shape!.DisplayName} / {settings.ShapePrice} coins", () => _shopShapes.Contains(shapeWeapon) && _defenseCoins >= settings.ShapePrice,
-				() => { if (!_shopShapes.Contains(shapeWeapon) || !TrySpendDefenseCoins(settings.ShapePrice)) return; _shopShapes.Remove(shapeWeapon); _arsenal.Add(shapeWeapon); EquipWeapon(_arsenal.Count - 1, false); RebuildDefenseShopMenu(); });
+			AddShopButton($"Buy {shapeWeapon.Shape!.DisplayName} / {settings.ShapePrice} coins", () => _shopShapes.Contains(shapeWeapon) && GetInventoryShapes().Count < EquippedShapeCapacity + ReserveShapeCapacity && _defenseCoins >= settings.ShapePrice,
+				() => {
+					if (!_shopShapes.Contains(shapeWeapon) || !IsDefenseShopAvailable || !_shopOpen || _defenseCoins < settings.ShapePrice
+						|| !TryStoreRunShape(shapeWeapon, out _)) return;
+					_defenseCoins -= settings.ShapePrice; _shopShapes.Remove(shapeWeapon);
+					int activeIndex = _arsenal.IndexOf(shapeWeapon); if (activeIndex >= 0) EquipWeapon(activeIndex, false);
+					RebuildDefenseShopMenu();
+				});
 		AddShopLabel("SHOP MODULATORS", 18);
 		foreach (WeaponModulatorData part in _shopStock)
 			AddDefenseModulatorOffer(part, true);

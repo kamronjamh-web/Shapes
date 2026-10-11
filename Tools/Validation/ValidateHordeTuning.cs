@@ -55,7 +55,7 @@ public partial class ValidateHordeTuning : Node
 			_map.DebugSpawnHorde(100, true);
 			Check(!crowd.IsAlive(stale) && !crowd.ApplyDamage(stale, 100000f), "A cleared handle cannot damage a recycled slot");
 			int added = _map.DebugSpawnHorde(100000, false);
-			Check(added == 1900 && crowd.ActiveCount == 2000 && _map.ActiveEnemyCount == 2000, "Over-limit Add fills available slots up to the hard 2000-enemy limit");
+			Check(added == 1900 && crowd.ActiveCount == 2000 && _map.ActiveEnemyCount == 2000, "Over-limit Add fills the compact fixture's allocated 2000 slots");
 			await ValidateMenu(crowd);
 			await ValidateLiveSettings(crowd);
 			ValidateDamage(crowd);

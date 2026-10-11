@@ -1,0 +1,104 @@
+CORPSE PERFORMANCE AND OWNERSHIP
+
+The 2,056 active corpse limit is preserved. Corpses remain cosmetic single-body
+cubes/pyramids, with the original four-second default lifetime, killing-hit launch,
+overkill cap, oldest-first recycling, pause/resume and reward separation.
+
+Rendering
+---------
+Two MultiMeshes share one material: one for cubes and one for pyramids. Reused
+buffers carry world poses, size and linearized per-body colors. Publishing skips
+unchanged poses; a sleeping body's final pose remains visible without repeated
+uploads. The Godot fallback shares immutable collision shapes and one physics
+material. A free-slot bitmap and chronological linked list replace pool scans
+for allocation and oldest-body recycling.
+
+Physics
+-------
+North Gate enables Background corpse physics by default. The control is in
+Movement / deaths and can switch back to Godot physics during a run.
+The Windows x64 backend owns a Box3D world on a dedicated CPU thread. This is not
+GPU physics. Main-thread commands and completed poses use bounded slot arrays;
+failed nonblocking command handoffs are retried. Slot generations and clear
+epochs prevent stale poses from reviving recycled or cleared bodies.
+
+The main thread copies static fort collision geometry into an immutable snapshot:
+ground, terrain triangles, boxes, convex ramps and living gates. Breach, restore
+and fort rebuild replace that snapshot and wake sleeping bodies. The worker
+never accesses Godot scene nodes or physics/rendering servers. Player, core,
+weapons, living enemies and other corpses are excluded from corpse collision.
+Continuous dynamic/static collision and four solver substeps remain enabled.
+
+Simulation uses 60 Hz steps with at most four per worker batch. Cosmetic backlog
+is capped at 0.25 seconds and discarded time is measured. The main thread never
+waits for a simulation result; pause, clear and teardown have explicit lifecycle
+handling. Disposal joins the worker before releasing native resources. Physics
+results arrive asynchronously (large death bursts can take several frames to
+finish creating native bodies), and Box3D's bounce/slide details differ from
+Godot's solver. Gameplay damage and rewards do not depend on corpse physics.
+
+Unavailable native libraries, unsupported worlds/platforms and backend failures
+retain the batched renderer and fall back to Godot physics. Disabling and
+reenabling Background corpse physics retries the native backend. Generic worlds
+default to Godot. Packaging/build details and the pinned MIT dependency are in
+Docs/Box3dCorpses.txt and Native/Box3D/win-x64/DEPENDENCY.txt.
+
+Profiling protocol
+------------------
+Tools/Experiments/CorpsePerformance/RunCorpsePerformance.ps1 -GodotPath <exe>
+  -RunName <unique-name> [-Worker] [-SkipBuild]
+
+Native Vulkan, 1920x1080, uncapped, i9-14900KF / RTX 4070, Godot 4.7.2 .NET,
+Debug managed build. Actual North Gate collision geometry remains enabled.
+Living-crowd, player and director callbacks stop; the pool receives normal physics
+ticks. Fixed seed 1337 launches 2,056 alternating cubes/pyramids over the slope.
+Each normal/frozen/hidden/frozen-hidden/repeated-normal phase uses the same deaths,
+warms up and measures three wall-clock seconds. Live phases verify actual motion.
+Frame ablations are not additive timings. Viewport GPU/render CPU include the
+fort. The engine physics monitor is an interval maximum, not per-tick solver time.
+Spawn timings measure synchronous enqueue/setup only and exclude deferred/native
+creation and rendering work. Worker initialization occurs before spawn timings.
+
+Original pool: .tmp/corpse-performance/baseline-original-v3
+  Normal frame median/p95 2.714 / 9.332 ms; repeat 2.740 / 9.257 ms.
+  Frozen 2.237 / 2.601 ms; hidden 0.686 / 6.050 ms.
+  Viewport draws 2,266; render CPU 1.205 ms; GPU 0.923 ms.
+  Cold spawn 115.24 ms; warm full recycling median 50.80 ms.
+
+Batched Godot checkpoint: .tmp/corpse-performance/batched-godot-checkpoint
+  Normal frame median/p95 0.785 / 5.903 ms; repeat 0.752 / 6.006 ms.
+  Frozen 0.727 / 1.128 ms; hidden 0.724 / 5.938 ms.
+  Viewport draws 212; render CPU 0.182 ms; GPU 0.457 ms.
+  Cold spawn 47.27 ms; warm full recycling median 13.86 ms.
+
+Final batched worker: .tmp/corpse-performance/worker-final-worker
+  Normal frame median/p95 0.723 / 1.343 ms; repeat 0.725 / 1.377 ms.
+  Frozen 0.722 / 1.016 ms; hidden 0.688 / 1.220 ms.
+  Viewport draws 212; render CPU 0.171 ms; GPU 0.456 ms.
+  Main-thread pool Tick averaged 0.0274 ms per physics callback in normal mode.
+  Worker simulation batch median/p95 1.462 / 1.916 ms; native pose readback
+  0.106 / 0.140 ms. These run on the worker and are separate from main-thread
+  wall time and viewport GPU time. Published packets are not physics-step counts.
+  Normal queued simulation time peaked at 0.050 seconds; repeated normal peaked
+  at zero. No simulation time was dropped in any measured phase. This measures
+  queued simulation time, not complete pose-delivery latency.
+  Cold enqueue 4.64 ms; warm clear/refill 2.84 ms; warm full recycling median
+  2.74 ms. Async native creation and world/DLL initialization are excluded.
+  Every live phase verified movement of all 2,056 corpses, and every phase
+  confirmed the worker backend remained ready and active. Exit 0; only the host
+  root-certificate diagnostic appeared on stderr. The startup geometry/body JSON,
+  native viewport PNG and matching managed assembly are archived with the CSV.
+  Assembly SHA256 D341C3DAD0FCA1329586A4BEC96442DE8A9E67CF4926B5119519CDC9B176076F.
+
+Final regression checkpoint: EnemyMotion 61 headless and 61 native checks;
+worker physics 53 headless and 53 native checks (including terrain, ramps,
+gates and full-capacity recycling); missing-library fallback 3 checks. Fort 80,
+weapon polish 363, horde tuning 56 and mod validation 484 checks also passed.
+
+These isolated corpse measurements do not establish 50,000 living enemies at
+45 FPS, sustained weapon combat, complex enemy assets, or older-GPU performance.
+The earlier baseline-original-v2 is invalid: disabling the map subtree also
+disabled inherited Godot physics. Only v3 is a valid original-pool comparison.
+The first worker-checkpoint-worker is also invalid: a borrowed terrain vertex
+buffer was freed too early in the native shim, causing a native access violation
+before any measured frame phase. The final worker run uses the corrected owner.

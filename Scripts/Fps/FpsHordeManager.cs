@@ -30,6 +30,8 @@ public partial class FpsHordeManager : Node3D
 	public Func<Vector3, Vector3, float, float, float>? SurfaceSupportHeight { get; set; }
 	public Func<Vector3, Vector3, float, Vector3>? ConstrainMovement { get; set; }
 	public Func<Vector3, Vector3, float, float, Vector3>? ConstrainBodyMovement { get; set; }
+	/// <summary>Optional combined constraint, support and ceiling resolver; desired XZ is already clamped to the manager bounds.</summary>
+	public Func<Vector3, Vector3, float, float, Vector3>? BodyWorldResolver { get; set; }
 	public Func<Vector3, float, float, float>? MaxFootHeight { get; set; }
 	public Func<Vector3, Vector3, Vector3>? ResolveMovementTarget { get; set; }
 	public Func<Vector3>? CorePosition { get; set; }
@@ -82,8 +84,9 @@ public partial class FpsHordeManager : Node3D
 	private void EnsureInitialized()
 	{
 		if (_enemies.Length > 0) return;
-		int capacity = Math.Clamp(Settings.Capacity, 100, 10000);
+		int capacity = Math.Clamp(Settings.Capacity, 100, FpsHordeSettings.MaximumCapacity);
 		_enemies = new Enemy[capacity];
+		_aliveSlotWords = new ulong[(capacity + 63) >> 6];
 		_free = new int[capacity];
 		_gridNext = new int[capacity];
 		_contactPositions = new Vector3[capacity];
@@ -123,8 +126,10 @@ public partial class FpsHordeManager : Node3D
 			RollPause = ((unchecked((uint)slot * 747796405u + generation * 2891336453u + (uint)Settings.Seed) & 1023u) / 1023f) * Mathf.Clamp(Settings.RollingPauseSeconds, 0f, 0.3f),
 		};
 		_maxRadius = Mathf.Max(_maxRadius, _enemies[slot].Radius);
+		MarkSlotAlive(slot);
 		ActiveCount++;
 		_gridDirty = true;
+		MarkRenderStateDirty();
 		return new FpsHordeHandle(slot, generation);
 	}
 
@@ -144,6 +149,7 @@ public partial class FpsHordeManager : Node3D
 		e.VerticalVelocity = 0f;
 		e.PreviousPosition = e.Position;
 		_gridDirty = true;
+		MarkRenderStateDirty();
 		return true;
 	}
 	/// <summary>Bounded, wall-constrained displacement for weapon pulls and knockback.</summary>
@@ -168,6 +174,7 @@ public partial class FpsHordeManager : Node3D
 		}
 		e.PreviousPosition = e.Position;
 		_gridDirty = true;
+		MarkRenderStateDirty();
 		return true;
 	}
 	private FpsHordeEnemySnapshot Snapshot(int slot)
@@ -187,6 +194,7 @@ public partial class FpsHordeManager : Node3D
 		float remainingHealth = e.Health;
 		e.Health = Mathf.Max(0f, e.Health - damage);
 		e.Flash = Settings.HitFlashSeconds;
+		MarkRenderStateDirty();
 		if (e.Health <= 0f)
 		{
 			Vector3 direction = travelDirection.IsFinite() && travelDirection.LengthSquared() > 0.00001f
@@ -194,6 +202,7 @@ public partial class FpsHordeManager : Node3D
 			_deaths.Enqueue(new FpsHordeDeath(Snapshot(handle.Slot), e.Color, GetEnemyVisualTransform(handle),
 				direction, damage, Mathf.Max(0f, damage - remainingHealth)));
 			e.Alive = false;
+			MarkSlotDead(handle.Slot);
 			_free[_freeCount++] = handle.Slot;
 			ActiveCount--;
 			_gridDirty = true;
@@ -222,7 +231,7 @@ public partial class FpsHordeManager : Node3D
 	public void ApplyArchetypes(FpsEnemyArchetypeSettings bruiser, FpsEnemyArchetypeSettings striker)
 	{
 		_maxRadius = 0f;
-		for (int i = 0; i < _enemies.Length; i++)
+		foreach (int i in EnumerateAliveSlots())
 		{
 			ref Enemy enemy = ref _enemies[i];
 			if (!enemy.Alive) continue;
@@ -249,11 +258,14 @@ public partial class FpsHordeManager : Node3D
 			enemy.PreviousPosition = enemy.Position;
 		}
 		_gridDirty = true;
+		MarkRenderStateDirty();
 	}
 
 	public void Clear()
 	{
-		for (int i = 0; i < _enemies.Length; i++) _enemies[i].Alive = false;
+		foreach (int i in EnumerateAliveSlots()) _enemies[i].Alive = false;
+		Array.Clear(_aliveSlotWords);
+		_highestLiveSlot = -1;
 		_freeCount = _enemies.Length;
 		for (int i = 0; i < _freeCount; i++) _free[i] = _freeCount - i - 1;
 		ActiveCount = 0;
@@ -263,6 +275,7 @@ public partial class FpsHordeManager : Node3D
 		_deaths.Clear();
 		_maxRadius = 0f;
 		_gridDirty = true;
+		MarkRenderStateDirty();
 		_accumulator = 0;
 		if (_cubes != null) _cubes.VisibleInstanceCount = 0;
 		if (_pyramids != null) _pyramids.VisibleInstanceCount = 0;
@@ -272,7 +285,7 @@ public partial class FpsHordeManager : Node3D
 	public void CopyAlive(List<FpsHordeEnemySnapshot> results)
 	{
 		results.Clear();
-		for (int i = 0; i < _enemies.Length; i++) if (_enemies[i].Alive) results.Add(Snapshot(i));
+		foreach (int i in EnumerateAliveSlots()) results.Add(Snapshot(i));
 	}
 
 	/// <summary>XZ broad-phase candidates; callers apply their own vertical/shape test.</summary>
@@ -371,10 +384,62 @@ public partial class FpsHordeManager : Node3D
 		Vector3 core = CorePosition?.Invoke() ?? Vector3.Zero;
 		Vector3 player = PlayerPosition?.Invoke() ?? core;
 		bool playerAlive = IsPlayerAlive?.Invoke() ?? false;
-		// Snapshot all previous positions before anyone moves: stable separation grid for this step.
-		for (int i = 0; i < _enemies.Length; i++)
-			if (_enemies[i].Alive) _enemies[i].PreviousPosition = _enemies[i].Position;
-		for (int i = 0; i < _enemies.Length; i++)
+		bool deferMovementWorld = PrepareGpuCrowdMovement(core, player, playerAlive);
+		if (!_gpuDrivePrepared)
+		{
+			SnapshotCrowdPreviousPositions();
+			MoveCrowdBodiesCpu(dt, core, player, playerAlive, deferMovementWorld);
+		}
+		LastMovementMilliseconds = Stopwatch.GetElapsedTime(phaseStarted).TotalMilliseconds;
+		phaseStarted = Stopwatch.GetTimestamp();
+		SolveCrowdContactsWithBackend(dt);
+		if (!LastGpuCrowdDriveResolved) UpdateRollingMotion();
+		LastContactMilliseconds = Stopwatch.GetElapsedTime(phaseStarted).TotalMilliseconds;
+		phaseStarted = Stopwatch.GetTimestamp();
+		foreach (int i in EnumerateAliveSlots())
+		{
+			if (!CombatEnabled || !Settings.Enabled) break;
+			ref Enemy e = ref _enemies[i];
+			if (!e.Alive) continue;
+			// Arithmetic has no callbacks; cooldown bodies cannot attack this step.
+			if (!(e.AttackTimer <= 0f)) continue;
+			float originY = e.Position.Y + e.Height * 0.85f;
+			float contact = e.TargetsPlayer ? e.Range : e.Range + Settings.CoreContactRadius;
+			bool ranged = e.Role == FpsEnemyRole.Striker;
+			// Melee range is measured from the body, so upper layers cannot bite targets far below.
+			float closestY = ranged ? originY : Math.Clamp(e.Target.Y, e.Position.Y, e.Position.Y + e.Height);
+			float dx = e.Position.X - e.Target.X, dy = closestY - e.Target.Y, dz = e.Position.Z - e.Target.Z;
+			// Match Vector3.DistanceTo's subtraction and left-to-right sum, retaining
+			// sqrt so comparisons at the range boundary keep their original rounding.
+			float attackDistance = MathF.Sqrt(dx * dx + dy * dy + dz * dz);
+			bool canAttack = attackDistance <= (ranged ? Math.Max(e.DesiredRange * 1.25f, contact) : contact);
+			if (canAttack)
+			{
+				Vector3 attackOrigin = new(e.Position.X, originY, e.Position.Z);
+				if (!(CanAttack?.Invoke(attackOrigin, e.Target) ?? true))
+				{
+					e.AttackTimer = 1f / Mathf.Clamp(Settings.DecisionHz, 1f, 30f);
+					continue;
+				}
+				e.AttackTimer = e.AttackInterval;
+				Attack?.Invoke(new(new(i, e.Generation), attackOrigin,
+					e.Target, e.TargetsPlayer, e.Damage, ranged ? e.ProjectileSpeed : 0f));
+			}
+		}
+		_gridDirty = true;
+		LastAttackMilliseconds = Stopwatch.GetElapsedTime(phaseStarted).TotalMilliseconds;
+		SimulationSteps++;
+		MarkRenderStateDirty();
+	}
+
+	private void SnapshotCrowdPreviousPositions()
+	{
+		foreach (int slot in EnumerateAliveSlots()) _enemies[slot].PreviousPosition = _enemies[slot].Position;
+	}
+
+	private void MoveCrowdBodiesCpu(float dt, Vector3 core, Vector3 player, bool playerAlive, bool deferMovementWorld)
+	{
+		foreach (int i in EnumerateAliveSlots())
 		{
 			ref Enemy e = ref _enemies[i];
 			if (!e.Alive) continue;
@@ -410,42 +475,18 @@ public partial class FpsHordeManager : Node3D
 			next.Y += e.VerticalVelocity * dt;
 			float half = _extent * 0.5f - e.Radius;
 			next.X = Mathf.Clamp(next.X, -half, half); next.Z = Mathf.Clamp(next.Z, -half, half);
-			e.Position = ResolveBodyWorldPosition(e.Position, next, e.Radius, e.Height);
-			if (e.Position.Y > next.Y + 0.0001f) e.VerticalVelocity = 0f;
+			if (deferMovementWorld)
+			{
+				_gpuMovementProposals[i] = next;
+				_gpuMovementPending[i] = true;
+			}
+			else
+			{
+				e.Position = ResolveBodyWorldPosition(e.Position, next, e.Radius, e.Height);
+				if (e.Position.Y > next.Y + 0.0001f) e.VerticalVelocity = 0f;
+			}
 			if (direction.LengthSquared() > 0.001f) e.Yaw = Mathf.LerpAngle(e.Yaw, Mathf.Atan2(direction.X, direction.Z), Mathf.Min(1f, dt * 7f));
 		}
-		LastMovementMilliseconds = Stopwatch.GetElapsedTime(phaseStarted).TotalMilliseconds;
-		phaseStarted = Stopwatch.GetTimestamp();
-		SolveCrowdContacts(dt);
-		UpdateRollingMotion();
-		LastContactMilliseconds = Stopwatch.GetElapsedTime(phaseStarted).TotalMilliseconds;
-		phaseStarted = Stopwatch.GetTimestamp();
-		for (int i = 0; i < _enemies.Length && CombatEnabled && Settings.Enabled; i++)
-		{
-			ref Enemy e = ref _enemies[i];
-			if (!e.Alive) continue;
-			Vector3 attackOrigin = e.Position + Vector3.Up * e.Height * 0.85f;
-			float contact = e.TargetsPlayer ? e.Range : e.Range + Settings.CoreContactRadius;
-			bool ranged = e.Role == FpsEnemyRole.Striker;
-			// Melee range is measured from the body, so upper layers cannot bite targets far below.
-			Vector3 nearestBodyPoint = new(e.Position.X, Mathf.Clamp(e.Target.Y, e.Position.Y, e.Position.Y + e.Height), e.Position.Z);
-			float attackDistance = (ranged ? attackOrigin : nearestBodyPoint).DistanceTo(e.Target);
-			bool canAttack = attackDistance <= (ranged ? Mathf.Max(e.DesiredRange * 1.25f, contact) : contact);
-			if (canAttack && e.AttackTimer <= 0f)
-			{
-				if (!(CanAttack?.Invoke(attackOrigin, e.Target) ?? true))
-				{
-					e.AttackTimer = 1f / Mathf.Clamp(Settings.DecisionHz, 1f, 30f);
-					continue;
-				}
-				e.AttackTimer = e.AttackInterval;
-				Attack?.Invoke(new(new(i, e.Generation), attackOrigin,
-					e.Target, e.TargetsPlayer, e.Damage, ranged ? e.ProjectileSpeed : 0f));
-			}
-		}
-		_gridDirty = true;
-		LastAttackMilliseconds = Stopwatch.GetElapsedTime(phaseStarted).TotalMilliseconds;
-		SimulationSteps++;
 	}
 
 	private Vector3 Separation(int slot)
@@ -502,7 +543,7 @@ public partial class FpsHordeManager : Node3D
 		// Clearing only occupied cells keeps sparse mile-wide maps proportional to population.
 		foreach (int cell in _occupiedGridCells) _gridHeads[cell] = -1;
 		_occupiedGridCells.Clear();
-		for (int i = 0; i < _enemies.Length; i++)
+		foreach (int i in EnumerateAliveSlots())
 		{
 			if (!_enemies[i].Alive) continue;
 			int cell = Cell(_enemies[i].Position.Z) * _gridWidth + Cell(_enemies[i].Position.X);
@@ -518,38 +559,17 @@ public partial class FpsHordeManager : Node3D
 		minX = Cell(minXValue); minZ = Cell(minZValue); maxX = Cell(maxXValue); maxZ = Cell(maxZValue);
 	}
 
-	public override void _Process(double delta)
-	{
-		if (_cubes == null || _pyramids == null) return;
-		int cubeCount = 0, pyramidCount = 0;
-		Transform3D toLocal = GlobalTransform.AffineInverse();
-		float blend = CombatEnabled && Settings.Enabled
-			? Mathf.Clamp((float)_accumulator * Mathf.Clamp(Settings.SimulationHz, 5f, 60f), 0f, 1f) : 1f;
-		for (int i = 0; i < _enemies.Length; i++)
-		{
-			ref Enemy e = ref _enemies[i];
-			if (!e.Alive) continue;
-			e.Flash = Mathf.Max(0f, e.Flash - (float)delta);
-			MultiMesh mesh = e.Role == FpsEnemyRole.Striker ? _pyramids : _cubes;
-			int index = e.Role == FpsEnemyRole.Striker ? pyramidCount++ : cubeCount++;
-			Vector3 feet = e.PreviousPosition.Lerp(e.Position, blend);
-			mesh.SetInstanceTransform(index, toLocal * EnemyVisualTransform(e, feet, blend));
-			mesh.SetInstanceColor(index, e.Color);
-			mesh.SetInstanceCustomData(index, new Color(e.Flash > 0f ? 1f : 0f, 0f, 0f, 1f));
-		}
-		_cubes.VisibleInstanceCount = cubeCount;
-		_pyramids.VisibleInstanceCount = pyramidCount;
-		RenderedInstanceCount = cubeCount + pyramidCount;
-	}
-
 	private void BuildRenderers(int capacity)
 	{
 		ShaderMaterial material = new()
 		{
 			Shader = new Shader { Code = "shader_type spatial; varying float flash; void vertex(){flash=INSTANCE_CUSTOM.r;} void fragment(){ALBEDO=mix(COLOR.rgb,vec3(1.0),flash);ROUGHNESS=0.7;EMISSION=COLOR.rgb*0.08+vec3(flash*0.3);}" },
 		};
-		_cubes = CreateMultiMesh(new BoxMesh { Size = Vector3.One }, capacity);
-		_pyramids = CreateMultiMesh(CreatePyramid(), capacity);
+		int initialCapacity = Math.Min(256, capacity);
+		_cubes = CreateMultiMesh(new BoxMesh { Size = Vector3.One }, initialCapacity);
+		_pyramids = CreateMultiMesh(CreatePyramid(), initialCapacity);
+		_cubeRenderBuffer = new float[initialCapacity * RenderInstanceFloats];
+		_pyramidRenderBuffer = new float[initialCapacity * RenderInstanceFloats];
 		_cubeNode = new MultiMeshInstance3D { Name = "CrowdCubes", Multimesh = _cubes, MaterialOverride = material };
 		_pyramidNode = new MultiMeshInstance3D { Name = "CrowdPyramids", Multimesh = _pyramids, MaterialOverride = material };
 		AddChild(_cubeNode); AddChild(_pyramidNode);

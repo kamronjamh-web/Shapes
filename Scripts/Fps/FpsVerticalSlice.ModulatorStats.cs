@@ -48,8 +48,9 @@ public partial class FpsVerticalSlice
 				}
 				if (compatible) { index++; continue; }
 				weapon.Modulators.RemoveAt(index);
-				_recoveredModulators.Add(part);
+				if (!TryStoreRunModulator(part, out _)) SpawnGroundModulator(part);
 			}
+			StatGenerator.RecalculateDerivedStats(weapon);
 		}
 	}
 	private static bool FpsSphereIntersectsEnemy(IFpsCombatEnemy enemy, Vector3 center, float radius)

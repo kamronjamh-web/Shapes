@@ -161,7 +161,11 @@ public partial class ValidateHillHorde : Node
 		crowd.FlushDeathEvents();
 		Invoke("SweepDefenseLoot");
 		Check(deaths == 8 && died.Count == 8 && Field<int>("_defenseCoins") == 8 * defense.CoinsPerEnemy, "Eight custom deaths award currency once and notify once");
-		Check(Field<List<EquipmentItem>>("_arsenal").Count == 9 && Field<List<WeaponModulatorData>>("_recoveredModulators").Count == 8, "Custom crowd kills produce usable weapon and modulator drops");
+		object[] groundEquipment = Field<System.Collections.IList>("_defensePickups").Cast<object>().ToArray();
+		Check(Field<List<EquipmentItem>>("_arsenal").Count == 1 && Field<List<WeaponModulatorData>>("_recoveredModulators").Count == 0 &&
+			groundEquipment.Count(pickup => pickup.GetType().GetField("Weapon")!.GetValue(pickup) != null) == 8 &&
+			groundEquipment.Count(pickup => pickup.GetType().GetField("Modulator")!.GetValue(pickup) != null) == 8,
+			"Custom crowd drops leave eight weapons and eight modulators on the ground without automatic storage");
 		Check(Field<float>("_combatShopRemaining") > 0f, "Custom crowd kills open a combat shop window");
 		player.Position = defense.ShopPosition;
 		KeyPress(Key.F);

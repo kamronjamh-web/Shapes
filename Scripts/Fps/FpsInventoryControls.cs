@@ -91,13 +91,7 @@ public partial class FpsInventoryThumbnail : SubViewportContainer
         PackedScene? scene = ResourceLoader.Exists("res://Resources/Weapons/WorkbenchCartridge.glb")
             ? GD.Load<PackedScene>("res://Resources/Weapons/WorkbenchCartridge.glb") : null;
         Node3D model = scene?.Instantiate<Node3D>() ?? new Node3D();
-        foreach (Node child in Descendants(model))
-        {
-            if (child is not MeshInstance3D mesh || mesh.Mesh == null) continue;
-            for (int surface = 0; surface < mesh.Mesh.GetSurfaceCount(); surface++)
-                if (mesh.Mesh.SurfaceGetMaterial(surface)?.ResourceName == "ModulatorAccent")
-                    mesh.SetSurfaceOverrideMaterial(surface, new StandardMaterial3D { AlbedoColor = part.UiColor, EmissionEnabled = true, Emission = part.UiColor, EmissionEnergyMultiplier = .8f, Metallic = .35f, Roughness = .32f });
-        }
+        FpsModulatorCartridgeStyle.Apply(model, part);
         // Authored face normal is +Y and cartridge top is -Z; turn its face toward the +Z camera.
         preview.Build(model, new Vector3(Mathf.Pi * .5f - .22f, -.45f, -.15f));
         return preview;

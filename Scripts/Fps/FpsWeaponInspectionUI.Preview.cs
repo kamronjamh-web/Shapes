@@ -28,7 +28,7 @@ public partial class FpsWeaponInspectionUI
     private void BuildWeaponPreview(VBoxContainer center)
     {
         PanelContainer panel = new() { Name = "WeaponPreviewPanel", SizeFlagsHorizontal = SizeFlags.ExpandFill, SizeFlagsVertical = SizeFlags.ExpandFill, CustomMinimumSize = new Vector2(280, 260) };
-        panel.AddThemeStyleboxOverride("panel", CardStyle(new Color(.025f, .045f, .061f), Border, 0));
+        panel.AddThemeStyleboxOverride("panel", new StyleBoxEmpty());
         center.AddChild(panel);
         Control stage = new() { Name = "WeaponPreviewStage", ClipContents = true, SizeFlagsHorizontal = SizeFlags.ExpandFill, SizeFlagsVertical = SizeFlags.ExpandFill };
         panel.AddChild(stage);
@@ -102,17 +102,20 @@ public partial class FpsWeaponInspectionUI
         if (sameWeapon && _gunVisual != null && _pendingRemove >= 0 && _workbenchAnimation?.PlaySocketRemove(_pendingRemove) == true)
         {
             _motionPhase = "remove";
+            RefreshInventoryActions();
             return;
         }
         if (animate && _gunVisual != null && _workbenchAnimation?.PlayDisassemble() == true)
         {
             _motionPhase = "disassemble";
+            RefreshInventoryActions();
             return;
         }
         ReplaceWeaponPreview(weapon);
         if (sameWeapon && _pendingSeat >= 0 && _workbenchAnimation?.PlaySocketSeat(_pendingSeat) == true) _motionPhase = "seat";
         else if (animate && _workbenchAnimation?.PlayAssemble() == true) _motionPhase = "assemble";
         else _motionPhase = "";
+        RefreshInventoryActions();
     }
 
     /// <summary>Equipping an already inspected shape still plays its authored conversion sequence.</summary>
@@ -127,6 +130,7 @@ public partial class FpsWeaponInspectionUI
         RemovePreviewVisual();
         _gunVisual = FpsWeaponVisualFactory.Create(weapon);
         _gunVisual.Name = "InspectedWeaponModel";
+        if (IsWorldInspection) ConfigureInspectionGeometry(_gunVisual);
         _gunPivot.AddChild(_gunVisual);
         Aabb bounds = FpsWeaponVisualFactory.GetVisualBounds(_gunVisual) ?? new Aabb(new Vector3(-.5f, -.5f, -.5f), Vector3.One);
         Node3D? core = FindPreviewNode(_gunVisual, "ShapeSocket");
@@ -166,6 +170,7 @@ public partial class FpsWeaponInspectionUI
         _workbenchAnimation?.Reset(); _motionPhase = "";
         if (target != null) ReplaceWeaponPreview(target);
         _nextPreviewWeapon = null;
+        RefreshInventoryActions();
     }
 
     private void AdvancePreview(double delta)
@@ -183,6 +188,7 @@ public partial class FpsWeaponInspectionUI
             if (completed == "disassemble" && _workbenchAnimation?.PlayAssemble() == true) _motionPhase = "assemble";
         }
         UpdateSockets();
+        RefreshInventoryActions();
     }
 
     private void FrameWeapon()
@@ -190,6 +196,7 @@ public partial class FpsWeaponInspectionUI
         if (_gunSurface == null || _gunSurface.Size.X < 1 || _gunSurface.Size.Y < 1) return;
         // Rest bounds are sampled once per replacement. Never fit moving Blender parts each frame.
         if (_motionPhase != "") return;
+        if (IsWorldInspection) { FrameWorldWeapon(); return; }
         Aabb oriented = _gunPivot.Transform * _restBounds;
         Vector3 low = oriented.Position, high = oriented.End;
         float halfWidth = Mathf.Max(Mathf.Abs(low.X), Mathf.Abs(high.X));
@@ -220,7 +227,7 @@ public partial class FpsWeaponInspectionUI
             return weapon != null && part != null && _inspectionVisible && _motionPhase == "" && CanRemovePart?.Invoke(weapon, slot) == true
                 ? Payload(weapon, part, sourceSlot: slot) : null;
         };
-        tile.Pressed += () => { if (slot < _slots.Count && _slots[slot] is { } part) SelectModulatorDetails(part); };
+        tile.Pressed += () => SelectSocket(slot);
         return tile;
     }
 
@@ -235,8 +242,8 @@ public partial class FpsWeaponInspectionUI
             bool open = slot < unlocked;
             string caption = !open ? $"×\n{slot + 1}" : part == null ? $"+\n{slot + 1}" : $"◆\n{slot + 1}";
             string tooltip = !open ? $"Socket {slot + 1}: locked. Level up this shape to unlock more sockets."
-                : part == null ? $"Socket {slot + 1}: empty. Drop a compatible recovered part here."
-                : $"Socket {slot + 1}: {part.DisplayName}\n{ModulatorQualityText.Header(part)}\nDrag back to inventory to remove.";
+                : part == null ? $"Socket {slot + 1}: empty. Select it, then choose a compatible part from inventory."
+                : $"Socket {slot + 1}: {part.DisplayName}\n{ModulatorQualityText.Header(part)}\nSelect to inspect or remove this part.";
             for (int view = 0; view < 2; view++)
             {
                 List<FpsInventoryTile> tiles = view == 0 ? _socketDock : _socketTargets;
@@ -251,6 +258,7 @@ public partial class FpsWeaponInspectionUI
             }
         }
         if (_socketCount != null) _socketCount.Text = $"{installed} / {unlocked} installed";
+        RefreshSocketAction();
     }
 
     private void PositionSocketTargets()
@@ -261,11 +269,13 @@ public partial class FpsWeaponInspectionUI
         {
             _socketTargets[slot].Visible = false;
             Node3D? anchor = _socketAnchors[slot];
-            if (_motionPhase != "" || anchor == null || !GodotObject.IsInstanceValid(anchor) || _gunCamera.IsPositionBehind(anchor.GlobalPosition)) continue;
-            Vector2 point = _gunCamera.UnprojectPosition(anchor.GlobalPosition);
-            point *= new Vector2(_gunSurface.Size.X / _gunViewport.Size.X, _gunSurface.Size.Y / _gunViewport.Size.Y);
+            Camera3D camera = _inspectionCamera ?? _gunCamera;
+            if (_motionPhase != "" || anchor == null || !GodotObject.IsInstanceValid(anchor) || camera.IsPositionBehind(anchor.GlobalPosition)) continue;
+            Vector2 point = camera.UnprojectPosition(anchor.GlobalPosition);
+            if (IsWorldInspection) point = _weaponDropTarget.GetGlobalTransformWithCanvas().AffineInverse() * point;
+            else point *= new Vector2(_gunSurface.Size.X / _gunViewport.Size.X, _gunSurface.Size.Y / _gunViewport.Size.Y);
             if (point.X < 16 || point.Y < 16 || point.X > _gunSurface.Size.X - 16 || point.Y > _gunSurface.Size.Y - 16) continue;
-            _projectedSockets.Add((slot, point, _gunCamera.GlobalPosition.DistanceSquaredTo(anchor.GlobalPosition)));
+            _projectedSockets.Add((slot, point, camera.GlobalPosition.DistanceSquaredTo(anchor.GlobalPosition)));
         }
         _projectedSockets.Sort((left, right) => left.Depth.CompareTo(right.Depth));
         for (int index = 0; index < _projectedSockets.Count; index++)
@@ -286,7 +296,7 @@ public partial class FpsWeaponInspectionUI
         for (int slot = 0; slot < 10; slot++)
         {
             bool valid = payload != null && CanInstallPayload(payload, slot);
-            Color tint = valid ? new Color(.55f, 1f, .77f) : payload?.Part != null ? new Color(.7f, .7f, .7f) : Colors.White;
+            Color tint = valid || slot == _selectedSocket ? new Color(.55f, 1f, .77f) : payload?.Part != null ? new Color(.7f, .7f, .7f) : Colors.White;
             _socketDock[slot].Modulate = tint;
             _socketTargets[slot].Modulate = tint;
         }

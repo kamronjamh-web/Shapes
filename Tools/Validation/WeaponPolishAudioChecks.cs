@@ -46,8 +46,8 @@ public static class WeaponPolishAudioChecks
             var impacts = Field<AudioStreamPlayer3D[]>(audio, "_impacts");
             var streams = (AudioStreamWav[])typeof(FpsWeaponPolishAudio)
                 .GetField("_cachedStreams", BindingFlags.Static | BindingFlags.NonPublic)!.GetValue(null)!;
-            check(shots.Length == 4 && impacts.Length == 8 && audio.GetChildCount() == 12,
-                "Audio creates exactly four local and eight spatial pooled voices");
+            check(shots.Length == 4 && impacts.Length == 8 && audio.GetChildCount() == 20,
+                "Audio creates four local, eight impact and eight explosion pooled voices");
             check(streams.Length == 49, "Audio builds one shared 49-stream cache for sixteen shots, impacts, activations, and the legacy rift pulse");
             byte[][] buffers = streams.Select(stream => stream.Data).ToArray();
             for (int streamIndex = 0; streamIndex < streams.Length; streamIndex++)
@@ -160,7 +160,7 @@ public static class WeaponPolishAudioChecks
                 audio.PlayActivation(Types[i % Types.Length], Vector3.Zero);
             }
             await Frame(host);
-            check(audio.GetChildCount() == 12 && shots.Count(voice => voice.Playing) <= 4
+            check(audio.GetChildCount() == 20 && shots.Count(voice => voice.Playing) <= 4
                 && impacts.Count(voice => voice.Playing) <= 8,
                 "Eight thousand dense audio events across sixteen weapons preserve fixed pool and active voice bounds");
             check(ReferenceEquals(streams, typeof(FpsWeaponPolishAudio)
@@ -222,6 +222,7 @@ public static class WeaponPolishAudioChecks
             fixture.QueueFree();
             await Frame(host);
         }
+        await ExplosionAudioChecks.Run(host, check, exportSamples);
     }
 
     private static T Field<T>(object target, string name) => (T)typeof(FpsWeaponPolishAudio).GetField(name, Private)!.GetValue(target)!;

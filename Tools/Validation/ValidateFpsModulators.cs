@@ -757,6 +757,7 @@ public partial class ValidateFpsModulators : Node
 		WeaponModulatorData[] priorPool = pool.ToArray();
 		List<WeaponModulatorData> recovered = Field<List<WeaponModulatorData>>("_recoveredModulators");
 		int before = recovered.Count;
+		int groundBefore = List("_defensePickups").Cast<object>().Count(pickup => Effect<WeaponModulatorData?>(pickup, "Modulator") != null);
 		try
 		{
 			settings.WeaponDropChance = 0f; settings.ModulatorDropChance = 0f;
@@ -765,15 +766,21 @@ public partial class ValidateFpsModulators : Node
 				"An uncleared real wave grants no guaranteed modulator early");
 			foreach (IFpsCombatEnemy target in _targets.ToArray()) target.ApplyDamage(target.CurrentHealth + 1f);
 			_crowd.FlushDeathEvents();
-			Check(_crowd.ActiveCount == 0 && recovered.Count == before + 1,
-				"Completing a real wave through all actual enemy deaths grants exactly one quality-bearing part");
-			WeaponModulatorData reward = recovered[^1];
+			object[] groundParts = List("_defensePickups").Cast<object>().Where(pickup => Effect<WeaponModulatorData?>(pickup, "Modulator") != null).ToArray();
+			Check(_crowd.ActiveCount == 0 && recovered.Count == before && groundParts.Length == groundBefore + 1,
+				"Completing a real wave drops exactly one quality-bearing part on the ground without adding it to storage");
+			object rewardPickup = groundParts[^1];
+			WeaponModulatorData reward = Effect<WeaponModulatorData>(rewardPickup, "Modulator");
 			Check(reward.Key == "extra_output" && Enum.IsDefined(typeof(WeaponModulatorTier), reward.Tier) &&
-				Field<string>("_lastWaveModulatorReward") == reward.DisplayName,
+				Field<string>("_lastWaveModulatorReward").StartsWith(reward.DisplayName, StringComparison.Ordinal),
 				"Guaranteed wave reward uses the real catalog quality roll and exposes its actual quality name");
 			Invoke("HandleWaveCleared"); Invoke("HandleWaveCleared");
-			Check(recovered.Count == before + 1 && !(bool)Invoke("GrantDefenseWaveModulator")!,
+			Check(recovered.Count == before && List("_defensePickups").Cast<object>().Count(pickup => Effect<WeaponModulatorData?>(pickup, "Modulator") != null) == groundBefore + 1 &&
+				!(bool)Invoke("GrantDefenseWaveModulator")!,
 				"Repeated real wave-clear handling cannot duplicate its guaranteed reward");
+			Invoke("CollectDefensePickup", rewardPickup);
+			Check(recovered.Count == before + 1 && ReferenceEquals(recovered[^1], reward) && !List("_defensePickups").Contains(rewardPickup),
+				"Explicit ground pickup stores the guaranteed reward with its original quality and removes the ground record");
 			EquipmentItem weapon = Weapon();
 			Select(weapon);
 			SetField("_combatShopRemaining", 100f);
@@ -806,13 +813,15 @@ public partial class ValidateFpsModulators : Node
 		float weaponChance = settings.WeaponDropChance, partChance = settings.ModulatorDropChance;
 		List<WeaponModulatorData> recovered = Field<List<WeaponModulatorData>>("_recoveredModulators");
 		int before = recovered.Count;
+		int finalGroundBefore = List("_defensePickups").Cast<object>().Count(pickup => Effect<WeaponModulatorData?>(pickup, "Modulator") != null);
 		try
 		{
 			settings.WeaponDropChance = 0f; settings.ModulatorDropChance = 0f;
 			foreach (IFpsCombatEnemy target in _targets.ToArray()) target.ApplyDamage(target.CurrentHealth + 1f);
 			_crowd.FlushDeathEvents();
-			Check(Field<bool>("_victory") && _crowd.ActiveCount == 0 && recovered.Count == before + 1,
-				"The real final wave ends defense and grants its own exactly-once reward");
+			Check(Field<bool>("_victory") && _crowd.ActiveCount == 0 && recovered.Count == before &&
+				List("_defensePickups").Cast<object>().Count(pickup => Effect<WeaponModulatorData?>(pickup, "Modulator") != null) == finalGroundBefore + 1,
+				"The real final wave ends defense and drops its exactly-once reward without automatically storing it");
 			Field<FpsPlayerController>("_player").GlobalPosition = new Vector3(60f, 0f, -65f);
 			Check(!(bool)Invoke("IsNearDefenseShop")!, "Final reward fixture remains away from the core shop");
 			Button inventory = Field<Button>("_inventoryButton");
@@ -838,7 +847,8 @@ public partial class ValidateFpsModulators : Node
 			_map._PhysicsProcess(1d / 60d);
 			Invoke("TickWaveFlow", 10f);
 			Check(!Field<bool>("_shopOpen") && Field<bool>("_victory") && Field<Control>("_overlayBackdrop").Visible &&
-				!IsCombatRunning() && !_crowd.CombatEnabled && _crowd.ActiveCount == 0 && recovered.Count == before + 1,
+				!IsCombatRunning() && !_crowd.CombatEnabled && _crowd.ActiveCount == 0 && recovered.Count == before &&
+				List("_defensePickups").Cast<object>().Count(pickup => Effect<WeaponModulatorData?>(pickup, "Modulator") != null) == finalGroundBefore + 1,
 				"Returning to results restores the victory overlay without restarting combat, spawning a wave or granting another reward");
 			Check(saves.All(pair => pair.Value == null ? !System.IO.File.Exists(pair.Key) : System.IO.File.Exists(pair.Key) &&
 				pair.Value.SequenceEqual(System.IO.File.ReadAllBytes(pair.Key))), "Final reward, workshop and inspection leave hub save files unchanged");

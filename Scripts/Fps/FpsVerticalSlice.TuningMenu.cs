@@ -78,7 +78,8 @@ public partial class FpsVerticalSlice
 	private void BuildTuningPopulationTab(VBoxContainer page)
 	{
 		page.AddChild(TuningText("Population is deliberate: Add grows the current crowd; Replace clears enemies and creates the requested crowd."));
-		_gameplayTuningSpawnCount = AddTuningNumber(page, "Requested enemies", 1, 2000, 1, () => 100, _ => { });
+		_gameplayTuningSpawnCount = AddTuningNumber(page, "Requested enemies", 1,
+			Math.Clamp(HordeSettings?.Capacity ?? 2000, 100, FpsHordeSettings.MaximumCapacity), 1, () => 100, _ => { });
 		HBoxContainer roleRow = new();
 		page.AddChild(roleRow);
 		roleRow.AddChild(TuningText("Enemy type"));
@@ -89,10 +90,11 @@ public partial class FpsVerticalSlice
 		role.ItemSelected += index => DebugSpawnRole = (FpsEnemyRole)role.GetItemId((int)index);
 		roleRow.AddChild(role);
 		_gameplayTuningRefreshControls.Add(() => role.Selected = DebugSpawnRole == FpsEnemyRole.Striker ? 1 : 0);
-		HBoxContainer presets = new();
+		HFlowContainer presets = new();
 		page.AddChild(presets);
-		foreach (int count in new[] { 100, 500, 1000, 2000 })
-			AddTuningButton(presets, count.ToString(), () => _gameplayTuningSpawnCount.Value = count);
+		foreach (int count in new[] { 100, 500, 1000, 2000, 10000, 25000, 50000, 100000 })
+			if (count <= _gameplayTuningSpawnCount.MaxValue)
+				AddTuningButton(presets, count.ToString(), () => _gameplayTuningSpawnCount.Value = count);
 		HBoxContainer actions = new();
 		page.AddChild(actions);
 		_gameplayTuningSpawnButtons.Add(AddTuningButton(actions, "Add", () => SpawnTuningPopulation(false)));
@@ -123,7 +125,8 @@ public partial class FpsVerticalSlice
 
 	private void SpawnTuningPopulation(bool replace)
 	{
-		int requested = Mathf.Clamp((int)(_gameplayTuningSpawnCount?.Value ?? 100), 1, 2000);
+		int requested = Mathf.Clamp((int)(_gameplayTuningSpawnCount?.Value ?? 100), 1,
+			HordeManager?.Capacity ?? FpsHordeSettings.MaximumCapacity);
 		int added = DebugSpawnHorde(requested, replace);
 		if (_gameplayTuningStatus != null)
 			_gameplayTuningStatus.Text = $"{(replace ? "Replaced population" : "Added enemies")}: {added}/{requested} spawned. Active enemies: {ActiveEnemyCount}.";
@@ -142,6 +145,11 @@ public partial class FpsVerticalSlice
 		AddTuningCheck(page, "Pause gameplay", () => _pauseRequested, v => { _pauseRequested = v; RefreshCombatState(); });
 		AddTuningCheck(page, "Crowd simulation enabled", () => settings.Enabled, v => settings.Enabled = v);
 		AddTuningNumber(page, "Simulation Hz", 5, 60, 1, () => settings.SimulationHz, v => settings.SimulationHz = (float)v);
+		AddTuningCheck(page, "GPU crowd rendering", () => settings.GpuCrowdRenderingEnabled, v =>
+		{
+			settings.GpuCrowdRenderingEnabled = v;
+			if (!v) HordeManager?.ResetGpuCrowdRenderBackend();
+		});
 		AddTuningNumber(page, "Decision Hz", 1, 30, 1, () => settings.DecisionHz, v => settings.DecisionHz = (float)v);
 		AddTuningNumber(page, "Separation radius", 0, 6, 0.05, () => settings.SeparationRadius, v => settings.SeparationRadius = (float)v);
 		AddTuningNumber(page, "Separation strength", 0, 5, 0.05, () => settings.SeparationStrength, v => settings.SeparationStrength = (float)v);
@@ -153,6 +161,12 @@ public partial class FpsVerticalSlice
 	{
 		if (HordeSettings is not FpsHordeSettings settings) return;
 		page.AddChild(TuningText("Soft body contact lets the wave compress. Piling lets pressure push enemies up over one another; unsupported enemies fall."));
+		page.AddChild(TuningText("GPU contacts also accelerate movement and rolling on supported maps."));
+		AddTuningCheck(page, "GPU crowd contacts", () => settings.GpuCrowdContactsEnabled, v =>
+		{
+			settings.GpuCrowdContactsEnabled = v;
+			if (!v) HordeManager?.ResetGpuCrowdContactBackend();
+		});
 		AddTuningCheck(page, "Soft collisions", () => settings.SoftCollisionEnabled, v => settings.SoftCollisionEnabled = v);
 		AddTuningCheck(page, "Allow climbing", () => settings.StackingEnabled, v => settings.StackingEnabled = v);
 		AddTuningNumber(page, "Contact stiffness", 0.05, 1, 0.05, () => settings.ContactStiffness, v => settings.ContactStiffness = (float)v);
@@ -173,7 +187,8 @@ public partial class FpsVerticalSlice
 		AddTuningNumber(page, "Minimum roll duration (s, 0 = automatic)", 0, 1, 0.01, () => settings.RollingDurationSeconds, v => settings.RollingDurationSeconds = (float)v);
 		page.AddChild(TuningText("Cubes roll a quarter turn per body width and pause between steps. Blocked cubes stop rolling; crowd pressure can still push them."));
 		AddTuningCheck(page, "Tumbling corpses", () => settings.CorpseEnabled, v => settings.CorpseEnabled = v);
-		AddTuningNumber(page, "Maximum corpses", 1, 256, 1, () => settings.CorpseCapacity, v => settings.CorpseCapacity = (int)v);
+		AddTuningCheck(page, "Background corpse physics", () => settings.CorpseWorkerEnabled, v => settings.CorpseWorkerEnabled = v);
+		AddTuningNumber(page, "Maximum corpses", 1, FpsHordeSettings.MaximumCorpseCapacity, 1, () => settings.CorpseCapacity, v => settings.CorpseCapacity = (int)v);
 		AddTuningNumber(page, "Corpse lifetime (s)", 0.1, 15, 0.1, () => settings.CorpseLifetimeSeconds, v => settings.CorpseLifetimeSeconds = (float)v);
 		AddTuningNumber(page, "Base launch speed", 0, 24, 0.25, () => settings.CorpseBaseLaunchSpeed, v => settings.CorpseBaseLaunchSpeed = (float)v);
 		AddTuningNumber(page, "Overkill launch strength", 0, 5, 0.1, () => settings.CorpseOverkillSpeedScale, v => settings.CorpseOverkillSpeedScale = (float)v);
@@ -242,9 +257,15 @@ public partial class FpsVerticalSlice
 		_gameplayTuningRefreshTime = 0.25f;
 		FpsHordeManager? horde = HordeManager;
 		string state = !IsCombatRunning() ? "Paused / ended" : horde?.Settings.Enabled == false ? "Crowd disabled" : "Live";
+		bool gpuFallback = horde?.Settings.GpuCrowdContactsEnabled == true && horde.LastCrowdContactBackend == "CPU"
+			&& horde.GpuCrowdContactFallbackReason.Length > 0;
+		string contactBackend = horde?.LastCrowdContactBackend ?? "CPU";
+		if (gpuFallback) contactBackend += " (GPU fallback)";
+		_gameplayTuningMetrics.TooltipText = (gpuFallback ? horde!.GpuCrowdContactFallbackReason : string.Empty)
+			+ (horde?.GpuCrowdRenderFallbackReason.Length > 0 ? "\n" + horde.GpuCrowdRenderFallbackReason : string.Empty);
 		_gameplayTuningMetrics.Text = horde == null
 			? $"Active enemies: {ActiveEnemyCount}  |  Shared horde unavailable\n{_gameplayTuningFrameMetricsText}"
-			: $"{state}  |  Active enemies: {ActiveEnemyCount}  |  Rendered: {horde.RenderedInstanceCount}  |  Limit: {Mathf.Min(2000, horde.Capacity)}\nLast simulation tick: {horde.LastSimulationMilliseconds:F2} ms  |  Raised enemies: {horde.StackedEnemyCount}  |  Highest feet: {horde.HighestPileFeet:F1} m\n{_gameplayTuningFrameMetricsText}";
+			: $"{state}  |  Active enemies: {ActiveEnemyCount}  |  Rendered: {horde.RenderedInstanceCount}  |  Limit: {horde.Capacity}\nMovement: {(horde.LastGpuCrowdDriveResolved ? "GPU" : "CPU")}  |  Contacts: {contactBackend}  |  Rendering: {horde.LastCrowdRenderBackend}  |  Last simulation tick: {horde.LastSimulationMilliseconds:F2} ms  |  Raised enemies: {horde.StackedEnemyCount}  |  Highest feet: {horde.HighestPileFeet:F1} m\n{_gameplayTuningFrameMetricsText}";
 		foreach (Button button in _gameplayTuningSpawnButtons) button.Disabled = horde == null;
 	}
 

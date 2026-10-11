@@ -1,0 +1,111 @@
+Run inventory and ground equipment
+
+Five active shapes and two reserve shapes are separate collections. Combat cycling,
+support Wings, and active effects use only the active collection. Tab shows both;
+previewing a reserve is read-only, and Swap with held shape exchanges exact items
+including their installed parts. Wing compatibility is validated on active insertion
+and swaps. Player health percentage is preserved when the held shape changes.
+
+Loose modulator storage holds 100 parts. Installed parts do not consume this limit.
+Picking up, buying for storage, and returning installed parts enforce the limit.
+Inventory drop buttons place the original item on the ground and free its slot.
+The final active shape cannot be dropped.
+
+Weapons and modulators require aiming at their ground model and pressing F.
+Interaction uses short range and an unobstructed world ray. A focused item takes
+priority over the nearby shop shortcut. Full storage leaves equipment untouched.
+Coins keep automatic proximity pickup and wave-clear sweep behavior.
+Wave rewards are placed near the player, including the final reward; after victory,
+Collect ground loot restores field movement and interaction while combat stays over.
+Escape returns to the results menu.
+
+Ground weapons render their base geometric shapes inside animated energy pillars;
+the assembled weapon model is used after equipping the shape in the MultiWeapon.
+Ground modulator cartridges have a 0.26 m longest axis, half their previous 0.52 m
+size. Installed cartridges and inventory thumbnails retain their original scale.
+All cartridge views share canonical rarity accent colors matching the pillar.
+PowerTier 1/2/3 is shown by exactly 1/2/3 accent notches; quality does not alter these
+notches. Authored excess notches are hidden and missing notches are added per instance.
+
+Enemy weapon rewards launch upward and outward with randomized direction and spin,
+using cosmetic randomness separate from reward rolls. Temporary rigid bodies collide
+with the world, excluding player/enemy/other-loot collisions. They settle on sleep or
+after 2.5 seconds into static collectible items. At most 64 flight bodies are active;
+overflow settles the oldest body and retains every item. Pause freezes flight without
+consuming lifetime. Successful pickup removes the body; full inventory leaves it and
+the exact item intact. Arena rebuild settles active bodies before regrounding loot.
+Pillars track the ground beneath flight, while aiming targets the airborne shape.
+Sparks begin after settling, avoiding repeated emitter resets during motion. Settlement
+and regrounding exclude characters and retain supported roofs/platforms. Cartridge
+accent materials remain owned per instance so inspection recoloring cannot bleed.
+
+The supplied LootPillarAtlas.png preserves the original 2172x724 artwork: six 362x724
+frames, also exposed as individual AtlasTexture resources in Textures/Loot/Frames.
+The GPU blends adjacent frames at eight frames per second, including the last-to-first
+transition. Each item has a stable phase offset. Two transparent planes cross at
+right angles, with the pair oriented toward the camera for consistent volume.
+An upward-scrolling energy pattern overlays the atlas; a bright white center fades
+into soft rarity-colored edges. A separate horizontal glow anchors the item at
+ground level. All three planes share the same instanced mesh and draw batch.
+Weapon rarity and modulator PowerTier (not quality) determine color, height and width.
+The black background contributes no light. Pillars use additive blending, world depth
+testing, mipmapped sampling, and no shadows, lights, collision or CPU animation updates.
+Actual GPU particles add occasional rising sparks. A pool selects the nearest
+32 equipment items within 45 m every 0.25 s. Weapon ranks 0-5 and modulator PowerTier
+ranks 0/2/4 control particle count, size and speed; item quality does not affect them.
+Each active emitter holds 3-13 particles. Collected items immediately hide/stop their
+emitter; reassignment clears old particles, while retained items keep their animation.
+Distant beams and ground glows remain visible without distant particle emitters.
+The aimed card shows rarity, quality where applicable, level, sockets, own-item base
+stats and summed bonuses. Effective damage/health already include item bonuses;
+bonus rows explain those totals and should not be applied a second time.
+
+Equipment data survives wave clear and arena live rebuild. Models live outside the
+arena geometry root and are grounded again after rebuild. Equipment is never collected
+or discarded by the rendering budget: MaxLoosePickups now also bounds nearby visual
+instances (8–256, default 128), with equipment taking priority over coin visuals.
+Only models within 120 m materialize, up to eight new visuals per refresh. Equipment
+outside that budget retains exact data and its pillar remains rendered. Pillars use
+independent 128 m spatial MultiMesh batches with reusable buffers, refreshed on item
+addition, collection or regrounding. Normal camera frustum and world occlusion still
+apply; the model distance and count budget do not hide equipment pillars. Currency
+keeps its older overflow collection policy. No 50k horde FPS claim is made by this change.
+
+Implementation: FpsVerticalSlice.InventoryCapacity.cs, FpsVerticalSlice.GroundLoot.cs,
+FpsVerticalSlice.GroundLootPhysics.cs, FpsModulatorCartridgeStyle.cs,
+FpsGroundItemVisual.cs, FpsGroundItemCard.cs, FpsLootPillarRenderer.cs and its Sparks partial,
+Resources/Shaders/Loot/loot_pillar.gdshader, and the existing inventory/defense UI.
+Validation: Tools/Validation/RunGroundLootValidation.ps1 (-NativeCapture for pictures).
+Artifacts: .tmp/ground-loot-validation/ and its native subdirectory.
+
+Ground loot validation 2026-10-10: build zero warnings/errors; focused suite
+253 headless / 293 native checks. Native pixel comparisons verify adjacent-frame
+interpolation, last-to-first looping, ninety-degree camera rotation, transparent
+black background and removal. The real arena renders a pillar at 160 m while its
+weapon model is culled (68 changed pixels inside the projected target region).
+Thirty equipment records keep thirty pillars with an eight-model budget. Tests
+also cover stable phase, regrounding and full-inventory retention. Native captures
+include atlas-frame-0-half.png, atlas-camera-side.png and atlas-far-160m.png.
+Additional rendered checks verify diagonal crossed-plane visibility, upward flow,
+white cores with red rarity edges, overhead ground glow and actual GPU sparks with
+the beam mesh hidden. All six weapon ranks increase particle amount/size. Fifty
+nearby items retain fifty beams while emitters stay capped at 32 and particles at
+416; removal stops and hides every emitter. Captures include atlas-gpu-sparks.png,
+atlas-white-core-red-edges.png and atlas-ground-glow-overhead.png.
+Current coverage also includes all sixteen base shape pickups, exactly 1-3 actual
+PowerTier notches across qualities, matching ground/installed rarity materials,
+half-size ground cartridges, genuine physics flight through settling, pause, actor
+exclusion, platform support, full-inventory rejection, collection cleanup, and bounded
+overflow retaining every item. ground-burst-airborne.png and ground-burst-settled.png
+show the base shape before and after its physical flight.
+Equipped-weapon inspection regression also passes 1,233 headless / 1,236 native
+checks after the shared cartridge style change, including all authored models,
+per-instance material ownership, socket installation/removal and input flows.
+
+Verified 2026-10-10: build zero warnings/errors; focused 167 headless and 169 native
+checks; inspection 1,233 headless / 1,236 native; modulator regression 485; North
+Gate 37 and hill horde 48. Focused coverage includes full-capacity atomic rejection,
+exact swaps/drops, inactive reserve bonuses, Wing constraints, occlusion/range,
+coin-only sweeps, visual-budget retention, rebuild retention and final-victory loot.
+Native ground-item-card.png shows duplicate damage rolls summed to +15%, and
+ground-inventory-capacity.png shows the 5+2 loadout and drop controls at 1280x720.

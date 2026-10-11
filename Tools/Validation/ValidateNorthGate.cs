@@ -86,7 +86,11 @@ public partial class ValidateNorthGate : Node
 		Check(Field<float>("_combatShopRemaining") > 0f && !Field<bool>("_waitingForNextWave"), "A shop appears during an active wave after enough kills");
 		Invoke("SweepDefenseLoot");
 		Check(Field<int>("_defenseCoins") == 8 * settings.CoinsPerEnemy, "Enemy deaths award the configured currency exactly once");
-		Check(Field<List<EquipmentItem>>("_arsenal").Count == 9 && Field<List<WeaponModulatorData>>("_recoveredModulators").Count == 8, "Weapon and modulator drops become usable run equipment");
+		object[] groundEquipment = Field<System.Collections.IList>("_defensePickups").Cast<object>().ToArray();
+		Check(Field<List<EquipmentItem>>("_arsenal").Count == 1 && Field<List<WeaponModulatorData>>("_recoveredModulators").Count == 0 &&
+			groundEquipment.Count(pickup => pickup.GetType().GetField("Weapon")!.GetValue(pickup) != null) == 8 &&
+			groundEquipment.Count(pickup => pickup.GetType().GetField("Modulator")!.GetValue(pickup) != null) == 8,
+			"Eight weapon and eight modulator drops remain on the ground after currency collection without bypassing inventory limits");
 		KeyPress(Key.F);
 		FpsSliceEnemy advancing = Enemies()[0];
 		Vector3 before = advancing.Position;

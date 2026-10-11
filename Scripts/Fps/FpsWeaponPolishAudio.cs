@@ -63,6 +63,7 @@ public partial class FpsWeaponPolishAudio : Node
             };
             AddChild(_impacts[i]);
         }
+        InitializeExplosions();
         UpdateRouting();
     }
 
@@ -71,6 +72,7 @@ public partial class FpsWeaponPolishAudio : Node
         bool suspended = _paused || GetTree().Paused;
         foreach (AudioStreamPlayer voice in _shots) voice.StreamPaused = suspended;
         foreach (AudioStreamPlayer3D voice in _impacts) voice.StreamPaused = suspended;
+        UpdateExplosions(suspended);
         if (!suspended) _time += delta;
         if (_time >= _nextRoutingUpdate)
         {
@@ -87,6 +89,7 @@ public partial class FpsWeaponPolishAudio : Node
             if (voice != null) voice.StreamPaused = paused || (IsInsideTree() && GetTree().Paused);
         foreach (AudioStreamPlayer3D? voice in _impacts)
             if (voice != null) voice.StreamPaused = paused || (IsInsideTree() && GetTree().Paused);
+        PauseExplosions(paused || (IsInsideTree() && GetTree().Paused));
     }
 
     public void PlayShot(WeaponAttackType type, Vector3 origin)
@@ -142,6 +145,7 @@ public partial class FpsWeaponPolishAudio : Node
     {
         foreach (AudioStreamPlayer? voice in _shots) voice?.Stop();
         foreach (AudioStreamPlayer3D? voice in _impacts) voice?.Stop();
+        ClearExplosions();
         Array.Clear(_nextImpactByType);
         Array.Clear(_nextActivationByType);
         _nextShot = _nextImpact = _nextRift = _time;
@@ -202,6 +206,7 @@ public partial class FpsWeaponPolishAudio : Node
             // Active world voices preserve their intensity adjustment when settings change.
             voice.VolumeDb = -22f + _fallbackSfxDb + _impactIntensityDb[i];
         }
+        UpdateExplosionRouting();
     }
 
     private static int SoundIndex(WeaponAttackType type) => type switch

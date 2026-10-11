@@ -207,6 +207,7 @@ public partial class FpsVerticalSlice
 	{
 		UpdateWeaponPolishState();
 		CorpsePool?.Tick((float)delta, !_pauseRequested);
+		TickGroundLootPhysics((float)delta);
 		if (!IsCombatRunning())
 		{
 			return;
@@ -235,6 +236,7 @@ public partial class FpsVerticalSlice
 	{
 		_weaponRng.Randomize();
 		_arsenal.Clear();
+		_reserveShapes.Clear();
 		_usingHubPrimaryWeapon = false;
 
 		EquipmentItem? primaryWeapon = ResolvePrimaryHubWeapon();
@@ -242,7 +244,7 @@ public partial class FpsVerticalSlice
 		{
 			_arsenal.Add(primaryWeapon);
 			InventoryManager? inventory = GetNodeOrNull<InventoryManager>("/root/InventoryManager");
-			for (int slot = 1; slot < FpsDebugLoadoutSlotCount; slot++)
+			for (int slot = 1; slot < EquippedShapeCapacity; slot++)
 				if (inventory?.GetEquippedItemAt(slot) is { Shape: not null, Rarity: not null } support) _arsenal.Add(CloneSliceWeapon(support));
 			_usingHubPrimaryWeapon = true;
 			_selectedWeaponIndex = 0;
@@ -865,7 +867,7 @@ public partial class FpsVerticalSlice
 	private void FireNovaPulse(EquipmentItem weapon, float damageScale)
 	{
 		float radius = 8.5f * GetFpsAreaScale(weapon) * GetFpsRangeScale(weapon);
-		DamageEnemiesInRadius(_player.GlobalPosition, radius, GetScaledWeaponDamage(weapon, damageScale) * 1.35f, weapon, true);
+		DamageEnemiesInExplosion(_player.GlobalPosition, radius, GetScaledWeaponDamage(weapon, damageScale) * 1.35f, weapon, true);
 		SpawnPolishedPulse(WeaponAttackType.Nova, _player.GlobalPosition, radius, 0.32f, GetWeaponAccentColor(weapon.Shape!.AttackType), weapon);
 	}
 
@@ -1036,7 +1038,7 @@ public partial class FpsVerticalSlice
 	{
 		float missingHealthRatio = 1f - (_player.CurrentHealth / Mathf.Max(0.01f, _player.MaxHealth));
 		float damage = GetScaledWeaponDamage(weapon, damageScale) * (0.60f + missingHealthRatio * 1.10f);
-		DamageEnemiesInRadius(_player.GlobalPosition, 4.6f * GetFpsAreaScale(weapon) * GetFpsRangeScale(weapon), damage, weapon, true);
+		DamageEnemiesInExplosion(_player.GlobalPosition, 4.6f * GetFpsAreaScale(weapon) * GetFpsRangeScale(weapon), damage, weapon, true);
 		SpawnPolishedPulse(WeaponAttackType.WrathAura, _player.GlobalPosition, 4.6f * GetFpsAreaScale(weapon) * GetFpsRangeScale(weapon),
 			0.25f, GetWeaponAccentColor(weapon.Shape!.AttackType), weapon);
 	}
@@ -1175,8 +1177,7 @@ public partial class FpsVerticalSlice
 				continue;
 			}
 
-			_weaponPolishAudio?.PlayActivation(WeaponAttackType.Mine, mine.Position);
-			DamageEnemiesInRadius(mine.Position, mine.ExplosionRadius, mine.Damage, mine.SourceItem, mine.TriggerModulatorOnHitEffects);
+			DamageEnemiesInExplosion(mine.Position, mine.ExplosionRadius, mine.Damage, mine.SourceItem, mine.TriggerModulatorOnHitEffects);
 			OnFpsMineDetonated(mine);
 			SpawnPolishedPulse(WeaponAttackType.Mine, mine.Position, mine.ExplosionRadius, 0.20f, mine.Material.Emission, mine.SourceItem);
 			RemoveMine(mineIndex);
@@ -1296,8 +1297,7 @@ public partial class FpsVerticalSlice
 			mortar.Age += dt;
 			if (mortar.Age >= mortar.FlightTime)
 			{
-				_weaponPolishAudio?.PlayActivation(WeaponAttackType.Mortar, mortar.Target);
-				DamageEnemiesInRadius(mortar.Target, mortar.Radius, mortar.Damage, mortar.SourceItem, mortar.TriggerModulatorOnHitEffects);
+				DamageEnemiesInExplosion(mortar.Target, mortar.Radius, mortar.Damage, mortar.SourceItem, mortar.TriggerModulatorOnHitEffects);
 				OnFpsMortarImpact(mortar);
 				SpawnPolishedPulse(WeaponAttackType.Mortar, mortar.Target, mortar.Radius, 0.22f, mortar.Material.Emission, mortar.SourceItem);
 				RemoveMortar(mortarIndex);

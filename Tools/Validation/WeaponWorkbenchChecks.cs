@@ -119,12 +119,32 @@ internal static class WeaponWorkbenchChecks
             {
                 int index = marker.GetMeta("slot_index").AsInt32();
                 Node3D anchor = (Node3D)Preview<Node3D>("_gunVisual").FindChild($"ModulatorSocket{index + 1:00}", true, false)!;
-                Vector2 expected = Preview<Camera3D>("_gunCamera").UnprojectPosition(anchor.GlobalPosition);
-                Vector2 size = Preview<SubViewportContainer>("_gunSurface").Size;
-                Vector2I viewport = Preview<SubViewport>("_gunViewport").Size;
-                expected *= new Vector2(size.X / viewport.X, size.Y / viewport.Y);
+                Camera3D camera = Preview<Camera3D>("_inspectionCamera");
+                Vector2 expected = ((Control)marker.GetParent()).GetGlobalTransformWithCanvas().AffineInverse() *
+                    camera.UnprojectPosition(anchor.GlobalPosition);
                 return marker.GetRect().GetCenter().DistanceTo(expected) < 1f && marker.GetMeta("socket_state").AsString() == (map.GetInventoryWeaponSlots(0)[index] == null ? "empty" : "installed");
-            }), "Visible model drop targets project their exact physical socket anchors and sparse installed state");
+            }), "Visible world-model drop targets project their exact physical socket anchors through the player camera and retain sparse installed state");
+            check(ReferenceEquals(Preview<Node3D>("_gunPivot").GetParent(), Preview<Camera3D>("_inspectionCamera")) &&
+                Preview<SubViewport>("_gunViewport").RenderTargetUpdateMode == SubViewport.UpdateMode.Disabled,
+                "World inspection uses the player camera and disables the separate weapon preview render target");
+            await WorkbenchInputFixture.Click(host, Find("SocketDock1"));
+            Button socketAction = (Button)Find("SocketAction");
+            check(Find("StoredModulator" + storage.FindIndex(part => ReferenceEquals(part, cadence))).IsVisibleInTree() && socketAction.Disabled,
+                "Clicking an empty socket opens loose parts and keeps removal disabled");
+            await WorkbenchInputFixture.Click(host, Find("StoredModulator" + storage.FindIndex(part => ReferenceEquals(part, cadence))));
+            check(ReferenceEquals(map.GetInventoryWeaponSlots(0)[1], cadence) && storage.Count == 1 &&
+                ReferenceEquals(map.GetInventoryWeaponSlots(0)[2], damage),
+                "Clicking a compatible loose part installs its exact reference into the selected physical socket without moving its neighbor");
+            await WorkbenchInputFixture.Frames(host, 30);
+            string beforeOccupiedClick = Snapshot();
+            await WorkbenchInputFixture.Click(host, Find("StoredModulator" + storage.FindIndex(part => ReferenceEquals(part, ballistic))));
+            check(Snapshot() == beforeOccupiedClick && !socketAction.Disabled,
+                "Clicking another loose part cannot overwrite an occupied socket and exposes removal after seating");
+            await WorkbenchInputFixture.Click(host, socketAction);
+            check(map.GetInventoryWeaponSlots(0)[1] == null && storage.Count == 2 && ReferenceEquals(storage[^1], cadence) &&
+                ReferenceEquals(map.GetInventoryWeaponSlots(0)[2], damage),
+                "The remove button returns the exact clicked part to storage and preserves the neighboring socket");
+            await WorkbenchInputFixture.Frames(host, 30);
             ui.ShowModulatorInventory(true);
             await WorkbenchInputFixture.Frames(host, 2);
             FpsInventoryTile tile = (FpsInventoryTile)Find("StoredModulator" + storage.FindIndex(part => ReferenceEquals(part, cadence)));
@@ -182,7 +202,8 @@ internal static class WeaponWorkbenchChecks
             check(!map.IsWeaponInspectionOpen && !host.GetViewport().GuiIsDragging() && Snapshot() == beforeCancel,
                 "Tab closes a focused workbench during an actual drag and cancels it without transferring an item");
             map._Input(new InputEventKey { Keycode = Key.Tab, PhysicalKeycode = Key.Tab, Pressed = true });
-            await WorkbenchInputFixture.Frames(host, 3);
+            // Let the .28-second inspection raise finish before measuring an assembly's fixed core.
+            await WorkbenchInputFixture.Frames(host, 20);
             string beforeStaleSession = Snapshot();
             socket._DropData(Vector2.Zero, validData);
             check(Snapshot() == beforeStaleSession, "Reopening the workbench rejects a payload from the previous actual session");
@@ -195,16 +216,19 @@ internal static class WeaponWorkbenchChecks
             Vector2 CoreScreenPoint()
             {
                 Node3D core = (Node3D)Preview<Node3D>("_gunVisual").FindChild("ShapeSocket", true, false)!;
-                return Preview<Camera3D>("_gunCamera").UnprojectPosition(core.GlobalPosition);
+                return Preview<Camera3D>("_inspectionCamera").UnprojectPosition(core.GlobalPosition);
             }
             Vector2 fixedCore = CoreScreenPoint();
             float maxDrift = 0f;
+            string CoreDiagnostic() => $"screen={CoreScreenPoint()} pivot={Preview<Node3D>("_gunPivot").Position} fov={Preview<Camera3D>("_inspectionCamera").Fov} raise={Preview<float>("_raiseProgress")} shape={Preview<Node3D>("_gunVisual").GetMeta("shape_key").AsString()}";
+            string driftDiagnostic = CoreDiagnostic();
             for (int sample = 0; sample < 9; sample++)
             {
                 await WorkbenchInputFixture.Frames(host, 10);
-                maxDrift = Math.Max(maxDrift, CoreScreenPoint().DistanceTo(fixedCore));
+                float drift = CoreScreenPoint().DistanceTo(fixedCore);
+                if (drift > maxDrift) { maxDrift = drift; driftDiagnostic += $"; sample {sample}: {CoreDiagnostic()}"; }
             }
-            check(maxDrift < 2f, "Core projection remains stable throughout actual disassembly, model replacement and assembly");
+            check(maxDrift < 2f, $"Core projection remains stable throughout actual disassembly, model replacement and assembly (maximum drift {maxDrift:F3}px; {driftDiagnostic})");
             await WorkbenchInputFixture.Frames(host, 100);
             await WorkbenchInputFixture.Drag(host, Find("ShapeChoice0"), Find("WeaponDropTarget"));
             await WorkbenchInputFixture.Frames(host, 100);
@@ -223,6 +247,7 @@ internal static class WeaponWorkbenchChecks
             Reject((out string reason) => map.TryInstallInventoryModulator(square, cadence, 1, out reason), "closed inventory installation");
             Reject((out string reason) => map.TryRemoveInventoryModulator(square, 2, out reason), "closed inventory removal");
             check(!map.TryEquipInventoryShape(1), "Closed inventory cannot equip a shape through a stale callback");
+            check(!Preview<Node3D>("_gunPivot").IsVisibleInTree(), "Closing inventory hides the camera-attached inspection geometry");
             foreach (SubViewport viewport in Descendants(Field<Node>("_weaponInspectionUi")).OfType<SubViewport>())
                 check(viewport.RenderTargetUpdateMode == SubViewport.UpdateMode.Disabled, "Closing inventory disables its viewport rendering");
         }

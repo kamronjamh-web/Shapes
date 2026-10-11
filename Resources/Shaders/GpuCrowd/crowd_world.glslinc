@@ -1,0 +1,245 @@
+// Included after the main shader's #version. Header values are already clamped
+// by the CPU map settings. Masks conservatively index unexpanded geometry;
+// solid/ramp counts must each be <=64, retaining original CPU list order.
+layout(set = 0, binding = 5, std430) readonly buffer WorldHeader {
+    vec4 terrain;
+    vec4 grid;
+    uvec4 dimensions;
+    vec4 limits;
+} world;
+struct WorldSolid { vec4 center; vec4 size; };
+struct WorldRamp { vec4 outward; vec4 across; vec4 slope; };
+struct WorldGate { vec4 center; vec4 size; vec4 outward; };
+layout(set = 0, binding = 6, std430) readonly buffer WorldSolids { WorldSolid world_solids[]; };
+layout(set = 0, binding = 7, std430) readonly buffer WorldRamps { WorldRamp world_ramps[]; };
+layout(set = 0, binding = 8, std430) readonly buffer WorldCells { uvec4 world_cell_masks[]; };
+layout(set = 0, binding = 9, std430) readonly buffer WorldGates { WorldGate world_gates[]; };
+
+bool world_enabled() { return world.limits.x != 0.0; }
+float world_infinity() { return uintBitsToFloat(0x7f800000u); }
+
+// Explicit scalar operations preserve the CPU arithmetic order at edge tests.
+float world_dot(vec3 a, vec3 b) {
+    precise float x = a.x * b.x;
+    precise float y = a.y * b.y;
+    precise float z = a.z * b.z;
+    precise float xy = x + y;
+    precise float result = xy + z;
+    return result;
+}
+float world_ground(vec3 position) {
+    precise float distance = max(abs(position.x), abs(position.z));
+    precise float numerator = world.terrain.z - distance;
+    precise float denominator = world.terrain.z - world.terrain.y;
+    precise float ratio = numerator / denominator;
+    precise float result = world.terrain.w * clamp(ratio, 0.0, 1.0);
+    return result;
+}
+
+uvec4 world_candidates(vec3 from, vec3 desired, float padding) {
+    if (world.dimensions.x == 0u || world.dimensions.y == 0u) return uvec4(0u);
+    precise vec2 lower = min(from.xz, desired.xz) - vec2(padding);
+    precise vec2 upper = max(from.xz, desired.xz) + vec2(padding);
+    precise vec2 low_relative = lower - world.grid.xy;
+    precise vec2 high_relative = upper - world.grid.xy;
+    ivec2 low_cell = ivec2(floor(low_relative / world.grid.z));
+    ivec2 high_cell = ivec2(floor(high_relative / world.grid.z));
+    ivec2 last = ivec2(world.dimensions.xy) - ivec2(1);
+    if (high_cell.x < 0 || high_cell.y < 0 || low_cell.x > last.x || low_cell.y > last.y)
+        return uvec4(0u);
+    low_cell = clamp(low_cell, ivec2(0), last);
+    high_cell = clamp(high_cell, ivec2(0), last);
+    uvec4 mask = uvec4(0u);
+    for (int z = low_cell.y; z <= high_cell.y; z++)
+    for (int x = low_cell.x; x <= high_cell.x; x++)
+        mask |= world_cell_masks[uint(z) * world.dimensions.x + uint(x)];
+    return mask;
+}
+bool world_mask_has(uvec2 mask, uint index) {
+    return (mask[index >> 5u] & (1u << (index & 31u))) != 0u;
+}
+bool world_solid_contains(WorldSolid solid, vec3 position, float radius) {
+    precise float dx = position.x - solid.center.x;
+    precise float dz = position.z - solid.center.z;
+    precise float half_x = solid.size.x * 0.5 + radius;
+    precise float half_z = solid.size.z * 0.5 + radius;
+    return abs(dx) <= half_x && abs(dz) <= half_z;
+}
+bool world_ramp_contains(WorldRamp ramp, vec3 position, float radius) {
+    precise float along = world_dot(position, ramp.outward.xyz);
+    precise float across = world_dot(position, ramp.across.xyz) - ramp.outward.w;
+    precise float start = ramp.slope.x - radius;
+    precise float end = ramp.slope.y + radius;
+    precise float half_width = ramp.across.w * 0.5 + radius;
+    return along >= start && along <= end && abs(across) <= half_width;
+}
+float world_ramp_height(WorldRamp ramp, vec3 position) {
+    precise float numerator = world_dot(position, ramp.outward.xyz) - ramp.slope.x;
+    precise float denominator = ramp.slope.y - ramp.slope.x;
+    precise float weight = clamp(numerator / denominator, 0.0, 1.0);
+    // Godot Mathf.Lerp(float,float,float) uses from + (to-from)*weight.
+    precise float rise = ramp.slope.w - ramp.slope.z;
+    precise float scaled = rise * weight;
+    precise float result = ramp.slope.z + scaled;
+    return result;
+}
+
+float world_support(vec3 from, vec3 desired, float radius) {
+    precise float support = world_ground(desired);
+    precise float bounds = world.grid.w + radius;
+    if (abs(desired.x) > bounds || abs(desired.z) > bounds) return support;
+    // Separate ramp candidates: landing can extend 0.1 beyond the end plus
+    // radius, and previous-position eligibility uses a fixed 0.05 expansion.
+    precise float ramp_pad = max(radius + 0.1, 0.05);
+    uvec2 ramp_mask = world_candidates(from, desired, ramp_pad).zw;
+    precise float ramp_landing = -world_infinity();
+    for (uint i = 0u; i < world.dimensions.w; i++) {
+        if (!world_mask_has(ramp_mask, i)) continue;
+        WorldRamp ramp = world_ramps[i];
+        precise float old_height = world_ramp_height(ramp, from);
+        precise float along = world_dot(desired, ramp.outward.xyz);
+        precise float across = world_dot(desired, ramp.across.xyz) - ramp.outward.w;
+        precise float landing_start = ramp.slope.y - radius;
+        precise float landing_end = ramp.slope.y + radius + 0.1;
+        if (world_ramp_contains(ramp, from, 0.05) && from.y >= old_height - 0.05
+            && from.y >= ramp.slope.w - 0.3 && along >= landing_start
+            && along <= landing_end && abs(across) <= ramp.across.w * 0.5)
+            ramp_landing = max(ramp_landing, ramp.slope.w);
+        if (!world_ramp_contains(ramp, desired, 0.0)) continue;
+        precise float ramp_height = world_ramp_height(ramp, desired);
+        bool arrived_from_above = from.y >= ramp_height - 0.001;
+        bool walking_up = (world_ramp_contains(ramp, from, 0.05) && from.y >= old_height - 0.05)
+            || (from.y >= ramp.slope.z - 0.05 && ramp_height <= from.y + 0.25);
+        if (arrived_from_above || walking_up) support = max(support, ramp_height);
+    }
+    uvec2 solid_mask = world_candidates(desired, desired, radius).xy;
+    for (uint i = 0u; i < world.dimensions.z; i++) {
+        if (!world_mask_has(solid_mask, i)) continue;
+        WorldSolid solid = world_solids[i];
+        precise float landing_delta = solid.size.w - ramp_landing;
+        if ((from.y >= solid.size.w - 0.001 || abs(landing_delta) < 0.001)
+            && world_solid_contains(solid, desired, radius))
+            support = max(support, solid.size.w);
+    }
+    return support;
+}
+
+float world_max_foot(vec3 position, float radius, float height) {
+    precise float bounds = world.grid.w + radius;
+    if (abs(position.x) > bounds || abs(position.z) > bounds) return world_infinity();
+    float cap = world_infinity();
+    uvec2 solid_mask = world_candidates(position, position, radius).xy;
+    for (uint i = 0u; i < world.dimensions.z; i++) {
+        if (!world_mask_has(solid_mask, i)) continue;
+        WorldSolid solid = world_solids[i];
+        if (position.y < solid.center.w && world_solid_contains(solid, position, radius))
+            cap = min(cap, solid.center.w - height);
+    }
+    return cap;
+}
+
+void world_slide(vec3 from, inout vec3 desired, vec3 center, vec3 size, float radius) {
+    precise float min_x = center.x - size.x * 0.5 - radius;
+    precise float max_x = center.x + size.x * 0.5 + radius;
+    precise float min_z = center.z - size.z * 0.5 - radius;
+    precise float max_z = center.z + size.z * 0.5 + radius;
+    if (from.z > min_z && from.z < max_z) {
+        if (from.x <= min_x && desired.x > min_x) desired.x = min_x;
+        else if (from.x >= max_x && desired.x < max_x) desired.x = max_x;
+    }
+    if (desired.x > min_x && desired.x < max_x) {
+        if (from.z <= min_z && desired.z > min_z) desired.z = min_z;
+        else if (from.z >= max_z && desired.z < max_z) desired.z = max_z;
+    }
+}
+
+vec3 world_constrain_fort(vec3 from, vec3 desired, float radius, float height) {
+    precise float limit = world.terrain.x - radius;
+    desired.x = clamp(desired.x, -limit, limit);
+    desired.z = clamp(desired.z, -limit, limit);
+    precise float bounds = world.grid.w + radius;
+    if (max(from.x, desired.x) < -bounds || min(from.x, desired.x) > bounds
+        || max(from.z, desired.z) < -bounds || min(from.z, desired.z) > bounds) {
+        desired.y = max(desired.y, world_ground(desired));
+        return desired;
+    }
+    desired.y = max(desired.y, world_support(from, desired, radius));
+    // Sliding only clamps an axis toward the original swept rectangle, so the
+    // initial conservative mask remains valid across the ordered solid loop.
+    uvec2 solid_mask = world_candidates(from, desired, radius).xy;
+    for (uint i = 0u; i < world.dimensions.z; i++) {
+        if (!world_mask_has(solid_mask, i)) continue;
+        WorldSolid solid = world_solids[i];
+        if (min(from.y, desired.y) < solid.size.w - 0.001
+            && max(from.y, desired.y) + height > solid.center.w + 0.001)
+            world_slide(from, desired, solid.center.xyz, solid.size.xyz, radius);
+    }
+    uvec2 ramp_mask = world_candidates(from, desired, radius).zw;
+    for (uint i = 0u; i < world.dimensions.w; i++) {
+        if (!world_mask_has(ramp_mask, i)) continue;
+        WorldRamp ramp = world_ramps[i];
+        if (world_ramp_contains(ramp, desired, radius) && desired.y < world_ramp_height(ramp, desired) - 0.05) {
+            precise float middle = (ramp.slope.x + ramp.slope.y) * 0.5;
+            precise vec3 along_center = ramp.outward.xyz * middle;
+            precise vec3 across_center = ramp.across.xyz * ramp.outward.w;
+            precise vec3 center = along_center + across_center;
+            precise float run = ramp.slope.y - ramp.slope.x;
+            precise float size_x = abs(ramp.outward.x) * run + abs(ramp.across.x) * ramp.across.w;
+            precise float size_z = abs(ramp.outward.z) * run + abs(ramp.across.z) * ramp.across.w;
+            world_slide(from, desired, center, vec3(size_x, 0.0, size_z), radius);
+        }
+    }
+    return desired;
+}
+
+vec3 world_constrain_gates(vec3 from, vec3 desired, float radius, float height) {
+    for (uint i = 0u; i < uint(world.limits.w); i++) {
+        WorldGate gate = world_gates[i];
+        if (gate.center.w == 0.0) continue;
+        vec3 center = gate.center.xyz;
+        precise vec3 half_size = gate.size.xyz * 0.5;
+        if (min(from.x, desired.x) > center.x + half_size.x + radius
+            || max(from.x, desired.x) < center.x - half_size.x - radius
+            || min(from.z, desired.z) > center.z + half_size.z + radius
+            || max(from.z, desired.z) < center.z - half_size.z - radius
+            || min(from.y, desired.y) >= center.y + gate.size.y - 0.001
+            || max(from.y, desired.y) + height <= center.y) continue;
+        vec3 outward = gate.outward.xyz;
+        vec3 across = vec3(-outward.z, 0.0, outward.x);
+        precise vec3 offset = from - center;
+        precise float normal_offset = world_dot(offset, outward);
+        precise float normal_half = world.limits.y * 0.5 + radius;
+        if (abs(normal_offset) < normal_half && abs(world_dot(offset, across)) < world.limits.z * 0.5 + radius) {
+            float side = normal_offset >= 0.0 ? 1.0 : -1.0;
+            precise float expanded_half = normal_half + 0.001;
+            precise float face = world_dot(center, outward) + side * expanded_half;
+            precise float displacement = face - world_dot(desired, outward);
+            precise vec3 push = outward * displacement;
+            desired += push;
+            continue;
+        }
+        world_slide(from, desired, center, gate.size.xyz, radius);
+    }
+    return desired;
+}
+
+vec3 world_resolve(vec3 from, vec3 desired, float radius, float height) {
+    // Fort initialization keeps manager extent/2 equal to HillPlayableHalf.
+    precise float half_bound = max(0.0, world.terrain.x - radius);
+    desired.x = clamp(desired.x, -half_bound, half_bound);
+    desired.z = clamp(desired.z, -half_bound, half_bound);
+    desired = world_constrain_fort(from, desired, radius, height);
+    desired = world_constrain_gates(from, desired, radius, height);
+    float floor_height = world_support(from, desired, radius);
+    vec3 probe = vec3(desired.x, max(desired.y, floor_height), desired.z);
+    float ceiling = world_max_foot(probe, radius, height);
+    if (ceiling < floor_height) {
+        desired.x = from.x;
+        desired.z = from.z;
+        floor_height = world_support(from, desired, radius);
+        probe = vec3(desired.x, max(desired.y, floor_height), desired.z);
+        ceiling = world_max_foot(probe, radius, height);
+    }
+    desired.y = max(floor_height, min(desired.y, ceiling));
+    return desired;
+}

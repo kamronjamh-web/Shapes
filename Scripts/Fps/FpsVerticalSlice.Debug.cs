@@ -11,7 +11,7 @@ namespace SuperGatchaRebuild.Fps;
 
 public partial class FpsVerticalSlice : IArenaDebugRuntime
 {
-	private const int FpsDebugLoadoutSlotCount = 5;
+	private const int FpsDebugLoadoutSlotCount = EquippedShapeCapacity;
 
 	private Control? _arenaDebugPanel;
 	private ArenaDebugPanelUI? _arenaDebugPanelUi;
@@ -148,7 +148,7 @@ public partial class FpsVerticalSlice : IArenaDebugRuntime
 			return;
 		}
 
-		while (_arsenal.Count < requiredSlots)
+		while (_arsenal.Count < Math.Min(requiredSlots, EquippedShapeCapacity))
 		{
 			EquipmentItem? fallback = CreateFallbackSliceWeapon();
 			if (fallback == null)
@@ -228,7 +228,9 @@ public partial class FpsVerticalSlice : IArenaDebugRuntime
 		{
 			return true;
 		}
-		if (_arsenal.IndexOf(weapon) <= 0) return false;
+		int activeSlot = _arsenal.IndexOf(weapon);
+		bool isReserve = _reserveShapes.Contains(weapon);
+		if (activeSlot <= 0 && !isReserve) return false;
 
 		int wingCountOnWeapon = 0;
 		for (int i = 0; i < weapon.Modulators.Count; i++)
@@ -248,6 +250,7 @@ public partial class FpsVerticalSlice : IArenaDebugRuntime
 		{
 			return false;
 		}
+		if (isReserve) return true;
 
 		string pendingWingKey = modulator.NormalizedKey;
 		for (int slot = 0; slot < _arsenal.Count; slot++)

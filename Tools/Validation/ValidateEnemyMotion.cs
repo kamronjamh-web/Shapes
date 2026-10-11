@@ -31,8 +31,20 @@ public partial class ValidateEnemyMotion : Node
 			_crowd = _map.HordeManager!;
 			_corpses = _map.CorpsePool!;
 			Check(_corpses != null && _corpses.Settings.CorpseEnabled, "North Gate installs an enabled bounded corpse pool");
+			Check(GD.Load<FpsHordeSettings>("res://Resources/Fps/HillFort_Horde.tres").CorpseCapacity == 2056,
+				"North Gate resource configures the requested 2056 active corpse maximum");
+			FpsEnemyCorpsePool capacityProbe = new();
+			capacityProbe.Settings.CorpseCapacity = 2056;
+			Check(capacityProbe.Capacity == 2056, "Corpse pool supports 2056 without allocating bodies in advance");
+			capacityProbe.Settings.CorpseCapacity = int.MaxValue;
+			Check(capacityProbe.Capacity == 2056, "Corpse pool rejects capacity above 2056");
+			capacityProbe.Settings.CorpseCapacity = 0;
+			Check(capacityProbe.Capacity == 1, "Corpse pool keeps a valid minimum capacity");
+			capacityProbe.Free();
+			await ValidateCorpseRendering();
 			await ValidateFatalSources();
 			await ValidateRolling();
+			ValidateRollingPrecision();
 			await ValidateUnsupportedRoofBodies();
 			GD.Print($"Enemy motion validation passed: {_checks} checks.");
 			GetTree().Quit();

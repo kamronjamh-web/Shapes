@@ -98,7 +98,7 @@ public partial class FpsVerticalSlice
 	public int DebugSpawnHorde(int count, bool replaceExisting = false)
 	{
 		if (HordeManager == null || !IsHillMap || _player == null || !_player.IsAlive || _defenseCore?.IsAlive != true) return 0;
-		count = Math.Clamp(count, 1, 2000);
+		count = Math.Clamp(count, 1, HordeManager.Capacity);
 		_manualHordeTesting = true;
 		if (replaceExisting) DebugClearHorde();
 		else FlushHordeDeaths();
@@ -106,14 +106,17 @@ public partial class FpsVerticalSlice
 		_nextWaveDelayTimer = 0f;
 		_victory = false;
 		_defeat = false;
-		int available = Math.Min(2000 - ActiveEnemyCount, HordeManager.Capacity - HordeManager.ActiveCount);
+		int available = HordeManager.Capacity - HordeManager.ActiveCount;
 		int requested = Math.Min(count, Math.Max(0, available));
 		if (requested == 0) { RefreshCombatState(); return 0; }
 		FpsEnemyRole role = DebugSpawnRole == FpsEnemyRole.Striker ? FpsEnemyRole.Striker : FpsEnemyRole.Bruiser;
 		FpsEnemyArchetypeSettings archetype = role == FpsEnemyRole.Striker ? StrikerArchetypeSettings! : BruiserArchetypeSettings!;
 		float radius = Mathf.Max(0.1f, archetype.CollisionRadius);
 		bool fresh = replaceExisting || ActiveEnemyCount == 0;
-		int candidates = fresh ? requested : 10000;
+		// Add searches beyond the requested prefix: a nearly full formation can
+		// have its only free location near the end. Occupied candidates are skipped,
+		// never stacked to force the requested count into finite terrain space.
+		int candidates = fresh ? requested : Math.Min(FpsHordeSettings.MaximumCapacity * 2, HordeManager.Capacity * 2);
 		float spacing = fresh ? 2.8f : radius * 2f + 0.1f;
 		List<Vector3> positions = UsesFortifications
 			? BuildFortSpawnFormation(candidates, radius, spacing)
@@ -164,11 +167,19 @@ public partial class FpsVerticalSlice
 
 	private List<Vector3> BuildFortSpawnFormation(int count, float radius, float spacing)
 	{
+		radius = Mathf.Max(0.1f, radius);
+		spacing = Mathf.Max(radius * 2f + 0.1f, spacing);
+		bool preferredFits = true;
+		for (int side = 0; side < 4 && preferredFits; side++)
+			preferredFits = PreferredFortSectorFits((count + 3 - side) / 4, radius, spacing, HillOutward(side));
 		var sectors = new List<List<Vector3>>(4);
 		for (int side = 0; side < 4; side++)
 		{
 			Vector3 outward = HillOutward(side);
-			sectors.Add(BuildBoundedHillFormation((count + 3 - side) / 4, radius, outward * (HillFootHalf + 16f), 18, spacing, outward));
+			int sectorCount = (count + 3 - side) / 4;
+			sectors.Add(preferredFits
+				? BuildBoundedHillFormation(sectorCount, radius, outward * (HillFootHalf + 16f), 18, spacing, outward)
+				: BuildDisjointFortSector(sectorCount, radius, spacing, outward));
 		}
 		// Interleave candidates so Add remains balanced when it reaches the remaining capacity.
 		var positions = new List<Vector3>(count);
@@ -177,11 +188,74 @@ public partial class FpsVerticalSlice
 		return positions;
 	}
 
+	private bool PreferredFortSectorFits(int count, float radius, float spacing, Vector3 outward)
+	{
+		Vector3 across = new(-outward.Z, 0f, outward.X);
+		float bound = HillPlayableHalf - radius - 1f, alongMin = HillFootHalf + radius + 1f;
+		int columns = Math.Min(18, count);
+		for (int i = 0; i < count; i++)
+		{
+			int row = i / columns, rowCount = Math.Min(columns, count - row * columns);
+			Vector3 p = outward * (HillFootHalf + 16f) + across * ((i % columns - (rowCount - 1) * 0.5f) * spacing) + outward * (row * spacing);
+			float along = p.Dot(outward);
+			if (Mathf.Abs(p.X) > bound || Mathf.Abs(p.Z) > bound || along < alongMin || along > bound
+				|| Mathf.Abs(p.Dot(across)) > along - (radius * 2f + 0.1f)) return false;
+		}
+		return true;
+	}
+
+	private List<Vector3> BuildDisjointFortSector(int count, float radius, float preferredSpacing, Vector3 outward)
+	{
+		var result = new List<Vector3>(count);
+		if (count <= 0) return result;
+		Vector3 across = new(-outward.Z, 0f, outward.X);
+		float minimum = radius * 2f + 0.1f;
+		float alongMin = HillFootHalf + radius + 1f, alongMax = HillPlayableHalf - radius - 1f;
+		// Each cardinal side owns only its dominant-axis wedge. The seam inset
+		// leaves clearance between adjacent sectors instead of overlapping four
+		// large rectangles. Terrain/body size still imposes a finite capacity.
+		float seam = minimum;
+		if (alongMax < alongMin || alongMax < seam) return result;
+		int Columns(float along, float distance) => along < seam ? 0 : Mathf.FloorToInt((along - seam) * 2f / distance) + 1;
+		int Capacity(float distance)
+		{
+			int total = 0, rows = Mathf.FloorToInt((alongMax - alongMin) / distance) + 1;
+			for (int row = 0; row < rows && total < count; row++)
+				total += Math.Min(count - total, Columns(alongMin + row * distance, distance));
+			return total;
+		}
+		int target = Capacity(minimum);
+		float spacing = Mathf.Max(minimum, preferredSpacing);
+		if (Capacity(spacing) < target)
+		{
+			float low = minimum, high = spacing;
+			for (int iteration = 0; iteration < 24; iteration++)
+			{
+				float middle = (low + high) * 0.5f;
+				if (Capacity(middle) >= target) low = middle; else high = middle;
+			}
+			spacing = low;
+		}
+		int rowLimit = Mathf.FloorToInt((alongMax - alongMin) / spacing) + 1;
+		for (int row = 0; row < rowLimit && result.Count < target; row++)
+		{
+			float along = alongMin + row * spacing;
+			int rowCount = Math.Min(Columns(along, spacing), target - result.Count);
+			for (int column = 0; column < rowCount; column++)
+			{
+				Vector3 position = outward * along + across * ((column - (rowCount - 1) * 0.5f) * spacing);
+				position.Y = SampleHillSurfaceHeight(position);
+				result.Add(position);
+			}
+		}
+		return result;
+	}
+
 	private List<Vector3> BuildBoundedHillFormation(int count, float radius, Vector3 preferredOrigin, int preferredColumns, float preferredSpacing, Vector3 outward)
 	{
 		var result = new List<Vector3>();
 		if (count <= 0) return result;
-		count = Math.Min(count, 10000);
+		count = Math.Min(count, FpsHordeSettings.MaximumCapacity * 2);
 		radius = Mathf.Max(0.1f, radius);
 		outward.Y = 0f;
 		outward = outward.LengthSquared() > 0.001f ? outward.Normalized() : Vector3.Forward;

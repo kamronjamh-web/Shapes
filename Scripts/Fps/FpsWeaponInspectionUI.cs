@@ -14,6 +14,8 @@ public partial class FpsWeaponInspectionUI : Control
     public event Action? EquipRequested;
     public event Action? CloseRequested;
     public event Action<int>? ShapeDropped;
+    public event Action<int>? ShapeDropRequested;
+    public event Action<WeaponModulatorData>? StoredModulatorDropRequested;
     public event Action<EquipmentItem, WeaponModulatorData, int>? ModulatorDropRequested;
     public event Action<EquipmentItem, int>? ModulatorRemoveRequested;
     public Func<EquipmentItem, WeaponModulatorData, int, bool>? CanInstallPart { get; set; }
@@ -32,6 +34,10 @@ public partial class FpsWeaponInspectionUI : Control
     private Label _detailName = null!, _detailMeta = null!, _mods = null!, _description = null!, _attack = null!;
     private Label _damage = null!, _damageLabel = null!, _cadence = null!, _range = null!, _crit = null!, _outputs = null!, _health = null!;
     private Button _equip = null!, _shapeTab = null!, _modTab = null!;
+    private Button _dropShape = null!, _dropStoredPart = null!;
+    private Label _capacity = null!;
+    private int _equippedCount, _reserveCount, _storedCount;
+    private bool _capacitySet, _detailPartIsStored;
     private LineEdit _search = null!;
     private FpsInventoryDropTarget _storageDrop = null!;
     private WeaponModulatorData? _detailPart;
@@ -58,14 +64,15 @@ public partial class FpsWeaponInspectionUI : Control
         EnsureBuilt();
         int previous = _selected;
         _selected = selectedIndex >= 0 && selectedIndex < _weapons.Count ? selectedIndex : -1;
+        if (previous != _selected) _selectedSocket = -1;
         _equipped = equippedIndex;
         _detailPart = null;
         EquipmentItem? weapon = InspectedItem;
         _name.Text = weapon?.Shape?.DisplayName ?? "No shapes collected";
-        _rarity.Text = weapon == null ? "Collect a weapon shape to begin." : $"{weapon.Rarity?.DisplayName ?? "Common"}  /  LEVEL {weapon.Level}  /  {(_selected == _equipped ? "EQUIPPED" : "PREVIEW")}";
+        _rarity.Text = weapon == null ? "Collect a weapon shape to begin." : $"{weapon.Rarity?.DisplayName ?? "Common"}  /  LEVEL {weapon.Level}  /  {ShapeLocation(_selected)}";
         _rarity.AddThemeColorOverride("font_color", (weapon?.Rarity?.UiColor ?? Muted).Lerp(Colors.White, .25f));
-        _equip.Disabled = weapon == null || _selected == _equipped;
-        _equip.Text = _selected == _equipped ? "EQUIPPED" : "Equip this shape";
+        RefreshInventoryActions();
+        RefreshSocketAction();
         if (weapon != null) SyncWeaponPreview(weapon, _animateNextSelection && previous != _selected);
         else ClearWeaponPreview();
         _animateNextSelection = false;
@@ -76,11 +83,13 @@ public partial class FpsWeaponInspectionUI : Control
     public void SetInventory(IReadOnlyList<WeaponModulatorData> stored, IReadOnlyList<WeaponModulatorData?> slots, FpsInventoryWeaponStats? stats)
     {
         EnsureBuilt();
+        bool selectedLoosePart = _detailPartIsStored;
         _stored = stored; _slots = slots; _stats = stats;
         UpdateStats(); UpdateSockets(); RebuildInventory();
         if (InspectedItem is { } weapon) SyncWeaponPreview(weapon, false);
-        if (_detailPart != null && (_stored.Contains(_detailPart) || _slots.Contains(_detailPart))) SelectModulatorDetails(_detailPart);
+        if (_detailPart != null && (selectedLoosePart ? _stored.Contains(_detailPart) : _slots.Contains(_detailPart))) SelectModulatorDetails(_detailPart, selectedLoosePart);
         else ShowWeaponDetails();
+        RefreshInventoryActions();
     }
 
     public void SetStatus(string message, bool error = false)
@@ -96,18 +105,23 @@ public partial class FpsWeaponInspectionUI : Control
         if (_inspectionVisible != visible) _session++;
         _inspectionVisible = visible; Visible = visible;
         ProcessMode = visible ? ProcessModeEnum.Always : ProcessModeEnum.Disabled;
-        _gunViewport.RenderTargetUpdateMode = visible ? SubViewport.UpdateMode.Always : SubViewport.UpdateMode.Disabled;
+        _gunViewport.RenderTargetUpdateMode = visible && !IsWorldInspection ? SubViewport.UpdateMode.Always : SubViewport.UpdateMode.Disabled;
         _gunViewport.ProcessMode = visible ? ProcessModeEnum.Always : ProcessModeEnum.Disabled;
+        _gunPivot.Visible = visible;
+        if (visible) { _raiseProgress = 0f; _selectedSocket = -1; RefreshSocketAction(); }
         _draggingView = false;
         if (!visible)
         {
             if (GetViewport().GuiIsDragging()) GetViewport().GuiCancelDrag();
             FinishPreviewImmediately();
+            _selectedSocket = -1;
+            ShowWeaponDetails();
+            RefreshInventoryActions();
             foreach (var preview in _thumbnails) preview.Suspend();
         }
         else
         {
-            SetStatus("Drag a shape onto the weapon. Drag a modulator into an empty socket.");
+            SetStatus("Select a shape to preview it. Equip an active slot, or swap a reserve with the held shape. Select a socket, then a loose part to install.");
             Callable.From(() => { FrameWeapon(); foreach (var thumbnail in _thumbnails) thumbnail.RefreshThumbnail(); }).CallDeferred();
         }
     }
@@ -116,8 +130,10 @@ public partial class FpsWeaponInspectionUI : Control
     {
         if (!_inspectionVisible) return;
         AdvancePreview(delta);
+        AdvanceWorldPresentation(delta);
         PositionSocketTargets();
         UpdateDragHighlights();
+        RefreshInventoryActions();
     }
 
     private void EnsureBuilt()
@@ -125,14 +141,15 @@ public partial class FpsWeaponInspectionUI : Control
         if (_built) return;
         _built = true; Name = "WeaponInspection";
         SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect); MouseFilter = MouseFilterEnum.Stop;
-        ColorRect background = new() { Color = new Color(.016f, .028f, .043f), MouseFilter = MouseFilterEnum.Stop };
+        ColorRect background = new() { Name = "InspectionBackdrop", Color = new Color(.016f, .028f, .043f, .25f), MouseFilter = MouseFilterEnum.Stop };
         AddChild(background); background.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
         MarginContainer margin = new(); AddChild(margin); margin.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
         foreach (string side in new[] { "left", "right", "top", "bottom" }) margin.AddThemeConstantOverride("margin_" + side, 20);
         VBoxContainer outer = new(); margin.AddChild(outer); outer.AddThemeConstantOverride("separation", 14);
         HBoxContainer header = new(); outer.AddChild(header); header.AddThemeConstantOverride("separation", 14);
         VBoxContainer title = new() { SizeFlagsHorizontal = SizeFlags.ExpandFill }; header.AddChild(title);
-        title.AddChild(Text("A R S E N A L", 11, Accent)); title.AddChild(Text("Weapon workbench", 27, Colors.White));
+        title.AddChild(Text("F I E L D   E Q U I P M E N T", 11, Accent)); title.AddChild(Text("Inspect weapon", 27, Colors.White));
+        _capacity = Text("Shapes: 0/5 equipped + 0/2 reserve  |  Loose parts: 0/100", 12, Muted); title.AddChild(_capacity);
         Label paused = Text("●  COMBAT PAUSED", 12, new Color(.60f, .89f, .70f)); paused.VerticalAlignment = VerticalAlignment.Center; header.AddChild(paused);
         Button close = MakeButton("Tab  /  Close"); close.Name = "CloseWeaponInspection"; close.Pressed += () => CloseRequested?.Invoke(); header.AddChild(close);
         HBoxContainer columns = new() { SizeFlagsVertical = SizeFlags.ExpandFill }; columns.AddThemeConstantOverride("separation", 14); outer.AddChild(columns);
@@ -148,14 +165,14 @@ public partial class FpsWeaponInspectionUI : Control
         _storageDrop = new FpsInventoryDropTarget { Name = "InventoryDropTarget", SizeFlagsHorizontal = SizeFlags.ExpandFill, SizeFlagsVertical = SizeFlags.ExpandFill, AcceptPayload = CanStorePayload, CommitPayload = StorePayload }; inventoryPanel.AddChild(_storageDrop);
         ScrollContainer inventoryScroll = new() { Name = "InventoryGridScroll", HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled, MouseFilter = MouseFilterEnum.Pass }; _storageDrop.AddChild(inventoryScroll); inventoryScroll.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
         _grid = new GridContainer { Columns = 2, SizeFlagsHorizontal = SizeFlags.ExpandFill, MouseFilter = MouseFilterEnum.Pass }; _grid.AddThemeConstantOverride("h_separation", 8); _grid.AddThemeConstantOverride("v_separation", 8); inventoryScroll.AddChild(_grid);
-        _left.AddChild(Wrapped("Drag a socketed part back here to store it.", 12, Muted));
+        _left.AddChild(Wrapped("5 equipped slots + 2 reserve shapes. Reserve previews keep your held shape active. Select a socket, then a loose part to install. Drop an item to make room.", 12, Muted));
 
         VBoxContainer center = new() { SizeFlagsHorizontal = SizeFlags.ExpandFill }; center.AddThemeConstantOverride("separation", 10); columns.AddChild(center);
         HBoxContainer weaponHeading = new(); center.AddChild(weaponHeading);
         VBoxContainer weaponTitle = new() { SizeFlagsHorizontal = SizeFlags.ExpandFill }; weaponHeading.AddChild(weaponTitle);
         _name = Text("Multiweapon", 28, Colors.White); weaponTitle.AddChild(_name);
         _rarity = Text("", 12, Muted); weaponTitle.AddChild(_rarity);
-        _equip = MakeButton("EQUIPPED"); _equip.Name = "EquipInspectedShape"; _equip.CustomMinimumSize = new Vector2(112, 40); _equip.Pressed += () => { _animateNextSelection = true; EquipRequested?.Invoke(); }; weaponHeading.AddChild(_equip);
+        _equip = MakeButton("EQUIPPED"); _equip.Name = "EquipInspectedShape"; _equip.CustomMinimumSize = new Vector2(112, 40); _equip.Pressed += () => { if (!CanUseInventoryActions || InspectedItem == null || _selected == _equipped) return; _animateNextSelection = true; EquipRequested?.Invoke(); }; weaponHeading.AddChild(_equip);
         BuildWeaponPreview(center);
         HBoxContainer socketHeading = new(); center.AddChild(socketHeading);
         socketHeading.AddChild(Text("MODULATOR SOCKETS", 12, Accent)); _socketCount = Text("", 12, Muted); _socketCount.SizeFlagsHorizontal = SizeFlags.ExpandFill; _socketCount.HorizontalAlignment = HorizontalAlignment.Right; socketHeading.AddChild(_socketCount);
@@ -164,7 +181,7 @@ public partial class FpsWeaponInspectionUI : Control
         {
             FpsInventoryTile button = MakeSocket(slot, false); button.Name = $"SocketDock{slot}"; button.CustomMinimumSize = new Vector2(34, 50); button.SizeFlagsHorizontal = SizeFlags.ExpandFill; dock.AddChild(button); _socketDock.Add(button);
         }
-        center.AddChild(Text("Drag to rotate  ·  Scroll to zoom  ·  Drop shapes on the weapon", 12, Muted));
+        center.AddChild(Text("Select a socket to customize  ·  Drag to turn  ·  Scroll to zoom", 12, Muted));
 
         _right = new VBoxContainer { CustomMinimumSize = new Vector2(264, 0) }; _right.AddThemeConstantOverride("separation", 10); columns.AddChild(_right);
         _right.AddChild(Text("WEAPON STATS", 13, Accent));
@@ -179,6 +196,11 @@ public partial class FpsWeaponInspectionUI : Control
         _description = Wrapped("", 13, Muted); detail.AddChild(_description);
         _mods = Wrapped("", 13, new Color(.76f, .83f, .88f)); _mods.Name = "InstalledModulatorDetails"; detail.AddChild(_mods);
         Button details = MakeButton("Weapon details"); details.Pressed += ShowWeaponDetails; _right.AddChild(details);
+        _socketAction = MakeButton("Select a socket"); _socketAction.Name = "SocketAction";
+        _socketAction.Disabled = true; _socketAction.Pressed += RemoveSelectedSocket; _right.AddChild(_socketAction);
+        _dropShape = MakeButton("Drop selected shape"); _dropShape.Name = "DropInspectedShape"; _dropShape.Pressed += DropSelectedShape; _right.AddChild(_dropShape);
+        _dropStoredPart = MakeButton("Drop loose part"); _dropStoredPart.Name = "DropStoredModulator"; _dropStoredPart.Pressed += DropSelectedStoredPart; _right.AddChild(_dropStoredPart);
+        RefreshInventoryActions();
         _status = Wrapped("", 13, Accent); _status.CustomMinimumSize = new Vector2(0, 22); outer.AddChild(_status);
         Resized += ResizeWorkbench;
         ResizeWorkbench();
@@ -206,7 +228,8 @@ public partial class FpsWeaponInspectionUI : Control
         _shapeTab.Text = $"Shapes  {_weapons.Count}"; _modTab.Text = $"Mods  {_stored.Count}";
         _shapeTab.AddThemeStyleboxOverride("normal", CardStyle(!_showModulators ? new Color(.07f, .23f, .25f) : Ink, !_showModulators ? Accent : Border, 7));
         _modTab.AddThemeStyleboxOverride("normal", CardStyle(_showModulators ? new Color(.07f, .23f, .25f) : Ink, _showModulators ? Accent : Border, 7));
-        _inventoryCount.Text = "CURRENT RUN";
+        RefreshCapacityText();
+        _inventoryCount.Text = _showModulators ? $"{_stored.Count}/100 LOOSE" : $"{ActiveShapeCount}/5 + {ReserveShapeCount}/2";
         string query = _search.Text.Trim();
         if (_showModulators)
         {
@@ -219,7 +242,7 @@ public partial class FpsWeaponInspectionUI : Control
                 tile.Name = $"StoredModulator{i}"; tile.DragCaption = part.DisplayName;
                 tile.TooltipText = $"{part.DisplayName}\n{ModulatorQualityText.Header(part)}\n{ModulatorQualityText.Describe(part)}";
                 tile.CreatePayload = () => !_inspectionVisible || _motionPhase != "" || InspectedItem == null || !_stored.Contains(part) ? null : Payload(InspectedItem, part);
-                tile.Pressed += () => SelectModulatorDetails(part);
+                tile.Pressed += () => ChooseSocketPart(part);
                 tile.AcceptPayload = CanStorePayload; tile.CommitPayload = StorePayload;
                 _grid.AddChild(tile);
             }
@@ -231,11 +254,12 @@ public partial class FpsWeaponInspectionUI : Control
                 int index = i; EquipmentItem item = _weapons[i];
                 if (!Matches(item.Shape?.DisplayName ?? "", query)) continue;
                 FpsInventoryThumbnail preview = FpsInventoryThumbnail.Shape(item);
-                FpsInventoryTile tile = ItemTile(item.Shape?.DisplayName ?? "Shape", $"{item.Rarity?.DisplayName ?? "Common"} · Lv {item.Level}", item.Rarity?.UiColor ?? Colors.White, preview);
+                string location = i >= ActiveShapeCount ? $"Reserve {i - ActiveShapeCount + 1}" : $"Equipped {i + 1}";
+                FpsInventoryTile tile = ItemTile(item.Shape?.DisplayName ?? "Shape", $"{location}\n{item.Rarity?.DisplayName ?? "Common"} · Lv {item.Level}", item.Rarity?.UiColor ?? Colors.White, preview);
                 tile.Name = $"ShapeChoice{i}"; tile.DragCaption = item.Shape?.DisplayName ?? "Shape";
-                tile.TooltipText = $"{item.Shape?.DisplayName}\n{item.Rarity?.DisplayName} · Level {item.Level}\nClick to inspect. Drag onto the multiweapon to equip.";
+                tile.TooltipText = $"{item.Shape?.DisplayName}\n{item.Rarity?.DisplayName} · Level {item.Level}\nClick to preview. Equip an active slot or swap a reserve with the held shape.";
                 tile.CreatePayload = () => !_inspectionVisible || _motionPhase != "" ? null : Payload(item, null, index);
-                tile.Pressed += () => ShapeSelected?.Invoke(index);
+                tile.Pressed += () => { if (CanUseInventoryActions && index < _weapons.Count && ReferenceEquals(_weapons[index], item)) ShapeSelected?.Invoke(index); };
                 tile.AcceptPayload = CanStorePayload; tile.CommitPayload = StorePayload;
                 tile.SetMeta("arsenal_index", index); _choices.Add(tile); _grid.AddChild(tile);
             }
@@ -268,6 +292,9 @@ public partial class FpsWeaponInspectionUI : Control
         foreach (FpsInventoryTile tile in _choices)
         {
             int index = tile.GetMeta("arsenal_index").AsInt32();
+            // SetWeapons refreshes selection before rebuilding the inventory tiles.
+            // A drop can leave an old tile beyond the new list during that refresh.
+            if (index < 0 || index >= _weapons.Count) continue;
             Color color = _weapons[index].Rarity?.UiColor ?? Muted;
             tile.AddThemeStyleboxOverride("normal", CardStyle(index == _selected ? new Color(.075f, .19f, .22f) : new Color(.055f, .085f, .11f), index == _selected ? Accent : color.Darkened(.5f), 8));
         }
@@ -285,7 +312,8 @@ public partial class FpsWeaponInspectionUI : Control
     private void ShowWeaponDetails()
     {
         if (!_built) return;
-        _detailPart = null;
+        _detailPart = null; _detailPartIsStored = false;
+        RefreshInventoryActions();
         EquipmentItem? weapon = InspectedItem;
         _detailName.Text = "SHAPE DETAILS"; _detailMeta.Text = "";
         _detailMeta.Visible = false; _attack.Visible = _description.Visible = true;
@@ -294,9 +322,10 @@ public partial class FpsWeaponInspectionUI : Control
         _mods.Text = _stats == null ? "" : $"{_stats.DamageHint}\n\nAttack rate  {_stats.AttacksPerSecond:0.##} / s\nArea  ×{_stats.AreaScale:0.##}\nDuration  ×{_stats.DurationScale:0.##}\nPierce  +{_stats.AveragePierce:0.##}\nRicochet  +{_stats.AverageRicochet:0.##}\nBounces  +{_stats.AverageBounces:0.##}\nChain targets  +{_stats.AverageChains:0.##}\n\nSelect a cartridge to inspect its effects.";
     }
 
-    public void SelectModulatorDetails(WeaponModulatorData part)
+    public void SelectModulatorDetails(WeaponModulatorData part, bool storedSelection = false)
     {
-        _detailPart = part;
+        _detailPart = part; _detailPartIsStored = storedSelection && _stored.Contains(part);
+        RefreshInventoryActions();
         _detailName.Text = part.DisplayName; _detailMeta.Text = ModulatorQualityText.Header(part);
         _detailMeta.Visible = true; _attack.Visible = _description.Visible = false;
         _detailMeta.AddThemeColorOverride("font_color", ModulatorLoot.GetTierColor(part.PowerTier));

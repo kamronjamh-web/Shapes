@@ -1,0 +1,119 @@
+struct DriveState { vec4 target_player; vec4 timers_yaw; vec4 configuration; vec4 gait; vec4 orientation; vec4 previous_orientation; vec4 velocity; };
+layout(set=0, binding=10, std430) buffer DriveStates { DriveState drive_states[]; };
+layout(set=0, binding=11, std430) readonly buffer DriveGlobals {
+    vec4 core; vec4 player; vec4 movement; vec4 rolling; vec4 fort; vec4 bounds;
+} drive;
+
+int drive_gate(vec3 from) {
+    if (from.y >= drive.fort.w + drive.fort.z - .001 || (abs(from.x) < drive.fort.x && abs(from.z) < drive.fort.x)) return -1;
+    int closest = -1; float best = uintBitsToFloat(0x7f800000u);
+    for (int i=0; i<int(world.limits.w); i++) {
+        vec3 offset = world_gates[i].center.xyz - from; offset.y=0.0;
+        float distance = world_dot(offset, offset);
+        if (distance < best) { best=distance; closest=i; }
+    }
+    return closest;
+}
+float drive_lerp_angle(float from, float to, float weight) {
+    const float tau = 6.2831853071795864769;
+    // Mathf uses C# signed remainder, including its opposite-angle tie rule.
+    precise float delta = to-from;
+    precise float difference = delta-trunc(delta/tau)*tau;
+    precise float twice = 2.0*difference;
+    precise float distance = (twice-trunc(twice/tau)*tau)-difference;
+    return from + distance*weight;
+}
+vec4 drive_quat_mul(vec4 a, vec4 b) {
+    return vec4(a.w*b.xyz + b.w*a.xyz + cross(a.xyz,b.xyz), a.w*b.w-dot(a.xyz,b.xyz));
+}
+void drive_step(uint slot) {
+    if (bodies[slot].world_velocity_alive.w == 0.0) return;
+    Body body=bodies[slot]; DriveState state=drive_states[slot];
+    vec3 from=body.position_radius.xyz;
+    state.timers_yaw.x -= p.dt;
+    state.timers_yaw.y -= p.dt;
+    if (state.timers_yaw.y <= 0.0) {
+        vec3 offset=drive.player.xyz-from; offset.y=0.0;
+        state.target_player.w = drive.player.w != 0.0 && world_dot(offset,offset) < drive.movement.y*drive.movement.y ? 1.0 : 0.0;
+        state.timers_yaw.y += 1.0/drive.movement.x;
+    }
+    if (drive.player.w == 0.0) state.target_player.w=0.0;
+    int gate=drive_gate(from);
+    vec3 target = state.target_player.w != 0.0 ? drive.player.xyz : (gate>=0 && world_gates[gate].center.w!=0.0 ? world_gates[gate].center.xyz+vec3(0.0,1.1,0.0) : drive.core.xyz);
+    state.target_player.xyz=target;
+    vec3 offset=target-from; offset.y=0.0; float distance=length(offset);
+    vec3 movement_target=target;
+    if (gate>=0 && abs(target.x)<drive.fort.x && abs(target.z)<drive.fort.x) {
+        vec3 outward=world_gates[gate].outward.xyz; vec3 across=vec3(-outward.z,0.0,outward.x);
+        float door_half=max(.25,world.limits.z*.5-1.0); float lateral=dot(from,across);
+        movement_target=abs(lateral)>door_half ? outward*(drive.fort.y+3.0)+across*clamp(lateral*.1,-door_half,door_half)+vec3(0.0,drive.fort.w,0.0) : outward*(drive.fort.x-3.0)+vec3(0.0,drive.fort.w,0.0);
+    }
+    offset=movement_target-from; offset.y=0.0; float movement_distance=length(offset);
+    vec3 direction=movement_distance>.001 ? offset/movement_distance : vec3(0.0);
+    float contact=state.configuration.y+(state.target_player.w!=0.0 ? 0.0 : drive.movement.z);
+    bool bruiser=state.configuration.w!=0.0;
+    float desired=bruiser ? contact*.8 : max(contact,state.configuration.z);
+    vec3 steering=distance>desired ? direction : (!bruiser && distance<desired*.7 ? -direction : vec3(0.0));
+    if (dot(steering,steering)>1.0) steering=normalize(steering);
+    vec3 velocity=steering*state.configuration.x*drive.movement.w;
+    state.gait.w=0.0;
+    if (drive.rolling.w!=0.0 && bruiser) {
+        float speed=length(velocity);
+        if (speed<=.0001) velocity=vec3(0.0);
+        else {
+            float active_seconds=p.dt;
+            if (state.gait.y>0.0) { float consumed=min(active_seconds,state.gait.y); state.gait.y-=consumed; active_seconds-=consumed; }
+            if (active_seconds<=.000001) velocity=vec3(0.0);
+            else {
+                float width=max(.2,body.position_radius.w*2.0); float cycle=width/speed;
+                float pause=min(drive.rolling.x,cycle*.65);
+                float duration=max(max(.01,cycle-pause),drive.rolling.y);
+                float active_speed=width/duration;
+                float travel=min(active_speed*active_seconds,max(0.0,width-state.gait.x));
+                state.gait.w=max(0.0,active_seconds-travel/active_speed); state.gait.z=pause;
+                velocity=velocity/speed*(travel/max(p.dt,.000001));
+            }
+        }
+    }
+    precise vec3 proposed=from+velocity*p.dt;
+    float vertical=max(-30.0,body.world_velocity_alive.z-drive.rolling.z*p.dt);
+    proposed.y+=vertical*p.dt;
+    float bound_half=drive.bounds.x-body.position_radius.w;
+    proposed.x=clamp(proposed.x,-bound_half,bound_half); proposed.z=clamp(proposed.z,-bound_half,bound_half);
+    bodies[slot].position_radius.xyz=proposed;
+    bodies[slot].drive_pressure.xyz=velocity;
+    state.velocity.xyz=velocity;
+    bodies[slot].world_velocity_alive.x=1.0;
+    bodies[slot].world_velocity_alive.z=vertical;
+    if (dot(direction,direction)>.001) state.timers_yaw.z=drive_lerp_angle(state.timers_yaw.z,atan(direction.x,direction.z),min(1.0,p.dt*7.0));
+    drive_states[slot]=state;
+}
+void drive_roll(uint slot) {
+    if (bodies[slot].world_velocity_alive.w==0.0) return;
+    DriveState state=drive_states[slot];
+    if (state.configuration.w==0.0) return;
+    state.previous_orientation=state.orientation;
+    if (drive.rolling.w!=0.0) {
+        vec3 travel=results[slot].position_pressure.xyz-bodies[slot].previous_height.xyz; travel.y=0.0;
+        float distance=length(travel);
+        float width=max(.2,bodies[slot].position_radius.w*2.0);
+        // A final sub-ULP movement can round to the same world position. Complete
+        // that edge even with zero travel, without advancing a blocked mid-roll.
+        float coordinate=max(abs(results[slot].position_pressure.x),abs(results[slot].position_pressure.z));
+        precise float ulp=uintBitsToFloat(floatBitsToUint(coordinate)+1u)-coordinate;
+        float tolerance=max(.00001,2.0*ulp);
+        if (distance>.00001) {
+            vec3 axis=cross(vec3(0.0,1.0,0.0),travel/distance);
+            float angle=distance/width*3.14159265358979323846*.5;
+            vec4 rotation=vec4(axis*sin(angle*.5),cos(angle*.5));
+            state.orientation=normalize(drive_quat_mul(rotation,state.orientation));
+            state.gait.x+=distance;
+        }
+        if (state.gait.x>=width-tolerance) {
+            state.gait.x=mod(state.gait.x,width);
+            if (state.gait.x<=tolerance || state.gait.x>=width-tolerance) state.gait.x=0.0;
+            state.gait.y=max(state.gait.y,max(0.0,state.gait.z-state.gait.w));
+        }
+    }
+    drive_states[slot]=state;
+}

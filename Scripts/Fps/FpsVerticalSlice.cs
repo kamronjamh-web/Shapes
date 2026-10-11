@@ -186,6 +186,13 @@ public partial class FpsVerticalSlice : Node3D
 	{
 		if (HandleGameplayTuningHotkey(@event) || _gameplayTuningVisible) return;
 		if (HandleWeaponInspectionInput(@event)) return;
+		if (@event is InputEventKey { Pressed: true, Echo: false, Keycode: Key.F } && TryInteractGroundLoot()) return;
+		if (_lootingAfterVictory && !_weaponInspectionOpen && !_shopOpen && @event is InputEventKey { Pressed: true, Echo: false, Keycode: Key.Escape })
+		{
+			_lootingAfterVictory = false;
+			RefreshCombatState();
+			return;
+		}
 		if (HandleDefenseInput(@event)) return;
 		if (_shopOpen) return;
 		if (HandleWeaponInput(@event))
@@ -310,6 +317,7 @@ public partial class FpsVerticalSlice : Node3D
 			SweepDefenseLoot();
 			BuildDefenseMap();
 			RebuildDefenseGates();
+			RegroundEquipmentLoot();
 			RefreshHillWorldExtent();
 			if (IsHillMap && _player != null && GodotObject.IsInstanceValid(_player))
 			{
@@ -607,6 +615,8 @@ public partial class FpsVerticalSlice : Node3D
 		enemy.Died += OnEnemyDied;
 		enemy.SetCombatEnabled(IsCombatRunning());
 		_enemies.Add(enemy);
+		foreach (DefensePickup pickup in _airborneGroundLoot)
+			if (pickup.DropBody != null && IsInstanceValid(pickup.DropBody)) pickup.DropBody.AddCollisionExceptionWith(enemy);
 		_combatEnemies.Add(enemy);
 		return true;
 	}
@@ -1154,6 +1164,7 @@ public partial class FpsVerticalSlice : Node3D
 		_crosshairLabel.AddThemeColorOverride("font_color", new Color(0.92f, 0.97f, 1f, 0.92f));
 		hudRoot.AddChild(_crosshairLabel);
 		BuildDefenseHud(hudRoot);
+		BuildGroundLootHud(hudRoot);
 
 		_overlayBackdrop = new ColorRect
 		{
@@ -1259,7 +1270,8 @@ public partial class FpsVerticalSlice : Node3D
 	{
 		bool combatRunning = IsCombatRunning();
 		_weaponPolishAudio?.SetPaused(!combatRunning);
-		_player.SetCombatEnabled(combatRunning && !_shopOpen && !_gameplayTuningVisible && !_weaponInspectionOpen);
+		bool fieldControls = combatRunning || (IsDefenseMap && _victory && _lootingAfterVictory && !_pauseRequested);
+		_player.SetCombatEnabled(fieldControls && !_shopOpen && !_gameplayTuningVisible && !_weaponInspectionOpen);
 		HordeManager?.SetCombatEnabled(combatRunning);
 		CorpsePool?.Tick(0f, !_pauseRequested);
 
@@ -1285,7 +1297,7 @@ public partial class FpsVerticalSlice : Node3D
 		{
 			return;
 		}
-		_crosshairLabel.Visible = combatRunning && !_shopOpen && !_gameplayTuningVisible && !_weaponInspectionOpen;
+		_crosshairLabel.Visible = fieldControls && !_shopOpen && !_gameplayTuningVisible && !_weaponInspectionOpen;
 		if (_inventoryButton != null)
 		{
 			_inventoryButton.Disabled = _defeat || (_victory && !IsDefenseMap);
@@ -1294,8 +1306,8 @@ public partial class FpsVerticalSlice : Node3D
 
 		if (_victory)
 		{
-			if (_shopOpen || _weaponInspectionOpen) _overlayBackdrop.Visible = false;
-			else ShowOverlay(IsDefenseMap ? $"{DefenseSettings!.MapName} Defended" : "Slice Complete", IsDefenseMap ? "All waves cleared and the core survived. Review your final reward in the workshop, restart, or return to the hub." : "The first-person slice cleared successfully. Restart to run it again or return to the hub.", false);
+			if (_shopOpen || _weaponInspectionOpen || _lootingAfterVictory) _overlayBackdrop.Visible = false;
+			else ShowOverlay(IsDefenseMap ? $"{DefenseSettings!.MapName} Defended" : "Slice Complete", IsDefenseMap ? "All waves cleared and the core survived. Return to the field to collect ground items, visit the workshop, or return to the hub." : "The first-person slice cleared successfully. Restart to run it again or return to the hub.", IsDefenseMap);
 		}
 		else if (_defeat)
 		{
@@ -1312,6 +1324,7 @@ public partial class FpsVerticalSlice : Node3D
 		}
 
 		RefreshDebugPanelVisibility();
+		_resumeButton.Text = IsDefenseMap && _victory ? "Collect ground loot" : "Resume";
 	}
 
 	private bool IsCombatRunning()
@@ -1560,6 +1573,7 @@ public partial class FpsVerticalSlice : Node3D
 
 	private void OnResumePressed()
 	{
+		if (IsDefenseMap && _victory) _lootingAfterVictory = true;
 		_pauseRequested = false;
 		RefreshCombatState();
 	}

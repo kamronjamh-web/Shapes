@@ -19,6 +19,8 @@ internal static class LegacyHillFixture
 		if (map.HordeSettings != null)
 		{
 			map.HordeSettings = (FpsHordeSettings)map.HordeSettings.Duplicate(true);
+			// Keep compact-map regression population independent of the live fort's stress ceiling.
+			map.HordeSettings.Capacity = 2000;
 			map.HordeSettings.MapExtent = 200f;
 		}
 		if (map.ArenaLayoutSettings != null)

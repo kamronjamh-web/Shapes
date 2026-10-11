@@ -132,8 +132,8 @@ public partial class ValidateWeaponInspection : Node
             Check(locked.GetMeta("state").AsString() == (slot < common.UnlockedModulatorSlots ? "empty" : "locked"), $"Bay {slot + 1}: actual rarity/level controls lock state");
             Check(bay.GetMeta("state").AsString() == "installed" && bay.GetMeta("modulator_key").AsString() == full.Modulators[slot].Key, $"Bay {slot + 1}: actual installed modulator identity");
             Check(Nodes(bay).OfType<Node3D>().Any(part => part.Name.ToString().StartsWith("Cartridge", StringComparison.Ordinal) && part.Visible) &&
-                Nodes(bay).OfType<MeshInstance3D>().Any(mesh => mesh.MaterialOverride is StandardMaterial3D color && color.AlbedoColor == full.Modulators[slot].UiColor),
-                $"Bay {slot + 1}: installed cartridge is visible with the actual part color");
+                Nodes(bay).OfType<MeshInstance3D>().Any(mesh => mesh.MaterialOverride is StandardMaterial3D color && color.AlbedoColor == ModulatorLoot.GetTierColor(full.Modulators[slot].PowerTier)),
+                $"Bay {slot + 1}: installed cartridge is visible with the actual part rarity color");
         }
         var firstMaterials = Materials(installed).ToList();
         var secondMaterials = Materials(independent).ToList();
@@ -184,7 +184,7 @@ public partial class ValidateWeaponInspection : Node
                 $"{shape}: bay {slot + 1} installed/empty geometry follows item data");
             if (slot < 3)
                 Check(bay.GetMeta("modulator_key").AsString() == installedItem.Modulators[slot].Key &&
-                    Materials(bay).Any(mat => mat.AlbedoColor == installedItem.Modulators[slot].UiColor), $"{shape}: bay {slot + 1} preserves modulator identity and color");
+                    Materials(bay).Any(mat => mat.AlbedoColor == ModulatorLoot.GetTierColor(installedItem.Modulators[slot].PowerTier)), $"{shape}: bay {slot + 1} preserves modulator identity and rarity color");
         }
         var otherMaterials = Materials(independent).ToList();
         StandardMaterial3D accent = RaritySurfaces(installed).OfType<StandardMaterial3D>().First();
@@ -260,18 +260,32 @@ public partial class ValidateWeaponInspection : Node
         inventory.EmitSignal(BaseButton.SignalName.Pressed);
         await Frames(2);
         Check(_map.IsWeaponInspectionOpen && !CombatEnabled(player), "Inventory button opens inspection and disables combat");
+        Camera3D inspectionCamera = (Camera3D)typeof(FpsPlayerController).GetField("_camera", Private)!.GetValue(player)!;
+        Node3D inspectionPivot = Find<Node3D>(player, "WeaponPreviewPivot");
+        Check(ReferenceEquals(inspectionPivot.GetParent(), inspectionCamera) && inspectionPivot.IsVisibleInTree(),
+            "Inspection weapon is attached to the actual player camera in the arena world");
+        Check(ReferenceEquals(inspectionPivot.GetWorld3D(), inspectionCamera.GetWorld3D()) &&
+            ReferenceEquals(inspectionPivot.GetViewport(), inspectionCamera.GetViewport()),
+            "Inspection uses the arena world and viewport rather than a separate preview world");
+        Check(!equippedBefore.IsVisibleInTree() && !Field<Label>("_crosshairLabel").IsVisibleInTree(),
+            "Inspection hides the ordinary first-person weapon and crosshair");
         Find<Button>(_map, "ShapeChoice1").EmitSignal(BaseButton.SignalName.Pressed);
         await Frames(2);
         Check(_map.InspectedWeaponIndex == 1 && _map.EquippedWeaponIndex == 0 && player.ShotDamage == shotDamage && ReferenceEquals(Find<Node3D>(player, "EquippedHandgun"), equippedBefore), "Preview changes neither equipped geometry nor active weapon stats");
-        Check(Find<Node3D>(Find<Control>(_map, "HandgunPreview"), "InspectedWeaponModel").GetMeta("shape_key").AsString() == "triangle", "Inspection viewport displays the selected triangle while first person retains Square");
+        Check(Find<Node3D>(inspectionPivot, "InspectedWeaponModel").GetMeta("shape_key").AsString() == "triangle", "Actual world inspection displays the selected triangle while the equipped item retains Square");
         Find<Button>(_map, "CloseWeaponInspection").EmitSignal(BaseButton.SignalName.Pressed);
         Check(!_map.IsWeaponInspectionOpen && _map.EquippedWeaponIndex == 0 && Field<bool>("_pauseRequested") && !CombatEnabled(player), "Close without equip preserves weapon and restores the previous paused state");
+        Check(!inspectionPivot.IsVisibleInTree() && equippedBefore.IsVisibleInTree(),
+            "Closing inspection hides its world model and restores the equipped first-person weapon");
         _map._UnhandledInput(new InputEventKey { Keycode = Key.Escape, Pressed = true });
         Check(!Field<bool>("_pauseRequested") && CombatEnabled(player), "Escape resumes combat after inspection closes");
 
         _map.OpenWeaponInspection();
         await Frames(1);
         Check(!CombatEnabled(player) && !(bool)Invoke("IsCombatRunning")!, "Opening inspection from combat pauses the encounter");
+        Check(ReferenceEquals(Find<Node3D>(player, "WeaponPreviewPivot"), inspectionPivot) &&
+            Nodes(player).Count(node => node.Name == "WeaponPreviewPivot") == 1 && inspectionPivot.IsVisibleInTree(),
+            "Reopening reuses one camera-attached inspection pivot without leaving duplicate models");
         _map.PreviewInspectedWeapon(1);
         Find<Button>(_map, "EquipInspectedShape").EmitSignal(BaseButton.SignalName.Pressed);
         await Frames(2);

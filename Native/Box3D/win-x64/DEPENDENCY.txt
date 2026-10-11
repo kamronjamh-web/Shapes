@@ -1,0 +1,47 @@
+Box3D native corpse experiment
+
+Upstream: https://github.com/erincatto/box3d
+Pinned commit: 5d83df83ab47172c2c745b44315e7538ead02397
+License: MIT, copyright (c) 2026 Erin Catto. See BOX3D-LICENSE.txt.
+Checkout location: .tmp/box3d-corpses/upstream (ignored workspace-local dependency).
+Only inspected upstream CMake core library is built, via add_subdirectory.
+Samples, tests, benchmarks, docs and external FetchContent consumers are omitted.
+Release C17; single precision; SIMD/AVX2 default upstream dispatch; validation/profiling off.
+World workerCount=1 deliberately measures a serial CPU backend, never GPU physics.
+
+Portable toolchain (workspace-local; no installation or machine PATH changes):
+Zig 0.15.2
+https://ziglang.org/download/0.15.2/zig-x86_64-windows-0.15.2.zip
+SHA256 3a0ed1e8799a2f8ce2a6e6290a9ff22e6906f8227865911fb7ddedc3cc14cb0c
+CMake 4.4.4
+https://github.com/Kitware/CMake/releases/download/v4.4.4/cmake-4.4.4-windows-x86_64.zip
+SHA256 bace36e94b31c68ab6fa295f26dfa11219e0701cf7c94b0284a7d1cb13dac536
+Ninja 1.13.2
+https://github.com/ninja-build/ninja/releases/download/v1.13.2/ninja-win.zip
+SHA256 07fc8261b42b20e71d1720b39068c2e14ffcee6396b76fb7a795fb460b78dc65
+
+Each archive verified against official release digest before extraction. Extract into
+.tmp/box3d-corpses/toolchain, preserving Zig/CMake top-level directories.
+Build: powershell -File Tools/Experiments/Box3dCorpses/BuildNative.ps1
+Native output: .tmp/box3d-corpses/build/box3d_corpses.dll
+Shim ABI version 2: body definition 84 bytes; returned state 56 bytes; Cdecl exports.
+Optional build -Package stages DLL, license, dependency notice and SHA256 into
+Native/Box3D/win-x64. The project copies that DLL beside the managed assembly for
+deployment. Missing/incompatible native library selects the existing Godot backend.
+
+Default dynamics collide only with static geometry; optional corpseContacts enables
+dynamic/dynamic pile stress. Static category=1/mask=2, dynamic category=2/mask=1 or3.
+Box sizes are full extents. Pyramid uses the same five centered vertices as production.
+Mass comes from density (box volume xyz; pyramid volume xyz/3).
+Body-origin linear velocity is passed at creation; pyramid center-of-mass handling,
+friction mixing, damping integration, CCD thresholds, sleep and solver algorithms may
+differ from Godot. Results are a comparison, not exact trajectory parity.
+Handles use 16 slot bits and 15 generation bits. Storage reuses removed slots;
+generation exhaustion retires a slot instead of wrapping an old handle. Batch
+reads cache already-sleeping states but read the final sleep-transition pose;
+geometry replacement wakes dynamic bodies and invalidates those caches.
+Static triangle meshes use CCW winding. Godot GetFaces triangles must be reversed.
+The isolated experiment still pauses by withholding Step. Production worker owns
+the complete native world, communicates via fixed-capacity slot commands/completed
+pose buffers, and uses epoch/generation filtering on the main-thread boundary.
+CPU compatibility: baseline x86-64/SSE2; AVX2 kernels selected by CPUID + OS XSAVE state checks; no global AVX2/FMA requirement.
