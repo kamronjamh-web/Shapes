@@ -5,6 +5,18 @@ namespace SuperGatchaRebuild.Fps;
 
 public partial class FpsHordeManager
 {
+    internal void RunCpuProbeFullDrive(float dt)
+    {
+        EnsureGrid();
+        SnapshotCrowdPreviousPositions();
+        MoveCrowdBodiesCpu(dt, CorePosition?.Invoke() ?? Vector3.Zero,
+            PlayerPosition?.Invoke() ?? Vector3.Zero, IsPlayerAlive?.Invoke() ?? false, false);
+        SolveCrowdContacts(dt);
+        UpdateRollingMotion();
+        AttackCrowdBodies();
+        _gridDirty = true;
+    }
+
     internal double CompareGpuProbeDrive(object expected, float tolerance = .0001f)
     {
         Enemy[] reference = (Enemy[])expected;

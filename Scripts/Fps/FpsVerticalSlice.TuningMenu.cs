@@ -106,11 +106,18 @@ public partial class FpsVerticalSlice
 		}));
 		page.AddChild(TuningText("Use Replace for comparable population runs. Live frame timing includes rendering, gameplay, this menu, and any frame-rate cap."));
 		page.AddChild(TuningText("Crowd controls require a defense map with the shared horde enabled."));
-		if (UsesFortifications) page.AddChild(TuningText("Enemies spawn in four groups outside the hill, one approaching each gate."));
+		if (UsesFortifications) page.AddChild(TuningText("Enemies spawn in four groups outside the hill, one approaching each side of the fort."));
 	}
 
 	private void BuildTuningFortTab(VBoxContainer page)
 	{
+		if (UsesSteppedStronghold)
+		{
+			page.AddChild(TuningText("Stepped Stronghold has four open approaches, connected terraces and a raised core."));
+			page.AddChild(TuningText("Visit the field shop on the northeast middle terrace to unlock, equip, upgrade or repair shape turrets."));
+			page.AddChild(TuningText("Each mount covers its side of the fort. The first turret accepts Square shapes with supported passive modulators."));
+			return;
+		}
 		page.AddChild(TuningText("Four gates protect the elevated base. Enemies can breach them or pile over the walls."));
 		AddTuningNumber(page, "Maximum gate health", 1, 20000, 1, () => HillMapSettings!.GateMaxHealth, v =>
 		{

@@ -120,6 +120,7 @@ public partial class ValidateGpuCrowdRuntime : Node
     private async Task<FpsVerticalSlice> CreateMap(int? capacity = null)
     {
         FpsVerticalSlice map = _mapScene.Instantiate<FpsVerticalSlice>();
+        LegacyExpandedFortFixture.Configure(map);
         map.ProcessMode = ProcessModeEnum.Disabled;
         map.HordeSettings = (FpsHordeSettings)map.HordeSettings!.Duplicate(true);
         if (capacity.HasValue) map.HordeSettings.Capacity = capacity.Value;

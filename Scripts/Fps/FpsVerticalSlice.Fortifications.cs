@@ -6,6 +6,7 @@ namespace SuperGatchaRebuild.Fps;
 public partial class FpsVerticalSlice
 {
 	private bool UsesFortifications => IsHillMap && HillMapSettings!.FortificationsEnabled;
+	internal bool UsesSteppedStronghold => UsesFortifications && HillMapSettings!.SteppedStrongholdEnabled;
 	private float FortWallThickness => Mathf.Clamp(HillMapSettings!.FortWallThickness, 0.5f, 6f);
 	private float FortInteriorHalf => Mathf.Clamp(HillMapSettings!.RoomHalfSize, 6f, HillSummitHalf - FortWallThickness);
 	private float HillDoorHeight => Mathf.Clamp(HillMapSettings!.DoorHeight, 3f, Mathf.Max(4f, HillMapSettings.RoomWallHeight) - 0.5f);
@@ -33,6 +34,11 @@ public partial class FpsVerticalSlice
 	{
 		_fortSolids.Clear(); _fortRamps.Clear();
 		_fortSpatialIndex = null;
+		if (UsesSteppedStronghold)
+		{
+			BuildSteppedStronghold();
+			return;
+		}
 		FpsHillMapSettings settings = HillMapSettings!;
 		float inside = FortInteriorHalf, thickness = FortWallThickness, room = HillRoomHalf;
 		float outer = inside + thickness, wallHeight = Mathf.Max(4f, settings.RoomWallHeight);
@@ -121,7 +127,7 @@ public partial class FpsVerticalSlice
 		CreateArenaBlock(_arenaRoot, name, size, center, color);
 	}
 
-	private void BuildFortRamp(string name, FortRamp ramp, Color color)
+	private void BuildFortRamp(string name, FortRamp ramp, Color color, bool visible = true)
 	{
 		Vector3 Point(float along, float across, float y) => ramp.Outward * along + ramp.Across * (ramp.AcrossCenter + across) + Vector3.Up * y;
 		float half = ramp.Width * 0.5f;
@@ -136,7 +142,7 @@ public partial class FpsVerticalSlice
 		tool.GenerateNormals();
 		StaticBody3D body = new() { Name = name, CollisionLayer = 1, CollisionMask = 0 };
 		body.AddChild(new CollisionShape3D { Shape = new ConvexPolygonShape3D { Points = points } });
-		body.AddChild(new MeshInstance3D { Mesh = tool.Commit(), MaterialOverride = new StandardMaterial3D { AlbedoColor = color, Roughness = 0.85f, CullMode = BaseMaterial3D.CullModeEnum.Disabled } });
+		if (visible) body.AddChild(new MeshInstance3D { Mesh = tool.Commit(), MaterialOverride = new StandardMaterial3D { AlbedoColor = color, Roughness = 0.85f, CullMode = BaseMaterial3D.CullModeEnum.Disabled } });
 		_arenaRoot.AddChild(body);
 	}
 

@@ -36,6 +36,7 @@ public partial class FpsHordeManager : Node3D
 	public Func<Vector3, Vector3, Vector3>? ResolveMovementTarget { get; set; }
 	public Func<Vector3>? CorePosition { get; set; }
 	public Func<Vector3, Vector3>? ResolveObjectiveTarget { get; set; }
+	public Func<int, Vector3, Vector3, Vector3>? ResolveMovementTargetForSlot { get; set; }
 	public Func<Vector3>? PlayerPosition { get; set; }
 	public Func<bool>? IsPlayerAlive { get; set; }
 	public Func<Vector3, Vector3, bool>? CanAttack { get; set; }
@@ -396,6 +397,15 @@ public partial class FpsHordeManager : Node3D
 		if (!LastGpuCrowdDriveResolved) UpdateRollingMotion();
 		LastContactMilliseconds = Stopwatch.GetElapsedTime(phaseStarted).TotalMilliseconds;
 		phaseStarted = Stopwatch.GetTimestamp();
+		AttackCrowdBodies();
+		_gridDirty = true;
+		LastAttackMilliseconds = Stopwatch.GetElapsedTime(phaseStarted).TotalMilliseconds;
+		SimulationSteps++;
+		MarkRenderStateDirty();
+	}
+
+	private void AttackCrowdBodies()
+	{
 		foreach (int i in EnumerateAliveSlots())
 		{
 			if (!CombatEnabled || !Settings.Enabled) break;
@@ -426,10 +436,6 @@ public partial class FpsHordeManager : Node3D
 					e.Target, e.TargetsPlayer, e.Damage, ranged ? e.ProjectileSpeed : 0f));
 			}
 		}
-		_gridDirty = true;
-		LastAttackMilliseconds = Stopwatch.GetElapsedTime(phaseStarted).TotalMilliseconds;
-		SimulationSteps++;
-		MarkRenderStateDirty();
 	}
 
 	private void SnapshotCrowdPreviousPositions()
@@ -456,14 +462,15 @@ public partial class FpsHordeManager : Node3D
 			e.Target = e.TargetsPlayer ? player : ResolveObjectiveTarget?.Invoke(e.Position) ?? core;
 			Vector3 offset = e.Target - e.Position; offset.Y = 0;
 			float distance = offset.Length();
-			Vector3 movementTarget = ResolveMovementTarget?.Invoke(e.Position, e.Target) ?? e.Target;
+			Vector3 movementTarget = ResolveMovementTargetForSlot?.Invoke(i, e.Position, e.Target) ?? ResolveMovementTarget?.Invoke(e.Position, e.Target) ?? e.Target;
 			offset = movementTarget - e.Position; offset.Y = 0;
 			float movementDistance = offset.Length();
 			Vector3 direction = movementDistance > 0.001f ? offset / movementDistance : Vector3.Zero;
 			float contact = e.TargetsPlayer ? e.Range : e.Range + Settings.CoreContactRadius;
 			bool ranged = e.Role == FpsEnemyRole.Striker;
 			float desired = ranged ? Mathf.Max(contact, e.DesiredRange) : contact * 0.8f;
-			Vector3 steering = distance > desired ? direction : (ranged && distance < desired * 0.7f ? -direction : Vector3.Zero);
+			bool elevatedRoute = movementTarget.DistanceSquaredTo(e.Target) > .01f && movementTarget.Y > e.Position.Y + .25f;
+			Vector3 steering = elevatedRoute || distance > desired ? direction : (ranged && distance < desired * 0.7f ? -direction : Vector3.Zero);
 			// Soft body contacts provide crowd spacing. The legacy avoidance scan is only
 			// needed when contacts are disabled, avoiding a second dense-neighbor traversal.
 			if (!Settings.SoftCollisionEnabled) steering += Separation(i) * Mathf.Max(0f, Settings.SeparationStrength);

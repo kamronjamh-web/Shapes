@@ -285,13 +285,71 @@ public static partial class ShapeVisualFactory
 
     private static void BuildTriangle(Node3D root, Color tint)
     {
-        AddNeutralCelMeshWithOutline(
+        const float triangleWidth = 0.95f;
+        const float triangleHeight = 0.14f;
+        float triangleRadius = triangleWidth / Mathf.Sqrt(3f);
+        float outlineWidth = StandardCelOutlineWidth;
+
+        // PrismMesh's triangle is in XY and its extrusion is Z. Build the plate
+        // in XZ instead, matching the other 2D shapes without flattening its face.
+        AddMesh(
             root,
             "TrianglePrism",
-            new PrismMesh { LeftToRight = 0.8f, Size = new Vector3(0.95f, 0.18f, 0.95f) },
-            tint,
-            StandardCelOutlineWidth,
-            new Vector3(0f, 0f, 90f));
+            CreateTrianglePrismMesh(triangleRadius, triangleHeight),
+            CreateNeutralCelShadedMaterial());
+
+        // An equilateral triangle's inradius is half its circumradius. Expanding
+        // by twice the outline width keeps an even border along all three edges.
+        MeshInstance3D outline = AddMesh(
+            root,
+            "TrianglePrismOutline",
+            CreateTrianglePrismMesh(triangleRadius + outlineWidth * 2f, triangleHeight + outlineWidth * 2f),
+            CreateRarityOutlineShellMaterial(ResolveCelOutlineColor(tint), 0f));
+        outline.CastShadow = GeometryInstance3D.ShadowCastingSetting.Off;
+    }
+
+    private static ArrayMesh CreateTrianglePrismMesh(float radius, float height)
+    {
+        float halfWidth = radius * Mathf.Sqrt(3f) * 0.5f;
+        Vector3[] corners =
+        {
+            new(0f, 0f, -radius),
+            new(-halfWidth, 0f, radius * 0.5f),
+            new(halfWidth, 0f, radius * 0.5f),
+        };
+        Vector3[] vertices = new Vector3[24];
+        Vector3[] normals = new Vector3[24];
+        Vector3 halfHeight = Vector3.Up * (height * 0.5f);
+        int cursor = 0;
+
+        void AddTriangle(Vector3 a, Vector3 b, Vector3 c, Vector3 normal)
+        {
+            vertices[cursor] = a; normals[cursor++] = normal;
+            vertices[cursor] = b; normals[cursor++] = normal;
+            vertices[cursor] = c; normals[cursor++] = normal;
+        }
+
+        // Godot uses clockwise front faces; duplicate the corners per face for
+        // flat normals on both triangular caps and each rectangular side.
+        AddTriangle(corners[0] + halfHeight, corners[2] + halfHeight, corners[1] + halfHeight, Vector3.Up);
+        AddTriangle(corners[0] - halfHeight, corners[1] - halfHeight, corners[2] - halfHeight, Vector3.Down);
+        for (int index = 0; index < corners.Length; index++)
+        {
+            Vector3 a = corners[index];
+            Vector3 b = corners[(index + 1) % corners.Length];
+            Vector3 edge = b - a;
+            Vector3 normal = new Vector3(-edge.Z, 0f, edge.X).Normalized();
+            AddTriangle(a - halfHeight, a + halfHeight, b + halfHeight, normal);
+            AddTriangle(a - halfHeight, b + halfHeight, b - halfHeight, normal);
+        }
+
+        Godot.Collections.Array arrays = new();
+        arrays.Resize((int)Mesh.ArrayType.Max);
+        arrays[(int)Mesh.ArrayType.Vertex] = vertices;
+        arrays[(int)Mesh.ArrayType.Normal] = normals;
+        ArrayMesh mesh = new();
+        mesh.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, arrays);
+        return mesh;
     }
 
     private static void BuildHexagon(Node3D root, Color tint)

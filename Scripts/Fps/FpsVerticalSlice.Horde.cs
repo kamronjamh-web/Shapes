@@ -30,6 +30,7 @@ public partial class FpsVerticalSlice
 		HordeManager.ResolveMovementTarget = ResolveHordeMovementTarget;
 		HordeManager.CorePosition = () => _defenseCore?.GlobalPosition ?? Vector3.Zero;
 		HordeManager.ResolveObjectiveTarget = ResolveHordeObjective;
+		HordeManager.ResolveMovementTargetForSlot = ResolveHordeMovementTargetForSlot;
 		HordeManager.PlayerPosition = () => _player.HeadPosition;
 		HordeManager.IsPlayerAlive = () => _player.IsAlive;
 		HordeManager.CanAttack = (from, to) =>

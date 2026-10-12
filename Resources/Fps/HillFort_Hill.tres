@@ -17,4 +17,5 @@ EastDoorEnabled = true
 SouthDoorEnabled = true
 WestDoorEnabled = true
 FortificationsEnabled = true
+SteppedStrongholdEnabled = true
 GateMaxHealth = 1000.0

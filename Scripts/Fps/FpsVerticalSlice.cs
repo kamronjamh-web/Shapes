@@ -102,7 +102,8 @@ public partial class FpsVerticalSlice : Node3D
 
 		if (IsDefenseMap)
 		{
-			string controls = UsesFortifications ? "Defend four gates. Ramps beside each gate lead to the wall walk. F: shop. N: start wave. `: live tuning."
+			string controls = UsesSteppedStronghold ? "Defend the raised core. F: shop on the northeast terrace / shape turrets. N: start wave. `: live tuning."
+				: UsesFortifications ? "Defend four gates. Ramps beside each gate lead to the wall walk. F: shop. N: start wave. `: live tuning."
 				: IsHillMap ? "Defend the summit room. F: shop. N: start wave. Q/E: shapes. `: live gameplay tuning and crowd tests." : "Defend the core from the north lane. F: shop. N: start wave. Q/E: shapes. `: gameplay tuning.";
 			if (_recoveredModulators.Count > 0) controls += $" {_recoveredModulators.Count} incompatible parts are available for installation on another shape at the shop.";
 			ShowNotice(controls, 7f);
@@ -1116,7 +1117,7 @@ public partial class FpsVerticalSlice : Node3D
 		StretchToFullRect(hudRoot);
 		_hudLayer.AddChild(hudRoot);
 
-		_objectiveLabel = CreateHudLabel("Objective: clear the breach room", 24, new Vector2(28f, 22f), 620f);
+		_objectiveLabel = CreateHudLabel(IsDefenseMap ? "Objective: defend the core" : "Objective: clear the breach room", 24, new Vector2(28f, 22f), 620f);
 		hudRoot.AddChild(_objectiveLabel);
 
 		_statusLabel = CreateHudLabel(string.Empty, 21, new Vector2(1280f, 22f), 240f, HorizontalAlignment.Right);

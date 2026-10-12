@@ -1,0 +1,48 @@
+STEPPED STRONGHOLD SQUARE TURRETS
+
+The stronghold field shop manages four fixed balcony mounts. Every shop restock
+includes a Square shape, so the first defense does not depend on a shape drop.
+Defaults: unlock 20 coins, repair 10 coins, 250 mount HP, 100 m base range,
+0.35 s acquisition interval. These controls, muzzle height and model scale are
+exported on FpsVerticalSlice. Upgrade uses the existing shape upgrade price.
+
+Buy a spare Square, install compatible parts in Tab, then use the shop's mount
+button. The exact run-owned shape and its installed part references leave player
+storage and enter the mount; no item is cloned. At least one player shape remains
+equipped. A return needs free shape storage and preserves all installed parts.
+To edit mounted parts, return the shape first. A disabled turret keeps its shape
+and can be repaired through the shop. Live fort rebuilds preserve equipment and
+wounded mount health. Paused/victory presentation updates without advancing fire
+or damage. Disabling the stepped layout hides turrets and clears their bullets,
+while retaining mounted equipment for reenabling the layout.
+
+The prototype deliberately accepts only Square and installed passive damage,
+cooldown, area, range, projectile speed, critical chance/damage, projectile count
+and piercing effects. Unsupported installed effects, including Wings, transforms,
+on-fire/on-hit procs, healing and player movement effects, block mounting with a
+specific reason. Player-only base substats do not affect a mount. Shapes with a
+player-only intrinsic substat are still usable as Square turrets.
+
+Each mount has independent HP, cooldown, fractional output/pierce carry and target
+state. Bullets are independent from the player weapon effect lists, carry their
+source item, and apply directional damage without player lifesteal or player
+proc/Wing scheduling. The prototype caps eight bullets per volley, nine piercing
+hits per bullet and 96 live turret bullets across all mounts. Physical world
+obstacles and real enemy capsules stop/intercept those bullets.
+
+Targets stay in the mount's cardinal sector. Priorities select nearby or toughest
+visible candidates. Acquisition rotates through local spatial cells with a limit
+of 2,048 cells, 512 visited records, 128 returned candidates and twelve candidate
+visibility rays per refresh. Dense cells use a bounded sample; this does not
+guarantee the globally nearest/strongest enemy. Contact damage separately samples
+up to 128 records/32 candidates within 4 m and checks actual head distance, dealing
+8 HP/second per qualifying enemy. This is a proximity defense prototype, not yet
+a collider/objective integrated into the horde's melee/projectile target solver.
+
+RunFortTurretValidation.ps1 validates the actual shop purchase/unlock, exact item
+ownership, supported/unsupported installation policy, independent moving bullets,
+player effect reset isolation, layout toggles, rebuild survival, disable/repair,
+capacity-blocked returns and paused presentation. Current results: 28 headless
+checks, 30 native checks including mounted-model and scrolled-shop screenshots.
+This is functional evidence with a controlled target, not a large-horde combat
+benchmark or exhaustive balance validation of every modulator combination.

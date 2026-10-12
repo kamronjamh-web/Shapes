@@ -12,6 +12,7 @@ public partial class FpsVerticalSlice
 	private static readonly string[] GateSideNames = { "N", "E", "S", "W" };
 	private string DefenseGateStatus()
 	{
+		if (UsesSteppedStronghold) return "STRONGHOLD / FOUR OPEN APPROACHES";
 		string status = "GATES";
 		foreach (var gate in _defenseGates)
 			status += $"   {GateSideNames[gate.SideIndex]}: {(gate.IsAlive ? Mathf.CeilToInt(gate.CurrentHealth).ToString() : "BREACHED")}";
@@ -20,7 +21,7 @@ public partial class FpsVerticalSlice
 
 	private void RebuildDefenseGates()
 	{
-		if (!UsesFortifications)
+		if (!UsesFortifications || UsesSteppedStronghold)
 		{
 			foreach (var gate in _defenseGates) { gate.CollisionLayer = 0; gate.QueueFree(); }
 			_defenseGates.Clear();
@@ -80,8 +81,50 @@ public partial class FpsVerticalSlice
 		return gate?.IsAlive == true ? GateTarget(gate) : _defenseCore?.GlobalPosition ?? Vector3.Zero;
 	}
 
+	// Integer arithmetic is mirrored in crowd_drive.glslinc: slot identity preserves
+	// a broad lane as the body moves, unlike deriving lanes from current position.
+	internal static float StrongholdLane(int slot)
+	{
+		uint hash = unchecked((uint)slot * 747796405u + 2891336453u);
+		hash = ((hash >> (int)((hash >> 28) + 4u)) ^ hash) * 277803737u;
+		hash = (hash >> 22) ^ hash;
+		return ((hash & 65535u) / 65535f * 2f - 1f) * 10f;
+	}
+
+	private Vector3 ResolveHordeMovementTargetForSlot(int slot, Vector3 from, Vector3 target)
+		=> UsesSteppedStronghold ? StrongholdMovementTarget(from, target, slot, HillHeight) : ResolveHordeMovementTarget(from, target);
+
+	internal static Vector3 StrongholdMovementTarget(Vector3 from, Vector3 target, int slot, float baseHeight)
+	{
+		// A player already on this tier is directly reachable. Targets beyond the
+		// fort keep their ordinary pursuit; raised interior targets use the ramps.
+		float targetRadius = Mathf.Max(Mathf.Abs(target.X), Mathf.Abs(target.Z));
+		float radius = Mathf.Max(Mathf.Abs(from.X), Mathf.Abs(from.Z));
+		if (targetRadius >= 98f || (radius < 14f && from.Y >= baseHeight + 5.8f)) return target;
+		if (targetRadius >= 15f && from.Y >= target.Y - .2f && radius < 60f) return target;
+		Vector3 outward = Mathf.Abs(from.X) > Mathf.Abs(from.Z)
+			? new Vector3(from.X >= 0f ? 1f : -1f, 0f, 0f)
+			: new Vector3(0f, 0f, from.Z >= 0f ? 1f : -1f);
+		Vector3 across = new(-outward.Z, 0f, outward.X);
+		float lane = StrongholdLane(slot), lateral = from.Dot(across), radial = from.Dot(outward);
+		float stage, elevation;
+		if (radial > 99f && Mathf.Abs(lateral) > 11f) { stage = 104f; elevation = baseHeight; }
+		else if (radial > 79f || (radial > 60f && Mathf.Abs(lateral) > 11f))
+		{
+			stage = Mathf.Abs(lateral - lane) > .75f ? 80f : 60f;
+			elevation = stage == 80f ? baseHeight : baseHeight + 3f;
+		}
+		else if (radial > 48f) { stage = Mathf.Abs(lateral) > 11f ? 50f : 47f; elevation = baseHeight + 3f; }
+		else if (radial > 33f || (radial > 14f && Mathf.Abs(lateral) > 11f))
+		{ stage = Mathf.Abs(lateral - lane) > .75f ? 34f : 14f; elevation = stage == 34f ? baseHeight + 3f : baseHeight + 6f; }
+		else if (radial > 14f) { stage = 14f; elevation = baseHeight + 6f; }
+		else return target;
+		return outward * stage + across * lane + Vector3.Up * elevation;
+	}
+
 	private Vector3 ResolveFortMovementTarget(Vector3 from, Vector3 target)
 	{
+		if (UsesSteppedStronghold) return StrongholdMovementTarget(from, target, 0, HillHeight);
 		FpsDefenseGate? gate = ApproachGate(from);
 		if (gate == null || Mathf.Abs(target.X) >= FortInteriorHalf || Mathf.Abs(target.Z) >= FortInteriorHalf) return target;
 		Vector3 outward = HillOutward(gate.SideIndex), across = new(-outward.Z, 0, outward.X);

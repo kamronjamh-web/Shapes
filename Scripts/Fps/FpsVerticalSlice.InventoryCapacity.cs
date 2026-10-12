@@ -24,6 +24,8 @@ public partial class FpsVerticalSlice
 
     private bool IsInventoryPartInstalled(WeaponModulatorData part)
     {
+        foreach (FortTurret turret in _fortTurrets)
+            if (turret.Weapon?.Modulators.Exists(candidate => ReferenceEquals(candidate, part)) == true) return true;
         foreach (EquipmentItem shape in GetInventoryShapes())
             if (shape.Modulators.Exists(candidate => ReferenceEquals(candidate, part))) return true;
         return false;
@@ -34,7 +36,7 @@ public partial class FpsVerticalSlice
         reason = string.Empty;
         if (shape?.Shape == null || shape.Rarity == null)
             reason = "This shape is unavailable.";
-        else if (_arsenal.Contains(shape) || _reserveShapes.Contains(shape))
+        else if (_arsenal.Contains(shape) || _reserveShapes.Contains(shape) || Array.Exists(_fortTurrets, turret => ReferenceEquals(turret.Weapon, shape)))
             reason = "This shape is already in your inventory.";
         else if (_arsenal.Count < EquippedShapeCapacity && CanSwapReserveShape(shape, _arsenal.Count, out reason))
             _arsenal.Add(shape);

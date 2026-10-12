@@ -1,0 +1,6 @@
+C:\Projects\Shapes\Tools\Art\CreateSteppedStronghold.py:34: DeprecationWarning: 'Material.use_nodes' is expected to be removed in Blender 6.0
+  result.use_nodes = True
+C:\Projects\Shapes\Tools\Art\CreateSteppedStronghold.py:341: DeprecationWarning: 'World.use_nodes' is expected to be removed in Blender 6.0
+  scene.world.use_nodes = True
+Info: Saved as "SteppedStronghold.blend"
+Info: Saved as "SteppedStronghold.blend"

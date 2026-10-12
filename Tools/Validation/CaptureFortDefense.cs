@@ -23,6 +23,7 @@ public partial class CaptureFortDefense : Node
 			if (!OS.GetUserDataDir().Replace('\\', '/').Contains("/.tmp/fort-defense-capture/")) throw new InvalidOperationException("Fort capture requires isolated save data.");
 			if (DisplayServer.GetName() == "headless") throw new InvalidOperationException("Fort capture requires a rendered display.");
 			_map = GD.Load<PackedScene>("res://Scenes/Fps/NorthGate.tscn").Instantiate<FpsVerticalSlice>();
+			LegacyExpandedFortFixture.Configure(_map);
 			AddChild(_map); await Frames(4);
 			_map.SetPhysicsProcess(false);
 			_map.DebugPlayerInvulnerable = true; _map.DebugCoreInvulnerable = true;

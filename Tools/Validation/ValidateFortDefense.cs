@@ -21,6 +21,7 @@ public partial class ValidateFortDefense : Node
 		{
 			Check(OS.GetUserDataDir().Replace('\\', '/').Contains("/.tmp/fort-defense-validation/"), "Fort validation isolates normal save data");
 			_map = GD.Load<PackedScene>("res://Scenes/Fps/NorthGate.tscn").Instantiate<FpsVerticalSlice>();
+			LegacyExpandedFortFixture.Configure(_map);
 			AddChild(_map); await Frames(4);
 			_map.SetPhysicsProcess(false);
 			_map.DebugPlayerInvulnerable = true;

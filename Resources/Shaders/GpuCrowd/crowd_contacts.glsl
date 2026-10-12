@@ -4,6 +4,7 @@
 
 // One Jacobi contact pass, with optional fort drive/world and rolling phases.
 // Reimport this resource after editing included GLSL files.
+// Stronghold broad ramp stages preserve ordinary final-target range behavior.
 // Rolling completion accounts for world-coordinate float precision (two ULPs).
 layout(local_size_x = 64, local_size_y = 1, local_size_z = 1) in;
 struct Body { vec4 position_radius; vec4 previous_height; vec4 drive_pressure; vec4 world_velocity_alive; };

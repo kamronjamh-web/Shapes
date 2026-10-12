@@ -8,7 +8,9 @@ public partial class FpsVerticalSlice
 {
     internal bool HasGpuCrowdDriveCallbacks(FpsHordeManager crowd)
         => crowd.ResolveObjectiveTarget == (Func<Vector3, Vector3>)ResolveHordeObjective
-            && crowd.ResolveMovementTarget == (Func<Vector3, Vector3, Vector3>)ResolveHordeMovementTarget;
+            && crowd.ResolveMovementTarget == (Func<Vector3, Vector3, Vector3>)ResolveHordeMovementTarget
+            && ((!UsesSteppedStronghold && crowd.ResolveMovementTargetForSlot == null)
+                || crowd.ResolveMovementTargetForSlot == (Func<int, Vector3, Vector3, Vector3>)ResolveHordeMovementTargetForSlot);
 
     internal GpuCrowdDriveGlobals CaptureGpuCrowdDriveGlobals(FpsHordeSettings settings,
         Vector3 core, Vector3 player, bool playerAlive, float managerExtent)
@@ -21,6 +23,6 @@ public partial class FpsVerticalSlice
             Rolling = new Vector4(Mathf.Clamp(settings.RollingPauseSeconds, 0f, .3f),
                 Mathf.Clamp(settings.RollingDurationSeconds, 0f, 1f), Mathf.Clamp(settings.Gravity, 1f, 40f), settings.RollingEnabled ? 1f : 0f),
             Fort = new Vector4(FortInteriorHalf, HillRoomHalf, HillMapSettings!.RoomWallHeight, HillHeight),
-            Bounds = new Vector4(managerExtent * .5f, 0f, 0f, 0f),
+            Bounds = new Vector4(managerExtent * .5f, UsesSteppedStronghold ? 1f : 0f, 0f, 0f),
         };
 }

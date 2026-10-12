@@ -5,12 +5,17 @@ namespace SuperGatchaRebuild.Fps;
 public partial class FpsHillMapSettings
 {
 	private bool _fortificationsEnabled;
+	private bool _steppedStrongholdEnabled;
 	private float _gateMaxHealth = 1000f;
 	private float _fortWallThickness = 2f, _fortWallWalkWidth = 3f;
 	private float _fortPlatformWidth = 8f, _fortPlatformDepth = 6f, _fortDeckThickness = 0.4f;
 	private float _fortAccessRampWidth = 3f, _fortAccessRampRun = 18.288f, _fortRailHeight = 0.9f;
 	[ExportGroup("Fortifications")]
 	[Export] public bool FortificationsEnabled { get => _fortificationsEnabled; set => Change(ref _fortificationsEnabled, value); }
+	/// <summary>Use the approved Blender fort with fixed 200m courtyard, 24m open lanes,
+	/// 122m middle terrace and 30m fallback. Room/gate/walk/ramp dimensions below
+	/// tune the legacy fort only; SummitHeight shifts the authored fort vertically.</summary>
+	[Export] public bool SteppedStrongholdEnabled { get => _steppedStrongholdEnabled; set => Change(ref _steppedStrongholdEnabled, value); }
 	[Export(PropertyHint.Range, "1,20000,1")] public float GateMaxHealth { get => _gateMaxHealth; set => Change(ref _gateMaxHealth, value); }
 	[Export(PropertyHint.Range, "0.5,6,0.1")] public float FortWallThickness { get => _fortWallThickness; set => Change(ref _fortWallThickness, value); }
 	[Export(PropertyHint.Range, "2,8,0.1")] public float FortWallWalkWidth { get => _fortWallWalkWidth; set => Change(ref _fortWallWalkWidth, value); }

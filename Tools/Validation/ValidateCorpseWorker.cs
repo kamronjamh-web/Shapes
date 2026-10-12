@@ -162,6 +162,7 @@ public partial class ValidateCorpseWorker : Node
     private async Task ValidateFortWorld()
     {
         _map = GD.Load<PackedScene>("res://Scenes/Fps/NorthGate.tscn").Instantiate<FpsVerticalSlice>();
+        LegacyExpandedFortFixture.Configure(_map);
         _map.HordeSettings!.GpuCrowdContactsEnabled = false; _map.HordeSettings.Enabled = false;
         AddChild(_map); await Frame(); _map.SetPhysicsProcess(false);
         _map.HordeManager!.SetProcess(false);

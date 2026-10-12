@@ -112,15 +112,15 @@ public partial class FpsVerticalSlice
 	}
 
 	private Vector3 ResolveDefenseGroundPosition(Vector3 position) => IsHillMap
-		? new Vector3(position.X, SampleHillSurfaceHeight(position), position.Z)
+		? new Vector3(position.X, SampleDefenseAnchorHeight(position), position.Z)
 		: position;
 
-	private float HillPlayableHalf => Mathf.Max(50f, (HillMapSettings?.PlayableSize ?? 200f) * 0.5f);
-	private float HillSummitHalf => Mathf.Clamp(HillMapSettings?.SummitHalfSize ?? 16f, 8f, HillPlayableHalf - 12f);
+	private float HillPlayableHalf => Mathf.Max(UsesSteppedStronghold ? 124f : 50f, (HillMapSettings?.PlayableSize ?? 200f) * 0.5f);
+	private float HillSummitHalf => UsesSteppedStronghold ? 102f : Mathf.Clamp(HillMapSettings?.SummitHalfSize ?? 16f, 8f, HillPlayableHalf - 12f);
 	private float HillFootHalf => Mathf.Clamp(HillMapSettings?.HillFootHalfSize ?? 65f, HillSummitHalf + 8f, HillPlayableHalf - 4f);
 	private float HillHeight => Mathf.Max(1f, HillMapSettings?.SummitHeight ?? 8f);
-	private float HillRoomHalf => UsesFortifications ? FortInteriorHalf + FortWallThickness * 0.5f : Mathf.Clamp(HillMapSettings?.RoomHalfSize ?? 12f, 6f, HillSummitHalf - 2f);
-	private float HillDoorWidth => Mathf.Clamp(HillMapSettings?.DoorWidth ?? 8f, 4f, HillRoomHalf * 2f - 3f);
+	private float HillRoomHalf => UsesSteppedStronghold ? 100f : UsesFortifications ? FortInteriorHalf + FortWallThickness * 0.5f : Mathf.Clamp(HillMapSettings?.RoomHalfSize ?? 12f, 6f, HillSummitHalf - 2f);
+	private float HillDoorWidth => UsesSteppedStronghold ? 24f : Mathf.Clamp(HillMapSettings?.DoorWidth ?? 8f, 4f, HillRoomHalf * 2f - 3f);
 
 	/// <summary>Terrain height at world X/Z; matches the flat top and planar hill faces.</summary>
 	public float SampleHillSurfaceHeight(Vector3 position)

@@ -24,6 +24,7 @@ public partial class ValidateFortSpatialIndex : Node
             Check(OS.GetUserDataDir().Replace('\\', '/').Contains("/.tmp/fort-spatial-index-validation/"), "Save data is isolated");
             FpsHillMapSettings cached = GD.Load<FpsHillMapSettings>("res://Resources/Fps/HillFort_Hill.tres");
             _map = GD.Load<PackedScene>("res://Scenes/Fps/NorthGate.tscn").Instantiate<FpsVerticalSlice>();
+            LegacyExpandedFortFixture.Configure(_map);
             _map.ProcessMode = ProcessModeEnum.Disabled;
             AddChild(_map);
             Check(!ReferenceEquals(cached, _map.HillMapSettings), "Live geometry settings are separate from cached defaults");

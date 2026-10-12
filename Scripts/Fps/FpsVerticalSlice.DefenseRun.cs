@@ -99,7 +99,7 @@ public partial class FpsVerticalSlice
 		}
 		if (_defenseHud != null && _defenseCore != null)
 		{
-			string shop = _victory ? "Final reward / workshop available on the results screen" : IsDefenseShopAvailable ? (IsNearDefenseShop() ? "F: open field shop" : UsesFortifications ? "Shop available near the central core" : IsHillMap ? "Shop available inside the summit room" : "Field shop available in the west bay") : "Shop returns after more kills";
+			string shop = _victory ? "Final reward / workshop available on the results screen" : IsDefenseShopAvailable ? (IsNearDefenseShop() ? "F: open field shop" : UsesSteppedStronghold ? "Shop available on the northeast middle terrace" : UsesFortifications ? "Shop available near the central core" : IsHillMap ? "Shop available inside the summit room" : "Field shop available in the west bay") : "Shop returns after more kills";
 			string gates = UsesFortifications ? $"\n{DefenseGateStatus()}" : string.Empty;
 			_defenseHud.Text = $"CORE {Mathf.CeilToInt(_defenseCore.CurrentHealth)}/{Mathf.CeilToInt(_defenseCore.MaxHealth)}   |   COINS {_defenseCoins}\n{shop}{(_waitingForNextWave && !_victory ? "   |   N: start next wave" : string.Empty)}{gates}";
 		}
@@ -191,6 +191,11 @@ public partial class FpsVerticalSlice
 		_shopStock.Clear();
 		_shopShapes.Clear();
 		List<ShapeData> shapes = EquipmentCatalogDefaults.CreateDefaultShapes();
+		if (UsesSteppedStronghold)
+		{
+			ShapeData? square = shapes.Find(shape => shape.AttackType == WeaponAttackType.Single);
+			if (square != null) { _shopShapes.Add(CreateDefenseShapeWeapon(square)); shapes.Remove(square); }
+		}
 		for (int offer = 0; offer < 3 && shapes.Count > 0; offer++)
 		{
 			ShapeData shape = WeightedRandom.Pick(shapes, candidate => candidate.Weight, _defenseRng);
@@ -287,6 +292,7 @@ public partial class FpsVerticalSlice
 					int activeIndex = _arsenal.IndexOf(shapeWeapon); if (activeIndex >= 0) EquipWeapon(activeIndex, false);
 					RebuildDefenseShopMenu();
 				});
+		BuildFortTurretShop();
 		AddShopLabel("SHOP MODULATORS", 18);
 		foreach (WeaponModulatorData part in _shopStock)
 			AddDefenseModulatorOffer(part, true);

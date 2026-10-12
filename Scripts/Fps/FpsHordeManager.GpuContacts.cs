@@ -27,6 +27,7 @@ public partial class FpsHordeManager
     private bool _gpuDrivePlayerAlive;
     private Func<Vector3, Vector3>? _gpuKnownObjective;
     private Func<Vector3, Vector3, Vector3>? _gpuKnownRoute;
+    private Func<int, Vector3, Vector3, Vector3>? _gpuKnownSlotRoute;
     private bool _gpuKnownDriveSupported;
     internal bool GpuCrowdFullDriveEnabled { get; set; } = true;
     internal bool LastGpuCrowdDriveResolved { get; private set; }
@@ -120,10 +121,12 @@ public partial class FpsHordeManager
                 && provider.GetInvocationList().Length == 1;
         }
         if (!_gpuKnownMovementSupported) return false;
-        if (worldChanged || !ReferenceEquals(_gpuKnownObjective, ResolveObjectiveTarget) || !ReferenceEquals(_gpuKnownRoute, ResolveMovementTarget))
+        if (worldChanged || !ReferenceEquals(_gpuKnownObjective, ResolveObjectiveTarget) || !ReferenceEquals(_gpuKnownRoute, ResolveMovementTarget)
+            || !ReferenceEquals(_gpuKnownSlotRoute, ResolveMovementTargetForSlot))
         {
             _gpuKnownObjective = ResolveObjectiveTarget;
             _gpuKnownRoute = ResolveMovementTarget;
+            _gpuKnownSlotRoute = ResolveMovementTargetForSlot;
             _gpuKnownDriveSupported = ((FpsVerticalSlice)resolver!.Target!).HasGpuCrowdDriveCallbacks(this);
         }
         _gpuContactPreparationAttempted = true;

@@ -208,6 +208,7 @@ public partial class FpsVerticalSlice
 		UpdateWeaponPolishState();
 		CorpsePool?.Tick((float)delta, !_pauseRequested);
 		TickGroundLootPhysics((float)delta);
+		RefreshFortTurretVisuals();
 		if (!IsCombatRunning())
 		{
 			return;
@@ -216,6 +217,7 @@ public partial class FpsVerticalSlice
 		float dt = (float)delta;
 		_weaponPolish?.BeginFrame(dt, _player.HeadPosition);
 		HordeManager?.TickSimulation(dt);
+		TickFortTurrets(dt);
 		TickFpsModulatorPassives(dt);
 		TickPlayerProjectiles(dt);
 		TickMines(dt);
@@ -234,6 +236,7 @@ public partial class FpsVerticalSlice
 
 	private void BuildWeaponArsenal()
 	{
+		ResetFortTurrets();
 		_weaponRng.Randomize();
 		_arsenal.Clear();
 		_reserveShapes.Clear();

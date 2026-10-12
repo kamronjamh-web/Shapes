@@ -1,0 +1,111 @@
+STEPPED STRONGHOLD - LIVE BLENDER FORT AND TURRET PROTOTYPE
+
+Direction selected by the user, 2026-10-10: a stepped stronghold with broad
+terraces and firing balconies. Editable source and review renders live in
+Art/FortConcepts/SteppedStronghold. NorthGate now loads the actual exported
+Blender architecture from Resources/Forts/SteppedStronghold. The editable source
+remains intact. Export with Tools/Art/ExportSteppedStrongholdRuntime.py.
+
+LIVE DEFENSES
+The field shop on the northeast middle terrace offers four turret mounts, one
+per cardinal balcony. Buy a Square (one is guaranteed in each shop restock),
+unlock a mount for 20 coins, and transfer an owned Square into it. Installed
+modulators stay on the exact item. The player must retain one equipped shape.
+Mounting frees an inventory slot; returning requires room in the five active
+plus two reserve shape inventory. Full storage leaves equipment mounted.
+
+This first turret supports Square projectiles and passive damage, cadence,
+range, size, projectile speed, critical-hit, extra-projectile and pierce effects.
+Unsupported installed effects explicitly block mounting; remove them in Tab
+before mounting. Player-only base substats do not transfer to a turret. Triangle,
+Circle and other shape turret interpretations remain future work.
+
+Each mount covers its cardinal sector and can prioritize nearby targets or
+tougher nearby targets. It has 250 HP; nearby enemies can disable it while its
+equipment stays mounted. Repair costs 10 coins. Mounted shape upgrades use the
+existing 40-coin price and level cap. Bullets cannot heal the player, trigger
+Wings or use player-specific on-hit/on-fire effect state.
+
+Target acquisition is staggered and uses bounded spatial sampling, capped
+candidate and visibility checks, and a rotating cell cursor. Priorities apply
+to observed candidates, not a global search of all 50k enemies. At most96 turret
+bullets exist. This bounds work but does not establish a new FPS benchmark.
+
+LAYOUT
+Retain the 200 x 200 m courtyard footprint at world elevation 8 m. Four cardinal
+approaches have 24 m clear openings. An intermediate square terrace is 122 m wide
+overall, with a connected 12 m circulation ring at elevation 11 m. A 30 x 30 m
+central fallback/core platform stands at elevation 14 m. Cardinal ramps rise
+3 m over 18 m, with 24 m clear width. The horde can reach every objective tier.
+
+The outer balconies reward early outward fire. The middle ring lets the player
+change sectors and cover a breached front. The central platform creates a final
+fallback with broad incoming ramps. Different sector landmarks aid orientation
+without turning the approaches into narrow enemy queues.
+
+DEFENSE UPGRADE CONCEPT
+Four 5 x 5 m turret hardpoints sit on the outer firing balconies, one per front.
+Their blockout sockets illustrate an owned shape determining the attack and
+installed modulators specializing it. The shown cartridge/socket count is a
+placeholder, not a change to item socket rules. Flush placement reserves show
+space for slow strips and barricades, with a repair pocket off the central routes.
+Turret equipment placeholders are excluded from the export and replaced with
+working mounts. Slow strips, barricades, repair-pocket props, shields and blast
+plates remain design placeholders; the existing shop still repairs the core.
+
+Longer-term turret direction:
+- Unlock mounts through the run shop, with four active mounts as the ceiling.
+- Transfer an owned run shape and its installed modulators into the mount without
+  duplicating equipment; keep at least one player weapon equipped.
+- Let the player designate a sector or priority target. Turrets support the
+  player's attack rather than autonomously resolving an entire front.
+- Preserve mounted equipment when a turret is disabled. Returning it requires
+  storage room, or an explicit ground drop following the existing loot rules.
+- Start with Square projectiles; add Triangle beam and Circle saw behavior next.
+  Each remaining shape needs an explicit stationary-defense interpretation.
+
+Other defenses worth testing, in order:
+1. Repair/reinforcement: make spending on holding a front compete with upgrading
+   the player's weapon. Existing core repair can support the central station.
+2. Short repairable barricades: create cover and retreat time, while keeping
+   broad lanes instead of forcing every enemy into one tight gate.
+3. Broad slow strips: create useful firing windows for player weapons/turrets,
+   with modest slowing that keeps the horde moving.
+4. Directional shield emitters: temporary protection for a chosen firing position.
+5. Player-triggered blast plates: optional deliberate explosions driven by the
+   player's shot or command, consistent with the player/weapon chain-reaction goal.
+
+IMPLEMENTATION FINDINGS
+The existing attack dispatcher accepts a weapon, origin and direction, but is not
+safe to reuse wholesale for turrets: several attacks center/follow the player,
+lifesteal heals the player, firing can trigger Wings, and inventory swaps clear
+shared projectile/effect lists. First introduce explicit shooter context and
+separate effect ownership, then enable attack families deliberately. Target
+acquisition must use spatial candidates and staggered updates, not scan 50k enemies
+for each turret every frame. Start with at most four active turret mounts.
+
+Current GPU fort snapshots and spatial masks support 64 solids and 64 ramps.
+The live architecture uses39 simple box proxies and16 cardinal-ramp proxies;
+decorative trim and upgrade placeholders do not add collision. CollisionProxies.tres
+packages the authoritative data for player physics, CPU crowd support, GPU world
+snapshots and corpse worker collision. Decreasing-coordinate inward ramps reverse
+their longitudinal axis to retain increasing-height CPU/GPU ramp contracts.
+
+Four24m entrances remain open without gate barriers. Stable per-slot lateral
+targets distribute approaches across the ramp width. CPU and GPU steering use
+matching stages through the outer ramp, middle link, inner ramp and raised core.
+Player/core/shop anchors now use platform-aware grounding. Legacy compact and
+gated-fort fixtures explicitly preserve their former geometry for regression tests.
+
+The default defense resource currently provides one 100-enemy wave. Its expected
+spare shape drops are below one item per wave, so turret availability should use
+the existing shape shop rather than require a lucky drop. Longer upgrade progression
+will need additional waves and a measured economy pass.
+
+The Blender source was reopened and checked for finite geometry and proxy counts.
+The integrated map is playable; sustained50k combat and older-GPU FPS still need
+measurement. RunSteppedStrongholdValidation.ps1 covers actual physics walkability,
+shared supports, native CPU/GPU crowd routes, rebuild preservation and screenshots.
+RunFortTurretValidation.ps1 covers shop purchase/unlock, exact equipment ownership,
+projectile damage, repair and inventory capacity. Existing gated-fort regressions
+use LegacyExpandedFortFixture instead of depending on the new default map.
